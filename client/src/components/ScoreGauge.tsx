@@ -13,6 +13,19 @@ export const SCORE_COLORS = {
   ROSE: '#e11d48',    // <50
 } as const;
 
+export const getScoreBadgeClasses = (score: number): string => {
+  if (score >= SCORE_THRESHOLDS.EXCELLENT) {
+    return 'bg-emerald-50 text-emerald-700 border-emerald-200 ring-1 ring-emerald-500/20';
+  }
+  if (score >= SCORE_THRESHOLDS.GOOD) {
+    return 'bg-indigo-50 text-indigo-700 border-indigo-200 ring-1 ring-indigo-500/20';
+  }
+  if (score >= SCORE_THRESHOLDS.FAIR) {
+    return 'bg-amber-50 text-amber-700 border-amber-200 ring-1 ring-amber-500/20';
+  }
+  return 'bg-rose-50 text-rose-700 border-rose-200 ring-1 ring-rose-500/20';
+};
+
 export interface ScoreGaugeProps {
   score: number;
   label: string;
