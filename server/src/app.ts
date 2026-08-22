@@ -19,12 +19,30 @@ app.use(
   })
 );
 
-// 2. Strict CORS Configuration - locked strictly to CLIENT_URL (no wildcard)
+// 2. Multi-Environment CORS Configuration
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (e.g. mobile apps, curl, automated test suites) or strictly matching CLIENT_URL
-      if (!origin || origin === env.CLIENT_URL) {
+      // Allow requests with no origin (e.g. mobile apps, curl, automated test suites)
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      const allowedExactOrigins = [
+        env.CLIENT_URL,
+        'http://localhost:5173',
+        'http://localhost:3000',
+        'http://127.0.0.1:5173',
+        'http://127.0.0.1:3000',
+      ].filter(Boolean);
+
+      // Check for exact matches or authorized Vercel deployments
+      const isExactMatch = allowedExactOrigins.includes(origin);
+      const isAllowedVercel =
+        origin.endsWith('.vercel.app') &&
+        (origin.includes('ai-resume-analyzer') || origin.includes('sanjay-codes'));
+
+      if (isExactMatch || isAllowedVercel || env.NODE_ENV !== 'production') {
         callback(null, true);
       } else {
         callback(
@@ -60,22 +78,22 @@ app.use('/api', globalLimiter);
 // 4. Cookie Parsing Middleware
 app.use(cookieParser());
 
-// 5. Body Parsing Middleware (JSON limit 1MB to prevent large payload DoS)
-app.use(express.json({ limit: '1mb' }));
-app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+// 5. Body Parsing Middleware
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// 6. Serve static uploads (for local fallback storage)
-app.use('/uploads', express.static(path.resolve(process.cwd(), 'uploads')));
+// 6. Static file serving for uploads (in development or local storage fallback)
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
-// 7. API Routes
+// 7. Mount API Routes under /api prefix
 app.use('/api', apiRouter);
 
-// 8. Handle unknown API routes
+// 8. Handle 404 for Unmatched Routes
 app.use((req: Request, _res: Response, next: NextFunction) => {
-  next(ApiError.notFound(`Cannot ${req.method} ${req.originalUrl}`, 'ROUTE_NOT_FOUND'));
+  next(ApiError.notFound(`Route not found: ${req.method} ${req.originalUrl}`));
 });
 
-// 9. Centralized Error Handling Middleware (must be registered last)
+// 9. Centralized Error Handler Middleware (MUST be last)
 app.use(errorHandler);
 
 export default app;
