@@ -12,9 +12,16 @@ export class GeminiProvider implements AIProvider {
 
   constructor() {
     const configured = env.GEMINI_MODEL || 'gemini-3.6-flash';
-    // Deduplicate candidate fallback models, prioritizing currently active free models
+    // Deduplicate candidate fallback models, prioritizing resilient active models
     this.candidateModels = Array.from(
-      new Set([configured, 'gemini-3.6-flash', 'gemini-2.0-flash', 'gemini-3.5-flash', 'gemini-3.5-flash-lite'])
+      new Set([
+        configured,
+        'gemini-3.6-flash',
+        'gemini-2.0-flash',
+        'gemini-2.0-flash-exp',
+        'gemini-1.5-pro',
+        'gemini-3.5-flash',
+      ])
     );
 
     const cleanKey = (env.AI_API_KEY || '').trim().replace(/^["']|["']$/g, '');
@@ -52,36 +59,33 @@ export class GeminiProvider implements AIProvider {
         lastError = err instanceof Error ? err : new Error(String(err));
         const errMsg = lastError.message.toLowerCase();
 
-        // If 429 quota, 404 not found, or 400 model deprecation, failover to next model
-        if (
-          errMsg.includes('429') ||
-          errMsg.includes('quota') ||
-          errMsg.includes('404') ||
-          errMsg.includes('not found') ||
-          errMsg.includes('no longer available')
-        ) {
-          console.warn(`[GeminiProvider] Model ${modelName} returned error (${lastError.message}). Attempting fallback to next model...`);
-          continue;
-        }
-
-        // For other fatal errors (e.g. invalid API key), rethrow or continue
+        // If invalid key, stop and throw immediately
         if (errMsg.includes('api key not valid') || errMsg.includes('api_key_invalid')) {
           throw ApiError.internal(
-            'Google Gemini API key is invalid or expired. Please check your AI_API_KEY in Render environment settings.',
+            'Google Gemini API key is invalid. Please verify AI_API_KEY in your Render environment settings.',
             'AI_KEY_INVALID'
           );
         }
 
-        throw lastError;
+        // For all temporary errors (503 high demand, 429 quota, 404, 500, overloaded), log and fail over to next model
+        console.warn(`[GeminiProvider] Model "${modelName}" failed (${lastError.message}). Attempting fallback to next model in chain...`);
+        continue;
       }
     }
 
-    // If all models failed
+    // If all models in the fallback chain failed
     const errorMsg = lastError ? lastError.message : 'All Gemini models unavailable';
     if (errorMsg.includes('429') || errorMsg.includes('quota')) {
       throw ApiError.badGateway(
         'Google Gemini API rate limit reached. Please wait a few seconds and try again.',
         'AI_RATE_LIMIT_EXCEEDED'
+      );
+    }
+
+    if (errorMsg.includes('503') || errorMsg.includes('high demand') || errorMsg.includes('overloaded')) {
+      throw ApiError.badGateway(
+        'Google Gemini service is temporarily overloaded across all models. Please try again in 10 seconds.',
+        'AI_SERVICE_OVERLOADED'
       );
     }
 
