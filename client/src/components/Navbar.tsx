@@ -23,7 +23,7 @@ export const Navbar: React.FC = () => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <header className="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+    <header className="bg-white/85 backdrop-blur-xl border-b border-slate-200/80 sticky top-0 z-50 shadow-xs transition-all">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           {/* Logo & Brand (Responsive sizing so it never wraps on small screens) */}
@@ -49,57 +49,72 @@ export const Navbar: React.FC = () => {
               <>
                 <Link
                   to="/dashboard"
-                  className={`text-sm font-medium px-3 py-2 rounded-lg transition-colors ${
+                  className={`relative text-sm font-semibold px-3.5 py-2 rounded-xl transition-all duration-200 ${
                     isActive('/dashboard')
-                      ? 'bg-blue-50 text-blue-700 font-semibold'
-                      : 'text-slate-700 hover:text-blue-600 hover:bg-slate-50'
+                      ? 'text-indigo-600 bg-indigo-50/90 shadow-xs ring-1 ring-indigo-200/70'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
                   }`}
                 >
                   Dashboard
+                  {isActive('/dashboard') && (
+                    <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-indigo-600 rounded-full shadow-[0_0_8px_rgba(79,70,229,0.7)]" />
+                  )}
                 </Link>
+
                 <Link
                   to="/upload"
-                  className={`text-sm font-medium px-3 py-2 rounded-lg transition-colors ${
+                  className={`relative text-sm font-semibold px-3.5 py-2 rounded-xl transition-all duration-200 ${
                     isActive('/upload')
-                      ? 'bg-blue-50 text-blue-700 font-semibold'
-                      : 'text-slate-700 hover:text-blue-600 hover:bg-slate-50'
+                      ? 'text-indigo-600 bg-indigo-50/90 shadow-xs ring-1 ring-indigo-200/70'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
                   }`}
                 >
                   Upload
+                  {isActive('/upload') && (
+                    <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-indigo-600 rounded-full shadow-[0_0_8px_rgba(79,70,229,0.7)]" />
+                  )}
                 </Link>
+
                 <Link
                   to="/job-match"
-                  className={`text-sm font-medium px-3 py-2 rounded-lg transition-colors ${
+                  className={`relative text-sm font-semibold px-3.5 py-2 rounded-xl transition-all duration-200 ${
                     isActive('/job-match')
-                      ? 'bg-purple-50 text-purple-700 font-semibold'
-                      : 'text-slate-700 hover:text-purple-600 hover:bg-slate-50'
+                      ? 'text-indigo-600 bg-indigo-50/90 shadow-xs ring-1 ring-indigo-200/70'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
                   }`}
                 >
                   Job Match
+                  {isActive('/job-match') && (
+                    <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-indigo-600 rounded-full shadow-[0_0_8px_rgba(79,70,229,0.7)]" />
+                  )}
                 </Link>
+
                 <Link
                   to="/history"
-                  className={`text-sm font-medium px-3 py-2 rounded-lg transition-colors ${
+                  className={`relative text-sm font-semibold px-3.5 py-2 rounded-xl transition-all duration-200 ${
                     isActive('/history')
-                      ? 'bg-blue-50 text-blue-700 font-semibold'
-                      : 'text-slate-700 hover:text-blue-600 hover:bg-slate-50'
+                      ? 'text-indigo-600 bg-indigo-50/90 shadow-xs ring-1 ring-indigo-200/70'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
                   }`}
                 >
                   History
+                  {isActive('/history') && (
+                    <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-indigo-600 rounded-full shadow-[0_0_8px_rgba(79,70,229,0.7)]" />
+                  )}
                 </Link>
 
-                <div className="flex items-center space-x-2 pl-2 pr-3 py-1 bg-slate-100 rounded-full border border-slate-200">
+                <div className="flex items-center space-x-2 pl-2 pr-3 py-1 bg-slate-100/80 rounded-full border border-slate-200/80">
                   <div className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-semibold flex-shrink-0">
                     {user.name.charAt(0).toUpperCase()}
                   </div>
-                  <span className="text-xs font-medium text-slate-800 max-w-[100px] truncate">
+                  <span className="text-xs font-semibold text-slate-800 max-w-[100px] truncate">
                     {user.name}
                   </span>
                 </div>
 
                 <button
                   onClick={handleLogout}
-                  className="text-sm font-medium text-slate-600 hover:text-red-600 hover:bg-red-50 px-2.5 py-2 rounded-lg transition-colors"
+                  className="text-sm font-semibold text-slate-600 hover:text-red-600 hover:bg-red-50/80 px-2.5 py-2 rounded-xl transition-colors"
                 >
                   Log out
                 </button>
@@ -108,13 +123,17 @@ export const Navbar: React.FC = () => {
               <>
                 <Link
                   to="/login"
-                  className="text-sm font-medium text-slate-700 hover:text-blue-600 px-3 py-2 rounded-lg transition-colors hover:bg-slate-50"
+                  className={`text-sm font-semibold px-3.5 py-2 rounded-xl transition-colors ${
+                    isActive('/login')
+                      ? 'text-indigo-600 bg-indigo-50/90'
+                      : 'text-slate-700 hover:text-blue-600 hover:bg-slate-100/70'
+                  }`}
                 >
                   Log In
                 </Link>
                 <Link
                   to="/register"
-                  className="text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg shadow-sm shadow-blue-500/20 transition-all"
+                  className="text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-xl shadow-sm shadow-blue-500/20 transition-all hover:scale-[1.02]"
                 >
                   Get Started
                 </Link>
@@ -129,7 +148,7 @@ export const Navbar: React.FC = () => {
               onClick={() => setIsMobileMenuOpen((prev) => !prev)}
               aria-label={isMobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
               aria-expanded={isMobileMenuOpen}
-              className="p-2 rounded-xl text-slate-700 hover:text-blue-600 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+              className="p-2 rounded-xl text-slate-700 hover:text-blue-600 hover:bg-slate-100/80 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
             >
               {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -137,18 +156,18 @@ export const Navbar: React.FC = () => {
         </div>
       </div>
 
-      {/* Mobile Menu Dropdown Panel */}
+      {/* Mobile Menu Dropdown Panel (Frosted Glass with 95% opacity) */}
       {isMobileMenuOpen && (
-        <div className="md:hidden border-t border-slate-200 bg-white px-4 pt-3 pb-5 space-y-1 shadow-xl">
+        <div className="md:hidden border-t border-slate-200/80 bg-white/95 backdrop-blur-2xl px-4 pt-3 pb-5 space-y-1 shadow-2xl">
           {isAuthenticated && user ? (
             <>
               {/* User Profile Pill in Mobile View */}
-              <div className="flex items-center space-x-3 px-3 py-2.5 mb-2 bg-slate-50 rounded-2xl border border-slate-100">
+              <div className="flex items-center space-x-3 px-3 py-2.5 mb-2 bg-slate-50/90 rounded-2xl border border-slate-100">
                 <div className="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-sm flex-shrink-0">
                   {user.name.charAt(0).toUpperCase()}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-slate-900 truncate">{user.name}</p>
+                  <p className="text-sm font-bold text-slate-900 truncate">{user.name}</p>
                   <p className="text-xs text-slate-500 truncate">{user.email}</p>
                 </div>
               </div>
@@ -157,52 +176,60 @@ export const Navbar: React.FC = () => {
               <Link
                 to="/dashboard"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center min-h-[44px] px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                className={`flex items-center min-h-[44px] px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                   isActive('/dashboard')
-                    ? 'bg-blue-50 text-blue-700 font-semibold'
-                    : 'text-slate-700 hover:text-blue-600 hover:bg-slate-50'
+                    ? 'bg-indigo-50/90 text-indigo-600 border-l-4 border-indigo-600 shadow-xs'
+                    : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100/70'
                 }`}
               >
-                <LayoutDashboard className="w-4 h-4 mr-3 text-slate-400" />
+                <LayoutDashboard
+                  className={`w-4 h-4 mr-3 ${isActive('/dashboard') ? 'text-indigo-600' : 'text-slate-400'}`}
+                />
                 Dashboard
               </Link>
 
               <Link
                 to="/upload"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center min-h-[44px] px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                className={`flex items-center min-h-[44px] px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                   isActive('/upload')
-                    ? 'bg-blue-50 text-blue-700 font-semibold'
-                    : 'text-slate-700 hover:text-blue-600 hover:bg-slate-50'
+                    ? 'bg-indigo-50/90 text-indigo-600 border-l-4 border-indigo-600 shadow-xs'
+                    : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100/70'
                 }`}
               >
-                <Upload className="w-4 h-4 mr-3 text-slate-400" />
+                <Upload
+                  className={`w-4 h-4 mr-3 ${isActive('/upload') ? 'text-indigo-600' : 'text-slate-400'}`}
+                />
                 Upload Resume
               </Link>
 
               <Link
                 to="/job-match"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center min-h-[44px] px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                className={`flex items-center min-h-[44px] px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                   isActive('/job-match')
-                    ? 'bg-purple-50 text-purple-700 font-semibold'
-                    : 'text-slate-700 hover:text-purple-600 hover:bg-slate-50'
+                    ? 'bg-indigo-50/90 text-indigo-600 border-l-4 border-indigo-600 shadow-xs'
+                    : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100/70'
                 }`}
               >
-                <Target className="w-4 h-4 mr-3 text-slate-400" />
+                <Target
+                  className={`w-4 h-4 mr-3 ${isActive('/job-match') ? 'text-indigo-600' : 'text-slate-400'}`}
+                />
                 Job Match
               </Link>
 
               <Link
                 to="/history"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center min-h-[44px] px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                className={`flex items-center min-h-[44px] px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                   isActive('/history')
-                    ? 'bg-blue-50 text-blue-700 font-semibold'
-                    : 'text-slate-700 hover:text-blue-600 hover:bg-slate-50'
+                    ? 'bg-indigo-50/90 text-indigo-600 border-l-4 border-indigo-600 shadow-xs'
+                    : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100/70'
                 }`}
               >
-                <History className="w-4 h-4 mr-3 text-slate-400" />
+                <History
+                  className={`w-4 h-4 mr-3 ${isActive('/history') ? 'text-indigo-600' : 'text-slate-400'}`}
+                />
                 Resume History
               </Link>
 
@@ -211,7 +238,7 @@ export const Navbar: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="w-full flex items-center min-h-[44px] px-3.5 py-2.5 rounded-xl text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors"
+                  className="w-full flex items-center min-h-[44px] px-3.5 py-2.5 rounded-xl text-sm font-bold text-red-600 hover:bg-red-50/80 transition-colors"
                 >
                   <LogOut className="w-4 h-4 mr-3 text-red-500" />
                   Log Out
@@ -223,14 +250,14 @@ export const Navbar: React.FC = () => {
               <Link
                 to="/login"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center justify-center min-h-[44px] w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+                className="flex items-center justify-center min-h-[44px] w-full px-4 py-2.5 rounded-xl border border-slate-200/80 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
               >
                 Log In
               </Link>
               <Link
                 to="/register"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center justify-center min-h-[44px] w-full px-4 py-2.5 rounded-xl bg-blue-600 text-sm font-semibold text-white hover:bg-blue-700 shadow-md shadow-blue-500/20 transition-all"
+                className="flex items-center justify-center min-h-[44px] w-full px-4 py-2.5 rounded-xl bg-blue-600 text-sm font-bold text-white hover:bg-blue-700 shadow-md shadow-blue-500/20 transition-all"
               >
                 Get Started
               </Link>
