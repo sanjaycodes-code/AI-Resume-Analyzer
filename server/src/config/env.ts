@@ -89,5 +89,5 @@ export const env: EnvConfig = {
   CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
   AI_PROVIDER: process.env.AI_PROVIDER || 'gemini',
   AI_API_KEY: process.env.AI_API_KEY,
-  GEMINI_MODEL: process.env.GEMINI_MODEL || 'gemini-3.5-flash',
+  GEMINI_MODEL: process.env.GEMINI_MODEL || 'gemini-1.5-flash',
 };

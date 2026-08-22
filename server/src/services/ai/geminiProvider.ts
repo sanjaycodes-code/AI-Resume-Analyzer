@@ -11,16 +11,16 @@ export class GeminiProvider implements AIProvider {
   private candidateModels: string[];
 
   constructor() {
-    const configured = env.GEMINI_MODEL || 'gemini-3.6-flash';
+    const configured = env.GEMINI_MODEL || 'gemini-1.5-flash';
     // Deduplicate candidate fallback models, prioritizing resilient active models
     this.candidateModels = Array.from(
       new Set([
         configured,
-        'gemini-3.6-flash',
+        'gemini-1.5-flash',
         'gemini-2.0-flash',
+        'gemini-1.5-flash-8b',
         'gemini-2.0-flash-exp',
-        'gemini-1.5-pro',
-        'gemini-3.5-flash',
+        'gemini-1.5-pro-latest',
       ])
     );
 
