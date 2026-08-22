@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import analysisApi from '../services/api/analysisApi';
 import enhancerApi from '../services/api/enhancerApi';
+import { ScoreGauge } from '../components/ScoreGauge';
 import type { EnhanceBulletResult } from '../services/api/enhancerApi';
 import type { Analysis, EnhancedBullet, ScoreCategory } from '../types';
 
@@ -99,6 +100,7 @@ export const AnalysisDetails: React.FC = () => {
   const [enhancerError, setEnhancerError] = useState<string | null>(null);
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
   const [copiedLatest, setCopiedLatest] = useState(false);
+  const [copiedToast, setCopiedToast] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -199,6 +201,8 @@ export const AnalysisDetails: React.FC = () => {
         setCopiedIdx(idx);
         setTimeout(() => setCopiedIdx(null), 2000);
       }
+      setCopiedToast('Enhanced bullet copied to clipboard!');
+      setTimeout(() => setCopiedToast(null), 2200);
     } catch {
       // Fallback
     }
@@ -244,13 +248,6 @@ export const AnalysisDetails: React.FC = () => {
 
   const resumeObj = typeof analysis.resumeId === 'object' ? analysis.resumeId : null;
   const jobObj = typeof analysis.jobDescriptionId === 'object' ? analysis.jobDescriptionId : null;
-
-  const getScoreBadge = (score: number) => {
-    if (score >= 80) return 'text-emerald-700 bg-emerald-50 border-emerald-200';
-    if (score >= 65) return 'text-blue-700 bg-blue-50 border-blue-200';
-    if (score >= 50) return 'text-amber-700 bg-amber-50 border-amber-200';
-    return 'text-red-700 bg-red-50 border-red-200';
-  };
 
   const getProgressColor = (score: number, max: number = 100) => {
     const pct = (score / max) * 100;
@@ -322,10 +319,18 @@ export const AnalysisDetails: React.FC = () => {
       {/* Header Banner */}
       <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-6">
         <div className="space-y-2">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center flex-wrap gap-2">
             <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800">
               Evaluation Report
             </span>
+            {analysis.overallScore >= 80 && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-500 text-white tracking-wide shadow-md shadow-emerald-500/30 job-ready-glow">
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                </svg>
+                ✓ Job Ready &bull; ATS Optimized
+              </span>
+            )}
             <span className="text-xs text-slate-500">
               {new Date(analysis.createdAt).toLocaleString()}
             </span>
@@ -399,66 +404,36 @@ export const AnalysisDetails: React.FC = () => {
         </div>
       )}
 
-      {/* Prominent Score Gauges */}
+      {/* Prominent Radial Score Gauges */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        {/* Overall Weighted Score */}
-        <div className={`p-6 rounded-3xl border shadow-sm flex flex-col justify-between ${getScoreBadge(analysis.overallScore)}`}>
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider">Overall Match Score</span>
-            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-white/80 shadow-2xs">
-              AI + ATS Combined
-            </span>
-          </div>
-          <div className="my-4">
-            <span className="text-5xl font-extrabold tracking-tight">{analysis.overallScore}</span>
-            <span className="text-lg font-bold opacity-70"> / 100</span>
-          </div>
-          <p className="text-xs font-medium opacity-90">
-            {analysis.overallScore >= 80
-              ? 'Excellent candidate alignment.'
-              : analysis.overallScore >= 65
-              ? 'Good foundation with targeted improvement areas.'
-              : 'Requires structural and keyword updates.'}
-          </p>
+        {/* Overall Weighted Score Gauge */}
+        <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col items-center justify-center hover:shadow-md transition-shadow">
+          <ScoreGauge
+            score={analysis.overallScore || 0}
+            label="Overall Match Score"
+            subtitle="Weighted AI + ATS composite"
+            size="lg"
+          />
         </div>
 
-        {/* Estimated ATS Compatibility Score */}
-        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">Estimated ATS Score</span>
-            <div className="w-6 h-6 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-          </div>
-          <div className="my-4">
-            <span className="text-5xl font-extrabold text-slate-900 tracking-tight">{analysis.atsScore}</span>
-            <span className="text-lg font-bold text-slate-400"> / 100</span>
-          </div>
-          <p className="text-xs text-slate-500">
-            Deterministic structure, verb & metric scan score.
-          </p>
+        {/* Estimated ATS Compatibility Score Gauge */}
+        <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col items-center justify-center hover:shadow-md transition-shadow">
+          <ScoreGauge
+            score={analysis.atsScore || 0}
+            label="Estimated ATS Score"
+            subtitle="6-Pillar Heuristic Scan"
+            size="lg"
+          />
         </div>
 
-        {/* Keyword Match Density */}
-        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">Keyword Density</span>
-            <div className="w-6 h-6 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center">
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-              </svg>
-            </div>
-          </div>
-          <div className="my-4">
-            <span className="text-5xl font-extrabold text-slate-900 tracking-tight">
-              {analysis.keywordAnalysis?.keywordDensityScore || 75}%
-            </span>
-          </div>
-          <p className="text-xs text-slate-500">
-            {analysis.skillsFound?.length || 0} recognized tech & domain skills.
-          </p>
+        {/* Keyword Match Density Gauge */}
+        <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col items-center justify-center hover:shadow-md transition-shadow">
+          <ScoreGauge
+            score={(analysis.keywordAnalysis as unknown as Record<string, unknown>)?.keywordDensityScore as number || 75}
+            label="Keyword Match Density"
+            subtitle={`${analysis.skillsFound?.length || 0} skills detected`}
+            size="md"
+          />
         </div>
       </div>
 
@@ -524,11 +499,14 @@ export const AnalysisDetails: React.FC = () => {
                     <span>Score: {percentage}%</span>
                     <span>Max {max} pts</span>
                   </div>
-                  <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                  <div className="w-full bg-slate-200/80 rounded-full h-2.5 overflow-hidden relative">
                     <div
-                      className={`h-2 rounded-full transition-all duration-500 ${getProgressColor(score, max)}`}
-                      style={{ width: `${Math.min(100, Math.max(5, percentage))}%` }}
-                    ></div>
+                      className={`h-2.5 rounded-full transition-all duration-1000 ease-out relative ${getProgressColor(score, max)}`}
+                      style={{ width: `${Math.min(100, Math.max(4, percentage))}%` }}
+                    >
+                      {/* Subtle animated shimmer sheen */}
+                      <div className="absolute inset-0 animate-shimmer opacity-70"></div>
+                    </div>
                   </div>
 
                   {/* Engine Feedback Message */}
@@ -997,6 +975,21 @@ export const AnalysisDetails: React.FC = () => {
           Generated by AI Resume Analyzer — deterministic ATS score based on heuristic rules; qualitative feedback generated by Google Gemini AI.
         </p>
       </div>
+
+      {/* Floating Toast Notification for Bullet Copy */}
+      {copiedToast && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 bg-slate-900/95 backdrop-blur-md text-white rounded-2xl shadow-2xl border border-slate-700/80 animate-in fade-in slide-in-from-bottom-5 duration-300">
+          <div className="w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-md shadow-emerald-500/40 animate-bounce">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <div>
+            <p className="text-xs font-bold text-white">Copied to Clipboard!</p>
+            <p className="text-[11px] text-slate-300">Ready to paste into your resume.</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
