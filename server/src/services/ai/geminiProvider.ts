@@ -11,14 +11,15 @@ export class GeminiProvider implements AIProvider {
   private candidateModels: string[];
 
   constructor() {
-    const configured = env.GEMINI_MODEL || 'gemini-3.5-flash';
-    // Deduplicate candidate fallback models
+    const configured = env.GEMINI_MODEL || 'gemini-3.6-flash';
+    // Deduplicate candidate fallback models, prioritizing currently active free models
     this.candidateModels = Array.from(
-      new Set([configured, 'gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-3.6-flash'])
+      new Set([configured, 'gemini-3.6-flash', 'gemini-2.0-flash', 'gemini-3.5-flash', 'gemini-3.5-flash-lite'])
     );
 
-    if (env.AI_API_KEY && env.AI_API_KEY.trim() !== '') {
-      this.genAI = new GoogleGenerativeAI(env.AI_API_KEY);
+    const cleanKey = (env.AI_API_KEY || '').trim().replace(/^["']|["']$/g, '');
+    if (cleanKey !== '') {
+      this.genAI = new GoogleGenerativeAI(cleanKey);
     }
   }
 
@@ -28,7 +29,7 @@ export class GeminiProvider implements AIProvider {
   private async generateWithFallback(userPrompt: string): Promise<string> {
     if (!this.genAI) {
       throw ApiError.internal(
-        'Gemini AI provider is active but AI_API_KEY is not configured in server/.env.',
+        'Gemini AI provider is active but AI_API_KEY is not configured in server environment.',
         'AI_KEY_MISSING'
       );
     }
@@ -51,13 +52,26 @@ export class GeminiProvider implements AIProvider {
         lastError = err instanceof Error ? err : new Error(String(err));
         const errMsg = lastError.message.toLowerCase();
 
-        // If 429 quota or 404 unavailable, log warning and failover to next model
-        if (errMsg.includes('429') || errMsg.includes('quota') || errMsg.includes('404') || errMsg.includes('not found')) {
-          console.warn(`[GeminiProvider] Model ${modelName} returned rate limit or 404. Attempting fallback...`);
+        // If 429 quota, 404 not found, or 400 model deprecation, failover to next model
+        if (
+          errMsg.includes('429') ||
+          errMsg.includes('quota') ||
+          errMsg.includes('404') ||
+          errMsg.includes('not found') ||
+          errMsg.includes('no longer available')
+        ) {
+          console.warn(`[GeminiProvider] Model ${modelName} returned error (${lastError.message}). Attempting fallback to next model...`);
           continue;
         }
 
-        // For other fatal errors, throw immediately
+        // For other fatal errors (e.g. invalid API key), rethrow or continue
+        if (errMsg.includes('api key not valid') || errMsg.includes('api_key_invalid')) {
+          throw ApiError.internal(
+            'Google Gemini API key is invalid or expired. Please check your AI_API_KEY in Render environment settings.',
+            'AI_KEY_INVALID'
+          );
+        }
+
         throw lastError;
       }
     }
