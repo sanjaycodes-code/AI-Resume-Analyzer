@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import resumeApi from '../services/api/resumeApi';
 import analysisApi from '../services/api/analysisApi';
+import { ScoreGauge } from '../components/ScoreGauge';
 import type { Resume, Analysis } from '../types';
 
 export const Dashboard: React.FC = () => {
@@ -68,6 +69,32 @@ export const Dashboard: React.FC = () => {
               Target a Job
             </Link>
           </div>
+        </div>
+      </div>
+
+      {/* TEMPORARY: ScoreGauge Component Test Showcase ([0, 49, 65, 80, 100]) */}
+      <div className="bg-white rounded-3xl p-6 border border-indigo-100 shadow-sm space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-3 gap-2">
+          <div>
+            <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-indigo-600 animate-pulse"></span>
+              ScoreGauge Component Visual Verification Suite
+            </h2>
+            <p className="text-xs text-slate-500">
+              Testing radial SVG animation, edge cases (0, 100), and color thresholds (Rose &lt;50, Amber 50–64, Indigo 65–79, Emerald 80+).
+            </p>
+          </div>
+          <span className="self-start sm:self-auto text-[11px] font-semibold bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-full">
+            Component Preview
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 justify-items-center pt-2">
+          <ScoreGauge score={0} label="Empty (0%)" subtitle="Rose (<50)" size="md" />
+          <ScoreGauge score={49} label="Critical (49%)" subtitle="Rose (<50)" size="md" />
+          <ScoreGauge score={65} label="Good (65%)" subtitle="Indigo (65-79)" size="md" />
+          <ScoreGauge score={80} label="Target (80%)" subtitle="Emerald (80+)" size="md" />
+          <ScoreGauge score={100} label="Perfect (100%)" subtitle="Emerald (80+)" size="md" />
         </div>
       </div>
 
