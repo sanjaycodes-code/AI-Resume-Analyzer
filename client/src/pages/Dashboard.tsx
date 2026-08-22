@@ -48,10 +48,10 @@ export const Dashboard: React.FC = () => {
               Logged in as <span className="font-medium text-white">{user?.email}</span>
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <Link
               to="/upload"
-              className="inline-flex items-center px-5 py-3 rounded-2xl bg-white text-blue-700 font-bold text-sm shadow-md hover:bg-blue-50 transition-all hover:scale-[1.02]"
+              className="inline-flex items-center justify-center px-5 py-3 rounded-2xl bg-white text-blue-700 font-bold text-sm shadow-md hover:bg-blue-50 transition-all hover:scale-[1.02] w-full sm:w-auto"
             >
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
@@ -60,7 +60,7 @@ export const Dashboard: React.FC = () => {
             </Link>
             <Link
               to="/job-match"
-              className="inline-flex items-center px-5 py-3 rounded-2xl bg-purple-900/40 text-white border border-white/30 font-bold text-sm backdrop-blur-sm hover:bg-purple-900/60 transition-all hover:scale-[1.02]"
+              className="inline-flex items-center justify-center px-5 py-3 rounded-2xl bg-purple-900/40 text-white border border-white/30 font-bold text-sm backdrop-blur-sm hover:bg-purple-900/60 transition-all hover:scale-[1.02] w-full sm:w-auto"
             >
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />

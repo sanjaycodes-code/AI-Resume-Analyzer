@@ -1,13 +1,21 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { Menu, X, LayoutDashboard, Upload, Target, History, LogOut } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Close mobile menu whenever navigation / route changes
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [location.pathname]);
 
   const handleLogout = async () => {
+    setIsMobileMenuOpen(false);
     await logout();
     navigate('/login');
   };
@@ -18,10 +26,10 @@ export const Navbar: React.FC = () => {
     <header className="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
-          {/* Logo & Brand */}
-          <Link to="/" className="flex items-center space-x-3 group">
-            <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20 group-hover:bg-blue-700 transition-colors">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          {/* Logo & Brand (Responsive sizing so it never wraps on small screens) */}
+          <Link to="/" className="flex items-center space-x-2.5 sm:space-x-3 group min-w-0">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20 group-hover:bg-blue-700 transition-colors flex-shrink-0">
+              <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -30,18 +38,18 @@ export const Navbar: React.FC = () => {
                 />
               </svg>
             </div>
-            <span className="font-bold text-xl text-slate-900 tracking-tight">
+            <span className="font-bold text-lg sm:text-xl text-slate-900 tracking-tight whitespace-nowrap truncate">
               AI Resume <span className="text-blue-600">Analyzer</span>
             </span>
           </Link>
 
-          {/* Navigation Items */}
-          <nav className="flex items-center space-x-1 sm:space-x-2">
+          {/* Desktop Navigation Items (Hidden on mobile < md) */}
+          <nav className="hidden md:flex items-center space-x-1 sm:space-x-2">
             {isAuthenticated && user ? (
               <>
                 <Link
                   to="/dashboard"
-                  className={`text-xs sm:text-sm font-medium px-3 py-2 rounded-lg transition-colors ${
+                  className={`text-sm font-medium px-3 py-2 rounded-lg transition-colors ${
                     isActive('/dashboard')
                       ? 'bg-blue-50 text-blue-700 font-semibold'
                       : 'text-slate-700 hover:text-blue-600 hover:bg-slate-50'
@@ -51,7 +59,7 @@ export const Navbar: React.FC = () => {
                 </Link>
                 <Link
                   to="/upload"
-                  className={`text-xs sm:text-sm font-medium px-3 py-2 rounded-lg transition-colors ${
+                  className={`text-sm font-medium px-3 py-2 rounded-lg transition-colors ${
                     isActive('/upload')
                       ? 'bg-blue-50 text-blue-700 font-semibold'
                       : 'text-slate-700 hover:text-blue-600 hover:bg-slate-50'
@@ -61,7 +69,7 @@ export const Navbar: React.FC = () => {
                 </Link>
                 <Link
                   to="/job-match"
-                  className={`text-xs sm:text-sm font-medium px-3 py-2 rounded-lg transition-colors ${
+                  className={`text-sm font-medium px-3 py-2 rounded-lg transition-colors ${
                     isActive('/job-match')
                       ? 'bg-purple-50 text-purple-700 font-semibold'
                       : 'text-slate-700 hover:text-purple-600 hover:bg-slate-50'
@@ -71,7 +79,7 @@ export const Navbar: React.FC = () => {
                 </Link>
                 <Link
                   to="/history"
-                  className={`text-xs sm:text-sm font-medium px-3 py-2 rounded-lg transition-colors ${
+                  className={`text-sm font-medium px-3 py-2 rounded-lg transition-colors ${
                     isActive('/history')
                       ? 'bg-blue-50 text-blue-700 font-semibold'
                       : 'text-slate-700 hover:text-blue-600 hover:bg-slate-50'
@@ -80,8 +88,8 @@ export const Navbar: React.FC = () => {
                   History
                 </Link>
 
-                <div className="hidden md:flex items-center space-x-2 pl-2 pr-3 py-1 bg-slate-100 rounded-full border border-slate-200">
-                  <div className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-semibold">
+                <div className="flex items-center space-x-2 pl-2 pr-3 py-1 bg-slate-100 rounded-full border border-slate-200">
+                  <div className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-semibold flex-shrink-0">
                     {user.name.charAt(0).toUpperCase()}
                   </div>
                   <span className="text-xs font-medium text-slate-800 max-w-[100px] truncate">
@@ -91,7 +99,7 @@ export const Navbar: React.FC = () => {
 
                 <button
                   onClick={handleLogout}
-                  className="text-xs sm:text-sm font-medium text-slate-600 hover:text-red-600 hover:bg-red-50 px-2.5 py-2 rounded-lg transition-colors"
+                  className="text-sm font-medium text-slate-600 hover:text-red-600 hover:bg-red-50 px-2.5 py-2 rounded-lg transition-colors"
                 >
                   Log out
                 </button>
@@ -113,8 +121,123 @@ export const Navbar: React.FC = () => {
               </>
             )}
           </nav>
+
+          {/* Mobile Hamburger Button (Visible only below md breakpoint) */}
+          <div className="flex items-center md:hidden">
+            <button
+              type="button"
+              onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+              aria-label={isMobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+              aria-expanded={isMobileMenuOpen}
+              className="p-2 rounded-xl text-slate-700 hover:text-blue-600 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+            >
+              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* Mobile Menu Dropdown Panel */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden border-t border-slate-200 bg-white px-4 pt-3 pb-5 space-y-1 shadow-xl">
+          {isAuthenticated && user ? (
+            <>
+              {/* User Profile Pill in Mobile View */}
+              <div className="flex items-center space-x-3 px-3 py-2.5 mb-2 bg-slate-50 rounded-2xl border border-slate-100">
+                <div className="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-sm flex-shrink-0">
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-slate-900 truncate">{user.name}</p>
+                  <p className="text-xs text-slate-500 truncate">{user.email}</p>
+                </div>
+              </div>
+
+              {/* Vertical Stacked Navigation Rows (Min 44px Touch Targets) */}
+              <Link
+                to="/dashboard"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`flex items-center min-h-[44px] px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                  isActive('/dashboard')
+                    ? 'bg-blue-50 text-blue-700 font-semibold'
+                    : 'text-slate-700 hover:text-blue-600 hover:bg-slate-50'
+                }`}
+              >
+                <LayoutDashboard className="w-4 h-4 mr-3 text-slate-400" />
+                Dashboard
+              </Link>
+
+              <Link
+                to="/upload"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`flex items-center min-h-[44px] px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                  isActive('/upload')
+                    ? 'bg-blue-50 text-blue-700 font-semibold'
+                    : 'text-slate-700 hover:text-blue-600 hover:bg-slate-50'
+                }`}
+              >
+                <Upload className="w-4 h-4 mr-3 text-slate-400" />
+                Upload Resume
+              </Link>
+
+              <Link
+                to="/job-match"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`flex items-center min-h-[44px] px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                  isActive('/job-match')
+                    ? 'bg-purple-50 text-purple-700 font-semibold'
+                    : 'text-slate-700 hover:text-purple-600 hover:bg-slate-50'
+                }`}
+              >
+                <Target className="w-4 h-4 mr-3 text-slate-400" />
+                Job Match
+              </Link>
+
+              <Link
+                to="/history"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`flex items-center min-h-[44px] px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                  isActive('/history')
+                    ? 'bg-blue-50 text-blue-700 font-semibold'
+                    : 'text-slate-700 hover:text-blue-600 hover:bg-slate-50'
+                }`}
+              >
+                <History className="w-4 h-4 mr-3 text-slate-400" />
+                Resume History
+              </Link>
+
+              {/* Log out Row (Visually Distinct) */}
+              <div className="pt-2 border-t border-slate-100 mt-2">
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="w-full flex items-center min-h-[44px] px-3.5 py-2.5 rounded-xl text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors"
+                >
+                  <LogOut className="w-4 h-4 mr-3 text-red-500" />
+                  Log Out
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="space-y-2 pt-1">
+              <Link
+                to="/login"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex items-center justify-center min-h-[44px] w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+              >
+                Log In
+              </Link>
+              <Link
+                to="/register"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex items-center justify-center min-h-[44px] w-full px-4 py-2.5 rounded-xl bg-blue-600 text-sm font-semibold text-white hover:bg-blue-700 shadow-md shadow-blue-500/20 transition-all"
+              >
+                Get Started
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
     </header>
   );
 };

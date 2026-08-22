@@ -343,13 +343,13 @@ export const AnalysisDetails: React.FC = () => {
           )}
         </div>
 
-        <div className="flex items-center flex-wrap gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center flex-wrap gap-3">
           {/* Download Report Button */}
           <button
             type="button"
             onClick={handleDownloadReport}
             disabled={isDownloading}
-            className="inline-flex items-center px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-xs shadow-md shadow-blue-500/20 hover:from-blue-700 hover:to-indigo-700 transition-all hover:scale-[1.02] disabled:opacity-50"
+            className="inline-flex items-center justify-center px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-xs shadow-md shadow-blue-500/20 hover:from-blue-700 hover:to-indigo-700 transition-all hover:scale-[1.02] disabled:opacity-50 w-full sm:w-auto"
           >
             {isDownloading ? (
               <>
@@ -371,14 +371,14 @@ export const AnalysisDetails: React.FC = () => {
 
           <Link
             to="/job-match"
-            className="px-4 py-2.5 rounded-xl bg-purple-50 text-purple-700 border border-purple-200 font-semibold text-xs hover:bg-purple-100 transition-colors"
+            className="inline-flex items-center justify-center px-4 py-2.5 rounded-xl bg-purple-50 text-purple-700 border border-purple-200 font-semibold text-xs hover:bg-purple-100 transition-colors w-full sm:w-auto text-center"
           >
             Target Another Job
           </Link>
           {resumeObj?._id && (
             <Link
               to={`/resumes/${resumeObj._id}`}
-              className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 font-semibold text-xs hover:bg-slate-50 transition-colors"
+              className="inline-flex items-center justify-center px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 font-semibold text-xs hover:bg-slate-50 transition-colors w-full sm:w-auto text-center"
             >
               View Resume
             </Link>
