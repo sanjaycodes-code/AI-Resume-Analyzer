@@ -60,6 +60,7 @@ export const Register: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (isSubmitting) return;
     if (!validate()) return;
 
     setIsSubmitting(true);
