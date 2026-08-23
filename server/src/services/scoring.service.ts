@@ -401,31 +401,100 @@ export const calculateAtsScore = (
       : 'No quantifiable metrics found. Adding numbers (e.g. 45% faster, 2,500+ users) boosts ATS scores.';
 
   // -------------------------------------------------------------------------
-  // 6. Formatting & Red Flag Defenses
+  // 6. Formatting & Structural Integrity Checks (Granular ATS Red Flags)
   // -------------------------------------------------------------------------
   const maxFormat = weights.formattingCleanliness;
   let formatScore = maxFormat;
   const formatIssues: string[] = [];
 
-  const wordCount = text.split(/\s+/).filter(Boolean).length;
+  const words = text.split(/\s+/).filter(Boolean);
+  const wordCount = words.length;
+
+  // A. Word Count Check
   if (wordCount < 80) {
-    formatScore -= Math.round(maxFormat * 0.5);
-    formatIssues.push('Resume text is too brief (under 80 words).');
-  } else if (wordCount > 2000) {
-    formatScore -= Math.round(maxFormat * 0.3);
-    formatIssues.push('Resume exceeds optimal length (over 2,000 words).');
+    formatScore -= Math.round(maxFormat * 0.4);
+    formatIssues.push('Resume text is unusually brief (under 80 words).');
+  } else if (wordCount > 2200) {
+    formatScore -= Math.round(maxFormat * 0.2);
+    formatIssues.push('Resume exceeds optimal length (over 2,200 words).');
   }
 
+  // B. Excessive Casing Check
   const capsMatches = text.match(/\b[A-Z]{4,}\b/g) || [];
   if (capsMatches.length > 25) {
-    formatScore -= Math.round(maxFormat * 0.2);
-    formatIssues.push('Excessive uppercase text detected.');
+    formatScore -= Math.round(maxFormat * 0.15);
+    formatIssues.push('Potential excessive uppercase text detected.');
   }
 
-  formatScore = Math.max(0, formatScore);
+  // C. Multi-Column Layout Risk Check
+  // Heuristic approximation: Abnormally high frequency of consecutive short orphaned lines
+  // (< 4 words or < 28 chars) in a medium/long resume often indicates column-scrambled text extraction.
+  const rawLines = text.split(/\r?\n/).map((l) => l.trim()).filter((l) => l.length > 0);
+  if (rawLines.length >= 25 && wordCount >= 120) {
+    const shortFragmentedLines = rawLines.filter((line) => {
+      const lineWords = line.split(/\s+/).filter(Boolean);
+      return (
+        lineWords.length <= 3 &&
+        line.length < 28 &&
+        !/^(skills|experience|education|projects|summary|certifications|awards|contact|languages|tools|profile)$/i.test(line)
+      );
+    });
+
+    const shortLineRatio = shortFragmentedLines.length / rawLines.length;
+    if (shortLineRatio > 0.42) {
+      formatScore -= Math.round(maxFormat * 0.25);
+      formatIssues.push(
+        'Potential multi-column layout detected — side-by-side columns may cause ATS parsers to interleave text out of order. Consider a single-column layout.'
+      );
+    }
+  }
+
+  // D. Non-Standard Section Headings Check
+  // Check if standard sections (Skills, Experience, Education, Projects) failed to be parsed despite substantial content length
+  const standardSectionsDetected = [
+    parsedSections.skills && parsedSections.skills.length > 0,
+    parsedSections.experience && parsedSections.experience.length > 0,
+    parsedSections.education && parsedSections.education.length > 0,
+    parsedSections.projects && parsedSections.projects.length > 0,
+  ].filter(Boolean).length;
+
+  if (wordCount >= 250 && standardSectionsDetected <= 1) {
+    formatScore -= Math.round(maxFormat * 0.25);
+    formatIssues.push(
+      'Potential non-standard section headings detected — standard ATS parsers look for conventional labels like "Experience", "Education", "Skills", and "Projects".'
+    );
+  }
+
+  // E. Header/Footer Contamination Check
+  // Check for repeated short lines (e.g. page numbers, candidate name + contact banner, or running footers) appearing >= 2 times
+  if (rawLines.length >= 20) {
+    const lineFrequency: Record<string, number> = {};
+    for (const line of rawLines) {
+      const normalized = line.toLowerCase().replace(/[^a-z0-9]/g, ' ').trim();
+      if (
+        normalized.length >= 8 &&
+        normalized.length <= 65 &&
+        !/^(skills|experience|education|projects|summary|certifications|awards|contact|languages|tools|profile|work experience|technical skills)$/i.test(
+          normalized
+        )
+      ) {
+        lineFrequency[normalized] = (lineFrequency[normalized] || 0) + 1;
+      }
+    }
+
+    const repeatedLines = Object.entries(lineFrequency).filter(([_, count]) => count >= 2);
+    if (repeatedLines.length >= 2) {
+      formatScore -= Math.round(maxFormat * 0.15);
+      formatIssues.push(
+        'Potential repeated running header/footer detected — some ATS systems misplace or truncate information placed in document margins.'
+      );
+    }
+  }
+
+  formatScore = Math.min(maxFormat, Math.max(0, formatScore));
   const formattingFeedback =
     formatIssues.length === 0
-      ? 'Clean formatting and optimal word count.'
+      ? 'Clean single-column formatting, standard section headings, and optimal word count.'
       : formatIssues.join(' ');
 
   // -------------------------------------------------------------------------
