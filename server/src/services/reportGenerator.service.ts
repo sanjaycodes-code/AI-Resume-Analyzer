@@ -17,6 +17,19 @@ interface FactorItem {
   explanation: string;
 }
 
+export const SCORE_THRESHOLDS = {
+  EXCELLENT: 80,
+  GOOD: 65,
+  FAIR: 50,
+} as const;
+
+export const SCORE_COLORS = {
+  EMERALD: '#059669', // 80+
+  INDIGO: '#4f46e5',  // 65-79
+  AMBER: '#d97706',   // 50-64
+  ROSE: '#e11d48',    // <50
+} as const;
+
 const PDF_FACTOR_CONFIGS: FactorItem[] = [
   {
     key: 'keywordMatch',
@@ -75,12 +88,13 @@ export const generatePdfReportStream = (analysis: IAnalysis): PDFKit.PDFDocument
   const atsScore = analysis.atsScore || 0;
   const keywordDensity = (analysis.keywordAnalysis as Record<string, unknown>)?.keywordDensityScore as number || 75;
 
-  // Design Tokens & Colors
+  // Design Tokens & Colors matching web application theme & ScoreGauge constants
   const primaryNavy = '#0f172a'; // Slate 900
   const brandBlue = '#2563eb'; // Blue 600
-  const emeraldGreen = '#059669'; // Emerald 600
-  const amberOrange = '#d97706'; // Amber 600
-  const redDanger = '#dc2626'; // Red 600
+  const emeraldGreen = SCORE_COLORS.EMERALD; // #059669
+  const indigoBlue = SCORE_COLORS.INDIGO; // #4f46e5
+  const amberOrange = SCORE_COLORS.AMBER; // #d97706
+  const roseRed = SCORE_COLORS.ROSE; // #e11d48
   const textDark = '#1e293b'; // Slate 800
   const textMuted = '#64748b'; // Slate 500
   const bgCard = '#f8fafc'; // Slate 50
@@ -97,12 +111,15 @@ export const generatePdfReportStream = (analysis: IAnalysis): PDFKit.PDFDocument
     }
   };
 
-  const getScoreColor = (score: number, max: number) => {
-    const pct = (score / max) * 100;
-    if (pct >= 80) return emeraldGreen;
-    if (pct >= 60) return brandBlue;
-    if (pct >= 40) return amberOrange;
-    return redDanger;
+  /**
+   * Deterministic 4-tier score color resolver matching ScoreGauge.tsx exactly
+   */
+  const getScoreColor = (score: number, max: number = 100): string => {
+    const pct = Math.round((score / max) * 100);
+    if (pct >= SCORE_THRESHOLDS.EXCELLENT) return SCORE_COLORS.EMERALD;
+    if (pct >= SCORE_THRESHOLDS.GOOD) return SCORE_COLORS.INDIGO;
+    if (pct >= SCORE_THRESHOLDS.FAIR) return SCORE_COLORS.AMBER;
+    return SCORE_COLORS.ROSE;
   };
 
   const extractFactor = (key: string, defaultMax: number) => {
@@ -226,7 +243,8 @@ export const generatePdfReportStream = (analysis: IAnalysis): PDFKit.PDFDocument
   const cardW = 165;
   const gap = 10;
 
-  // Card A: Overall Match Score
+  // Card A: Overall Match Score (Color-coded by tier)
+  const overallColor = getScoreColor(overallScore, 100);
   doc
     .roundedRect(40, currentY, cardW, 64, 6)
     .fill('#eff6ff')
@@ -235,9 +253,10 @@ export const generatePdfReportStream = (analysis: IAnalysis): PDFKit.PDFDocument
   doc
     .font('Helvetica-Bold')
     .fontSize(8)
-    .fillColor(brandBlue)
+    .fillColor(primaryNavy)
     .text('OVERALL MATCH SCORE', 50, currentY + 8)
     .fontSize(22)
+    .fillColor(overallColor)
     .text(`${overallScore}`, 50, currentY + 20, { continued: true })
     .fontSize(10)
     .fillColor(textMuted)
@@ -247,7 +266,8 @@ export const generatePdfReportStream = (analysis: IAnalysis): PDFKit.PDFDocument
     .fillColor(textDark)
     .text('Weighted AI + ATS composite', 50, currentY + 48);
 
-  // Card B: Estimated ATS Score
+  // Card B: Estimated ATS Score (Color-coded by tier)
+  const atsColor = getScoreColor(atsScore, 100);
   doc
     .roundedRect(40 + cardW + gap, currentY, cardW, 64, 6)
     .fill('#f0fdf4')
@@ -256,9 +276,10 @@ export const generatePdfReportStream = (analysis: IAnalysis): PDFKit.PDFDocument
   doc
     .font('Helvetica-Bold')
     .fontSize(8)
-    .fillColor(emeraldGreen)
+    .fillColor(primaryNavy)
     .text('ESTIMATED ATS SCORE', 40 + cardW + gap + 10, currentY + 8)
     .fontSize(22)
+    .fillColor(atsColor)
     .text(`${atsScore}`, 40 + cardW + gap + 10, currentY + 20, { continued: true })
     .fontSize(10)
     .fillColor(textMuted)
@@ -268,7 +289,8 @@ export const generatePdfReportStream = (analysis: IAnalysis): PDFKit.PDFDocument
     .fillColor(textDark)
     .text('6-Pillar Heuristic Scan', 40 + cardW + gap + 10, currentY + 48);
 
-  // Card C: Keyword Density Match
+  // Card C: Keyword Density Match (Color-coded by tier)
+  const keywordColor = getScoreColor(keywordDensity, 100);
   doc
     .roundedRect(40 + (cardW + gap) * 2, currentY, cardW, 64, 6)
     .fill('#faf5ff')
@@ -277,9 +299,10 @@ export const generatePdfReportStream = (analysis: IAnalysis): PDFKit.PDFDocument
   doc
     .font('Helvetica-Bold')
     .fontSize(8)
-    .fillColor('#7c3aed')
+    .fillColor(primaryNavy)
     .text('KEYWORD MATCH DENSITY', 40 + (cardW + gap) * 2 + 10, currentY + 8)
     .fontSize(22)
+    .fillColor(keywordColor)
     .text(`${keywordDensity}%`, 40 + (cardW + gap) * 2 + 10, currentY + 20)
     .font('Helvetica')
     .fontSize(7)
@@ -342,7 +365,7 @@ export const generatePdfReportStream = (analysis: IAnalysis): PDFKit.PDFDocument
       .roundedRect(cardX, cardY, 3, rowHeight, 1.5)
       .fill(color);
 
-    // FIX 1: Title (left-aligned, constrained width) & Score (right-aligned in dedicated column, 0 overlap)
+    // Title (left-aligned, constrained width) & Color-coded Score (right-aligned in dedicated column)
     doc
       .font('Helvetica-Bold')
       .fontSize(8)
@@ -352,7 +375,7 @@ export const generatePdfReportStream = (analysis: IAnalysis): PDFKit.PDFDocument
     doc
       .font('Helvetica-Bold')
       .fontSize(7.5)
-      .fillColor(primaryNavy)
+      .fillColor(color)
       .text(`${score} / ${max} (${pct}%)`, cardX + 150, cardY + 6, { width: 92, align: 'right', lineBreak: false });
 
     // Explanation
@@ -663,9 +686,9 @@ export const generatePdfReportStream = (analysis: IAnalysis): PDFKit.PDFDocument
 
   const colW = 165;
   const colG = 10;
-  const maxCardH = 90;
+  const maxCardH = 95;
 
-  // FIX 2: Ensure heading + all 3 evaluation columns are kept on the same page
+  // Ensure heading + all 3 evaluation columns are kept on the same page
   ensureSpace(20 + maxCardH + 10);
 
   doc
@@ -679,27 +702,50 @@ export const generatePdfReportStream = (analysis: IAnalysis): PDFKit.PDFDocument
   for (let i = 0; i < sectionCards.length; i++) {
     const sc = sectionCards[i];
     const cardX = 40 + i * (colW + colG);
+    const secColor = getScoreColor(sc.rating, 100);
 
+    // Section Card Box
     doc
       .roundedRect(cardX, currentY, colW, maxCardH, 6)
       .fill(bgCard)
       .stroke(borderLight);
 
+    // Left color accent bar
+    doc
+      .roundedRect(cardX, currentY, 3, maxCardH, 1.5)
+      .fill(secColor);
+
+    // Title (left-aligned)
     doc
       .font('Helvetica-Bold')
       .fontSize(8)
       .fillColor(primaryNavy)
-      .text(sc.title, cardX + 8, currentY + 8)
+      .text(sc.title, cardX + 8, currentY + 7, { width: colW - 56, lineBreak: false, ellipsis: true });
+
+    // Color-coded score (right-aligned in dedicated column, 0 overlap)
+    doc
       .font('Helvetica-Bold')
       .fontSize(8)
-      .fillColor(brandBlue)
-      .text(`${sc.rating}/100`, cardX + colW - 38, currentY + 8);
+      .fillColor(secColor)
+      .text(`${sc.rating}/100`, cardX + colW - 46, currentY + 7, { width: 38, align: 'right', lineBreak: false });
 
+    // Visual Progress Bar (Track & Fill)
+    const secBarW = colW - 16;
+    const secBarFillW = Math.max(4, Math.min(secBarW, (sc.rating / 100) * secBarW));
+    doc
+      .roundedRect(cardX + 8, currentY + 18, secBarW, 3, 1.5)
+      .fill('#e2e8f0');
+
+    doc
+      .roundedRect(cardX + 8, currentY + 18, secBarFillW, 3, 1.5)
+      .fill(secColor);
+
+    // Written evaluation text beneath the bar
     doc
       .font('Helvetica')
       .fontSize(7.5)
       .fillColor(textDark)
-      .text(sc.feedback, cardX + 8, currentY + 22, { width: colW - 16, lineGap: 1.5 });
+      .text(sc.feedback, cardX + 8, currentY + 26, { width: colW - 16, lineGap: 1.5 });
   }
 
   currentY += maxCardH + 15;
