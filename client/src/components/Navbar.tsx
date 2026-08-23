@@ -23,7 +23,7 @@ export const Navbar: React.FC = () => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <header className="bg-white/85 backdrop-blur-xl border-b border-slate-200/80 sticky top-0 z-50 shadow-xs transition-all">
+    <header className="bg-[#F8FAFE]/90 backdrop-blur-xl border-b border-slate-200/80 sticky top-0 z-50 shadow-xs transition-all">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           {/* Logo & Brand (Responsive sizing so it never wraps on small screens) */}
@@ -158,7 +158,7 @@ export const Navbar: React.FC = () => {
 
       {/* Mobile Menu Dropdown Panel (Frosted Glass with 95% opacity) */}
       {isMobileMenuOpen && (
-        <div className="md:hidden border-t border-slate-200/80 bg-white/95 backdrop-blur-2xl px-4 pt-3 pb-5 space-y-1 shadow-2xl">
+        <div className="md:hidden border-t border-slate-200/80 bg-[#F8FAFE]/95 backdrop-blur-2xl px-4 pt-3 pb-5 space-y-1 shadow-2xl">
           {isAuthenticated && user ? (
             <>
               {/* User Profile Pill in Mobile View */}

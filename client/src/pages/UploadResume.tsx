@@ -56,7 +56,7 @@ export const UploadResume: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 bg-[#F6F9FD] min-h-[calc(100vh-4rem)] py-8">
+    <div className="flex-1 bg-[#F4F7FC] min-h-[calc(100vh-4rem)] py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         {/* Title Section */}
         <div className="mb-8 text-center sm:text-left">
@@ -66,7 +66,7 @@ export const UploadResume: React.FC = () => {
           </p>
         </div>
 
-        <div className="bg-[#FCFDFF] rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-10 space-y-8">
+        <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-10 space-y-8">
           {/* Dropzone Component */}
           <FileDropzone
             onFileSelect={handleFileSelect}

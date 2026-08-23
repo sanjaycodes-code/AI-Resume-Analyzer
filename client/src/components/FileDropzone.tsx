@@ -127,7 +127,7 @@ export const FileDropzone: React.FC<FileDropzoneProps> = ({
           className={`border-2 border-dashed rounded-2xl p-8 sm:p-12 text-center cursor-pointer transition-all duration-200 ${
             isDragOver
               ? 'border-blue-500 bg-blue-50/80 scale-[1.01]'
-              : 'border-slate-300 hover:border-blue-400 bg-[#F4F8FC]/60 hover:bg-[#EBF3FA]/70'
+              : 'border-slate-300 hover:border-blue-400 bg-[#F8FAFD] hover:bg-[#EEF4FB]'
           } ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           <div className="max-w-sm mx-auto flex flex-col items-center space-y-4">
