@@ -491,11 +491,27 @@ export const generatePdfReportStream = (analysis: IAnalysis): PDFKit.PDFDocument
 
   currentY += foundBoxH + 12;
 
-  // Missing Skills Box
-  const missingTextH = doc.heightOfString(missingSkillsStr, { width: 490, lineGap: 2 });
-  const missingBoxH = Math.max(34, missingTextH + 16);
+  // Missing Skills Box with High-Priority Tagging
+  // Heuristic: The first 3 missing skills represent the top-weighted missing requirements from the job description / ATS scan.
+  const highPriorityMissing = missingSkillsList.slice(0, 3);
+  const regularMissing = missingSkillsList.slice(3);
 
-  // FIX 2: Ensure heading + missing box are kept together
+  let missingBoxH = 34;
+  if (missingSkillsList.length === 0) {
+    missingBoxH = 34;
+  } else if (regularMissing.length === 0) {
+    doc.font('Helvetica-Bold').fontSize(8);
+    const h1 = doc.heightOfString(`• High Priority: ${highPriorityMissing.join(', ')}`, { width: 490, lineGap: 2 });
+    missingBoxH = Math.max(38, h1 + 18);
+  } else {
+    doc.font('Helvetica-Bold').fontSize(8);
+    const h1 = doc.heightOfString(`• High Priority: ${highPriorityMissing.join(', ')}`, { width: 490, lineGap: 2 });
+    doc.font('Helvetica').fontSize(8);
+    const h2 = doc.heightOfString(`Additional Gaps: ${regularMissing.join(', ')}`, { width: 490, lineGap: 2 });
+    missingBoxH = Math.max(48, h1 + h2 + 22);
+  }
+
+  // Ensure heading + missing box are kept together
   ensureSpace(20 + missingBoxH + 10);
 
   doc
@@ -511,11 +527,38 @@ export const generatePdfReportStream = (analysis: IAnalysis): PDFKit.PDFDocument
     .fill('#fef2f2')
     .stroke('#fecaca');
 
-  doc
-    .font('Helvetica')
-    .fontSize(8)
-    .fillColor('#991b1b')
-    .text(missingSkillsStr, 52, currentY + 8, { width: 490, lineGap: 2 });
+  let textY = currentY + 8;
+  if (missingSkillsList.length === 0) {
+    doc
+      .font('Helvetica')
+      .fontSize(8)
+      .fillColor('#991b1b')
+      .text('No critical skill gaps identified.', 52, textY, { width: 490, lineGap: 2 });
+  } else {
+    // 1. High-Priority missing skills line
+    doc
+      .font('Helvetica-Bold')
+      .fontSize(8)
+      .fillColor('#be123c') // Rose 700
+      .text('• High Priority: ', 52, textY, { continued: true })
+      .font('Helvetica-Bold')
+      .fillColor('#881337') // Rose 900
+      .text(highPriorityMissing.join(', '), { width: 490, lineGap: 2 });
+
+    textY += doc.heightOfString(`• High Priority: ${highPriorityMissing.join(', ')}`, { width: 490, lineGap: 2 }) + 4;
+
+    // 2. Regular missing skills line (if any)
+    if (regularMissing.length > 0) {
+      doc
+        .font('Helvetica-Bold')
+        .fontSize(8)
+        .fillColor('#991b1b')
+        .text('Additional Gaps: ', 52, textY, { continued: true })
+        .font('Helvetica')
+        .fillColor('#7f1d1d')
+        .text(regularMissing.join(', '), { width: 490, lineGap: 2 });
+    }
+  }
 
   currentY += missingBoxH + 16;
 
@@ -665,6 +708,8 @@ export const generatePdfReportStream = (analysis: IAnalysis): PDFKit.PDFDocument
   const expAnalysis = analysis.experienceAnalysis as Record<string, unknown> | undefined;
   const projAnalysis = analysis.projectAnalysis as Record<string, unknown> | undefined;
   const eduAnalysis = analysis.educationAnalysis as Record<string, unknown> | undefined;
+  const enhancedBullets = analysis.enhancedBullets || [];
+  const hasEnhancedBullets = enhancedBullets.length > 0;
 
   const sectionCards = [
     {
@@ -686,7 +731,8 @@ export const generatePdfReportStream = (analysis: IAnalysis): PDFKit.PDFDocument
 
   const colW = 165;
   const colG = 10;
-  const maxCardH = 95;
+  const anyWeakSection = sectionCards.some((sc) => sc.rating < 50 && !hasEnhancedBullets);
+  const maxCardH = anyWeakSection ? 108 : 95;
 
   // Ensure heading + all 3 evaluation columns are kept on the same page
   ensureSpace(20 + maxCardH + 10);
@@ -746,6 +792,20 @@ export const generatePdfReportStream = (analysis: IAnalysis): PDFKit.PDFDocument
       .fontSize(7.5)
       .fillColor(textDark)
       .text(sc.feedback, cardX + 8, currentY + 26, { width: colW - 16, lineGap: 1.5 });
+
+    // Enhancer call-to-action for weak sections (< 50) when no bullets enhanced yet
+    if (sc.rating < 50 && !hasEnhancedBullets) {
+      doc
+        .font('Helvetica-Oblique')
+        .fontSize(6.5)
+        .fillColor(roseRed)
+        .text(
+          'Tip: Use the AI Bullet Enhancer in your dashboard to strengthen this section.',
+          cardX + 8,
+          currentY + maxCardH - 18,
+          { width: colW - 16, lineGap: 1 }
+        );
+    }
   }
 
   currentY += maxCardH + 15;
@@ -753,9 +813,8 @@ export const generatePdfReportStream = (analysis: IAnalysis): PDFKit.PDFDocument
   // ==========================================
   // 11. STAR METHOD • AI BULLET ENHANCER (IF PRESENT)
   // ==========================================
-  const enhancedBullets = analysis.enhancedBullets || [];
   if (enhancedBullets.length > 0) {
-    // FIX 2: Compute first bullet card height to guarantee heading and content are never split across pages
+    // Compute first bullet card height to guarantee heading and content are never split across pages
     const firstBullet = enhancedBullets[0];
     doc.font('Helvetica').fontSize(8);
     const firstOrigH = doc.heightOfString(firstBullet.originalText, { width: 435, lineGap: 1.5 });
@@ -876,16 +935,16 @@ export const generatePdfReportStream = (analysis: IAnalysis): PDFKit.PDFDocument
       .lineTo(555, 785)
       .stroke();
 
-    // Disclaimer
+    // Disclaimer with Candidate's Resume Filename context on every page
     doc
       .font('Helvetica-Oblique')
       .fontSize(7.5)
       .fillColor('#64748b')
       .text(
-        'Generated by AI Resume Analyzer — estimated ATS compatibility, not a guarantee.',
+        `${fileName} | Generated by AI Resume Analyzer — estimated ATS compatibility, not a guarantee.`,
         40,
         792,
-        { align: 'left', width: 400 }
+        { align: 'left', width: 400, lineBreak: false, ellipsis: true }
       );
 
     doc
