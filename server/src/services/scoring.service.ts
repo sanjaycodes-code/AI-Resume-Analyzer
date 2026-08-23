@@ -862,6 +862,34 @@ export const calculateAtsScore = (
     keywordScore + sectionScore + contactScore + actionScore + metricScore + formatScore + writingScore;
   const boundedScore = Math.min(100, Math.max(0, totalScore));
 
+  // -------------------------------------------------------------------------
+  // DEBUG LOGGING
+  // -------------------------------------------------------------------------
+  const totalMaxSum = maxKeyword + maxSection + maxContact + maxAction + maxMetric + maxFormat + maxWriting;
+  console.log('====================================================');
+  console.log('[DEBUG ATS SCORING ENGINE]');
+  console.log(`- Raw extractedText length being scanned: ${text.length} chars (${wordCount} words)`);
+  console.log(`- Detected Role Category: ${detectedCategory} (Profile: ${profile.name})`);
+  console.log(`- Exact list of spelling issues detected:`, JSON.stringify(foundTypos));
+  console.log(`- Exact list of repetition instances detected:`, JSON.stringify({
+    duplicateWords,
+    overusedBulletOpeners: overusedStems.map(([stem, count]) => ({ stem, count, openers: rawOpeners[stem] })),
+    passiveFillerPhrases: foundFillers,
+  }));
+  console.log(`- Raw point value assigned to Writing Quality BEFORE max bounding: ${writingScore}`);
+  console.log(`- Final weighted point value AFTER weighting is applied: ${writingScore} / ${maxWriting} pts`);
+  console.log(`- Individual Factor Scores:`, JSON.stringify({
+    keywordMatch: `${keywordScore}/${maxKeyword}`,
+    sectionCompleteness: `${sectionScore}/${maxSection}`,
+    contactInfo: `${contactScore}/${maxContact}`,
+    actionVerbs: `${actionScore}/${maxAction}`,
+    quantifiedImpact: `${metricScore}/${maxMetric}`,
+    formattingCleanliness: `${formatScore}/${maxFormat}`,
+    writingQuality: `${writingScore}/${maxWriting}`,
+  }));
+  console.log(`- Sum of ALL 7 factors' final weighted values: ${totalScore} (Max sum: ${totalMaxSum} pts)`);
+  console.log('====================================================');
+
   let summary = '';
   if (boundedScore >= 85) {
     summary = `Excellent ATS compatibility for ${profile.name}. Resume is well-structured, metric-driven, and contains strong keywords.`;
