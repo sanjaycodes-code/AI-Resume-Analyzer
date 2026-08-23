@@ -61,117 +61,118 @@ export const History: React.FC = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-8">
-      {/* Header Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Resume History</h1>
-          <p className="text-slate-600 text-sm mt-1">
-            Manage your uploaded resumes, inspect extracted skills, and track ATS optimizations.
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <Link
-            to="/job-match"
-            className="inline-flex items-center justify-center px-4 py-2.5 rounded-xl bg-purple-50 text-purple-700 border border-purple-200 font-semibold text-xs hover:bg-purple-100 transition-all"
-          >
-            <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-            Target a Job
-          </Link>
-          <Link
-            to="/upload"
-            className="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-blue-600 text-white font-semibold text-sm hover:bg-blue-700 shadow-md shadow-blue-500/20 transition-all w-full sm:w-auto"
-          >
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
-            </svg>
-            Upload Resume
-          </Link>
-        </div>
-      </div>
-
-      {/* Error alert */}
-      {errorMessage && (
-        <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-xl flex items-center justify-between">
-          <p className="text-sm text-red-700 font-medium">{errorMessage}</p>
-          <button
-            onClick={fetchHistory}
-            className="text-xs font-semibold text-red-700 hover:underline"
-          >
-            Retry
-          </button>
-        </div>
-      )}
-
-      {/* Content */}
-      {isLoading ? (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
-          <div className="h-8 skeleton-shimmer rounded-xl w-48 mb-2" />
-          <div className="space-y-3">
-            <div className="h-16 skeleton-shimmer rounded-2xl" />
-            <div className="h-16 skeleton-shimmer rounded-2xl" />
-            <div className="h-16 skeleton-shimmer rounded-2xl" />
+    <div className="flex-1 bg-[#F4F7FC] min-h-[calc(100vh-4rem)] py-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full space-y-8">
+        {/* Header Bar */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Resume History</h1>
+            <p className="text-slate-600 text-sm mt-1">
+              Manage your uploaded resumes, inspect extracted skills, and track ATS optimizations.
+            </p>
           </div>
-        </div>
-      ) : resumes.length === 0 ? (
-        /* Empty State */
-        <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center max-w-lg mx-auto space-y-4 shadow-sm">
-          <div className="w-16 h-16 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto">
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-          </div>
-          <h3 className="text-lg font-bold text-slate-900">No resumes uploaded yet</h3>
-          <p className="text-sm text-slate-600">
-            Upload your first resume in PDF or DOCX format to receive automated ATS section parsing and AI analysis.
-          </p>
-          <div className="pt-2">
+          <div className="flex items-center gap-3">
+            <Link
+              to="/job-match"
+              className="inline-flex items-center justify-center px-4 py-2.5 rounded-xl bg-purple-50 text-purple-700 border border-purple-200 font-semibold text-xs hover:bg-purple-100 transition-all"
+            >
+              <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              Target a Job
+            </Link>
             <Link
               to="/upload"
-              className="inline-flex items-center px-5 py-2.5 rounded-xl bg-blue-600 text-white font-semibold text-sm hover:bg-blue-700 active:scale-[0.97] transition-all shadow-sm"
+              className="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-blue-600 text-white font-semibold text-sm hover:bg-blue-700 shadow-md shadow-blue-500/20 transition-all w-full sm:w-auto"
             >
-              Upload Your First Resume
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+              </svg>
+              Upload Resume
             </Link>
           </div>
         </div>
-      ) : (
-        /* Resumes List Table / Grid */
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-slate-200">
-              <thead className="bg-slate-50">
-                <tr>
-                  <th className="px-6 py-3.5 text-left text-xs font-bold text-slate-600 uppercase tracking-wider">
-                    Resume / File
-                  </th>
-                  <th className="px-6 py-3.5 text-left text-xs font-bold text-slate-600 uppercase tracking-wider">
-                    Format
-                  </th>
-                  <th className="px-6 py-3.5 text-left text-xs font-bold text-slate-600 uppercase tracking-wider">
-                    AI Analysis Status
-                  </th>
-                  <th className="px-6 py-3.5 text-left text-xs font-bold text-slate-600 uppercase tracking-wider">
-                    Uploaded
-                  </th>
-                  <th className="px-6 py-3.5 text-right text-xs font-bold text-slate-600 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-slate-100">
-                {resumes.map((item, index) => {
-                  const latestAnalysis = getLatestAnalysisForResume(item._id);
 
-                  return (
-                    <motion.tr
-                      key={item._id}
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.3), ease: 'easeOut' }}
-                      className="hover:bg-slate-50/70 transition-colors"
-                    >
+        {/* Error alert */}
+        {errorMessage && (
+          <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-xl flex items-center justify-between">
+            <p className="text-sm text-red-700 font-medium">{errorMessage}</p>
+            <button
+              onClick={fetchHistory}
+              className="text-xs font-semibold text-red-700 hover:underline"
+            >
+              Retry
+            </button>
+          </div>
+        )}
+
+        {/* Content */}
+        {isLoading ? (
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+            <div className="h-8 skeleton-shimmer rounded-xl w-48 mb-2" />
+            <div className="space-y-3">
+              <div className="h-16 skeleton-shimmer rounded-2xl" />
+              <div className="h-16 skeleton-shimmer rounded-2xl" />
+              <div className="h-16 skeleton-shimmer rounded-2xl" />
+            </div>
+          </div>
+        ) : resumes.length === 0 ? (
+          /* Empty State */
+          <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center max-w-lg mx-auto space-y-4 shadow-sm">
+            <div className="w-16 h-16 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto">
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-bold text-slate-900">No resumes uploaded yet</h3>
+            <p className="text-sm text-slate-600">
+              Upload your first resume in PDF or DOCX format to receive automated ATS section parsing and AI analysis.
+            </p>
+            <div className="pt-2">
+              <Link
+                to="/upload"
+                className="inline-flex items-center px-5 py-2.5 rounded-xl bg-blue-600 text-white font-semibold text-sm hover:bg-blue-700 active:scale-[0.97] transition-all shadow-sm"
+              >
+                Upload Your First Resume
+              </Link>
+            </div>
+          </div>
+        ) : (
+          /* Resumes List Table / Grid */
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-slate-200">
+                <thead className="bg-[#F8FAFD]">
+                  <tr>
+                    <th className="px-6 py-3.5 text-left text-xs font-bold text-slate-600 uppercase tracking-wider">
+                      Resume / File
+                    </th>
+                    <th className="px-6 py-3.5 text-left text-xs font-bold text-slate-600 uppercase tracking-wider">
+                      Format
+                    </th>
+                    <th className="px-6 py-3.5 text-left text-xs font-bold text-slate-600 uppercase tracking-wider">
+                      AI Analysis Status
+                    </th>
+                    <th className="px-6 py-3.5 text-left text-xs font-bold text-slate-600 uppercase tracking-wider">
+                      Uploaded
+                    </th>
+                    <th className="px-6 py-3.5 text-right text-xs font-bold text-slate-600 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-slate-100">
+                  {resumes.map((item, index) => {
+                    const latestAnalysis = getLatestAnalysisForResume(item._id);
+
+                    return (
+                      <motion.tr
+                        key={item._id}
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.3), ease: 'easeOut' }}
+                        className="hover:bg-[#F8FAFD] transition-colors"
+                      >
                       {/* Filename & Link */}
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center space-x-3">
@@ -316,6 +317,7 @@ export const History: React.FC = () => {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 };
