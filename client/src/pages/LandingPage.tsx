@@ -313,7 +313,7 @@ export const LandingPage: React.FC = () => {
         {/* Footer Status Pill */}
         <div className="pt-6 border-t border-slate-200/60 flex items-center justify-center space-x-2 text-xs font-medium text-slate-500">
           <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-          <span>System Operational &middot; Multi-Model AI Engine Active</span>
+          <span>System Operational</span>
         </div>
       </div>
     </div>

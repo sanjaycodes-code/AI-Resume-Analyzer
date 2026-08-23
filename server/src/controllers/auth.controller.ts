@@ -193,9 +193,24 @@ export const forgotPassword = asyncHandler(async (req: Request, res: Response): 
     user.passwordResetExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
     await user.save();
 
-    const resetUrl = `${env.CLIENT_URL}/reset-password?token=${rawToken}&email=${encodeURIComponent(user.email)}`;
+    // Dynamically resolve client base URL from request origin (falling back to env.CLIENT_URL)
+    const requestOrigin = (req.headers.origin as string) || (req.headers.referer as string);
+    let clientBaseUrl = env.CLIENT_URL;
+    if (requestOrigin && typeof requestOrigin === 'string') {
+      try {
+        const parsed = new URL(requestOrigin);
+        clientBaseUrl = `${parsed.protocol}//${parsed.host}`;
+      } catch {
+        // Fall back to env.CLIENT_URL
+      }
+    }
+    // Strip trailing slashes to prevent double-slash path routing errors in React Router
+    clientBaseUrl = clientBaseUrl.replace(/\/+$/, '');
+
+    const resetUrl = `${clientBaseUrl}/reset-password?token=${rawToken}&email=${encodeURIComponent(user.email)}`;
     
     try {
+      console.log(`[AuthController:forgotPassword] Generated reset URL: ${resetUrl}`);
       console.log(`[AuthController:forgotPassword] Triggering password reset email for user ID: ${user._id}, email: ${user.email}`);
       await sendPasswordResetEmail(user.email, resetUrl, user.name);
     } catch (emailErr) {
