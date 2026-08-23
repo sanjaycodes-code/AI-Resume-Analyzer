@@ -12,9 +12,21 @@ import {
 import { registerSchema, loginSchema } from '../validators/auth.validator';
 import { ApiError } from '../utils/apiError';
 import { asyncHandler } from '../utils/asyncHandler';
+import { env } from '../config/env';
 
 export const register = asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const validatedData = registerSchema.parse(req.body);
+
+  // Check optional invite code gate if configured in environment
+  if (env.DEMO_INVITE_CODE) {
+    const providedCode = (validatedData.inviteCode || '').trim();
+    if (!providedCode || providedCode !== env.DEMO_INVITE_CODE) {
+      throw ApiError.forbidden(
+        'Invalid invite code. An invite code is required to register during private demo mode.',
+        'INVALID_INVITE_CODE'
+      );
+    }
+  }
 
   // Check if email is already taken
   const existingUser = await User.findOne({ email: validatedData.email });

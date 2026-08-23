@@ -29,6 +29,7 @@ export interface EnvConfig {
   AI_PROVIDER: string;
   AI_API_KEY?: string;
   GEMINI_MODEL: string;
+  DEMO_INVITE_CODE?: string;
 }
 
 const nodeEnv = (process.env.NODE_ENV || 'development') as 'development' | 'production' | 'test';
@@ -90,4 +91,8 @@ export const env: EnvConfig = {
   AI_PROVIDER: process.env.AI_PROVIDER || 'gemini',
   AI_API_KEY: process.env.AI_API_KEY,
   GEMINI_MODEL: process.env.GEMINI_MODEL || 'gemini-3.6-flash',
+  DEMO_INVITE_CODE:
+    process.env.DEMO_INVITE_CODE && process.env.DEMO_INVITE_CODE.trim() !== ''
+      ? process.env.DEMO_INVITE_CODE.trim()
+      : undefined,
 };

@@ -16,6 +16,7 @@ export const registerSchema = z
       .string()
       .min(8, 'Password must be at least 8 characters long')
       .max(128, 'Password cannot exceed 128 characters'),
+    inviteCode: z.string().trim().optional(),
   })
   .strict();
 

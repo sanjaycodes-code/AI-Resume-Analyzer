@@ -11,6 +11,9 @@ import { ApiError } from './utils/apiError';
 
 const app: Application = express();
 
+// Trust reverse proxy (Render, Vercel) for accurate client IP detection in rate limiters
+app.set('trust proxy', 1);
+
 // 1. Helmet HTTP Security Headers
 app.use(
   helmet({

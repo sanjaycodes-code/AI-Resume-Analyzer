@@ -12,6 +12,7 @@ export const Register: React.FC = () => {
     name: '',
     email: '',
     password: '',
+    inviteCode: '',
   });
   const [formErrors, setFormErrors] = useState<{ name?: string; email?: string; password?: string }>({});
   const [apiError, setApiError] = useState<string | null>(null);
@@ -191,6 +192,26 @@ export const Register: React.FC = () => {
               {formErrors.password && (
                 <p className="mt-1.5 text-xs text-red-600 font-medium">{formErrors.password}</p>
               )}
+            </div>
+
+            {/* Invite Code (Optional / Demo Gate) */}
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label htmlFor="inviteCode" className="block text-sm font-medium text-slate-700">
+                  Invite code
+                </label>
+                <span className="text-xs text-slate-400 font-normal">Optional</span>
+              </div>
+              <input
+                id="inviteCode"
+                name="inviteCode"
+                type="text"
+                value={formData.inviteCode}
+                onChange={handleChange}
+                disabled={isSubmitting}
+                className="w-full px-4 py-2.5 rounded-lg border border-slate-300 text-sm text-slate-900 transition-colors focus:outline-none focus:ring-2 focus:border-blue-500 focus:ring-blue-100"
+                placeholder="Enter invite code if required"
+              />
             </div>
           </div>
 
