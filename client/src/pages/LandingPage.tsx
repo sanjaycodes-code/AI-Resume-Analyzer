@@ -43,10 +43,8 @@ export const LandingPage: React.FC = () => {
     const ctx = gsap.context(() => {
       const mm = gsap.matchMedia();
 
-      // Only execute on desktop/tablet viewports (md breakpoint: >= 768px)
-      // On mobile (<768px), effect is fully skipped to guarantee zero jank & preserve responsive layout
+      // 1. Desktop / Tablet (>= 768px): Full cinematic zoom & deep parallax
       mm.add('(min-width: 768px)', () => {
-        // 1. Hero Content Scroll-Scrub Zoom (scales up smoothly ~1.18x and modulates opacity)
         if (heroContentRef.current && heroSectionRef.current) {
           gsap.to(heroContentRef.current, {
             scale: 1.16,
@@ -63,7 +61,6 @@ export const LandingPage: React.FC = () => {
           });
         }
 
-        // 2. Ambient Background Parallax (Moves at 50% relative speed)
         if (bgOrbsRef.current && heroSectionRef.current) {
           gsap.to(bgOrbsRef.current, {
             y: 120,
@@ -73,6 +70,39 @@ export const LandingPage: React.FC = () => {
               start: 'top top',
               end: 'bottom top',
               scrub: 0.8,
+              invalidateOnRefresh: true,
+            },
+          });
+        }
+      });
+
+      // 2. Mobile (< 768px): Touch-calibrated subtle zoom & parallax (zero edge clipping, responsive touch)
+      mm.add('(max-width: 767px)', () => {
+        if (heroContentRef.current && heroSectionRef.current) {
+          gsap.to(heroContentRef.current, {
+            scale: 1.05,
+            opacity: 0.92,
+            transformOrigin: 'center center',
+            ease: 'none',
+            scrollTrigger: {
+              trigger: heroSectionRef.current,
+              start: 'top top',
+              end: 'bottom top',
+              scrub: 0.4, // Faster scrub tuned for thumb swipe inertia
+              invalidateOnRefresh: true,
+            },
+          });
+        }
+
+        if (bgOrbsRef.current && heroSectionRef.current) {
+          gsap.to(bgOrbsRef.current, {
+            y: 40,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: heroSectionRef.current,
+              start: 'top top',
+              end: 'bottom top',
+              scrub: 0.4,
               invalidateOnRefresh: true,
             },
           });
