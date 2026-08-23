@@ -193,13 +193,13 @@ export const Dashboard: React.FC = () => {
             </p>
           </div>
 
-          {/* Total Resumes (Metric Card with Count-Up) */}
-          <div className="bg-indigo-50/50 hover:bg-indigo-50/80 p-6 rounded-3xl border border-indigo-200/60 hover:border-indigo-300/80 shadow-sm shadow-indigo-500/5 flex flex-col justify-between hover:shadow-md transition-all duration-300">
+          {/* Total Resumes (Metric Card with Count-Up - Neutral Slate Tint) */}
+          <div className="bg-slate-50/70 hover:bg-slate-100/80 p-6 rounded-3xl border border-slate-200/80 hover:border-slate-300 shadow-sm flex flex-col justify-between hover:shadow-md transition-all duration-300">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 Total Resumes
               </span>
-              <div className="w-8 h-8 rounded-xl bg-white text-indigo-700 border border-indigo-200/80 flex items-center justify-center shadow-3xs">
+              <div className="w-8 h-8 rounded-xl bg-white text-slate-700 border border-slate-200/80 flex items-center justify-center shadow-3xs">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
