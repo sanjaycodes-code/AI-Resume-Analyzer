@@ -22,7 +22,7 @@ const FACTOR_CONFIGS: FactorConfig[] = [
   {
     key: 'keywordMatch',
     title: 'Keyword Relevance',
-    maxScore: 25,
+    maxScore: 20,
     explanation: "Measures overlap between your resume's technical skills and the job description or industry standards.",
     icon: (
       <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -33,7 +33,7 @@ const FACTOR_CONFIGS: FactorConfig[] = [
   {
     key: 'sectionCompleteness',
     title: 'Standard Sections',
-    maxScore: 20,
+    maxScore: 15,
     explanation: 'Evaluates the presence of standard ATS sections: Skills, Experience, Education, and Projects.',
     icon: (
       <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -44,7 +44,7 @@ const FACTOR_CONFIGS: FactorConfig[] = [
   {
     key: 'contactInfo',
     title: 'Contact Info & Links',
-    maxScore: 15,
+    maxScore: 10,
     explanation: 'Verifies presence of email, phone number, location, and professional links (LinkedIn / GitHub).',
     icon: (
       <svg className="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -82,6 +82,17 @@ const FACTOR_CONFIGS: FactorConfig[] = [
     icon: (
       <svg className="w-4 h-4 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      </svg>
+    ),
+  },
+  {
+    key: 'writingQuality',
+    title: 'Writing Quality & Variety',
+    maxScore: 15,
+    explanation: 'Detects spelling accuracy, diverse action phrasing, and eliminates repetitive filler language.',
+    icon: (
+      <svg className="w-4 h-4 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
       </svg>
     ),
   },
@@ -375,6 +386,13 @@ export const AnalysisDetails: React.FC = () => {
           maxScore: 10,
           label: 'Formatting & Length Balance',
           feedback: fmt?.feedback || 'Clean formatting and optimal length.',
+        };
+      case 'writingQuality':
+        return fmt?.writingQuality || {
+          score: 15,
+          maxScore: 15,
+          label: 'Writing Quality & Variety',
+          feedback: 'Clean writing quality with strong phrasing variety.',
         };
       default:
         return { score: 10, maxScore: 15, label: key, feedback: '' };

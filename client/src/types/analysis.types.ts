@@ -15,6 +15,7 @@ export interface ScoreBreakdown {
   actionVerbs: ScoreCategory;
   quantifiedImpact: ScoreCategory;
   formattingCleanliness: ScoreCategory;
+  writingQuality?: ScoreCategory;
   scoringProfile?: string;
   roleCategory?: string;
 }
@@ -28,6 +29,7 @@ export interface FormattingAnalysis {
   contactInfo?: ScoreCategory;
   actionVerbs?: ScoreCategory;
   quantifiedImpact?: ScoreCategory;
+  writingQuality?: ScoreCategory;
   disclaimer?: string;
   summary?: string;
 }

@@ -150,6 +150,7 @@ export const createAnalysis = asyncHandler(
         contactInfo: scoreResult.breakdown.contactInfo,
         actionVerbs: scoreResult.breakdown.actionVerbs,
         quantifiedImpact: scoreResult.breakdown.quantifiedImpact,
+        writingQuality: scoreResult.breakdown.writingQuality,
         disclaimer: scoreResult.disclaimer,
         summary: scoreResult.summary,
       },

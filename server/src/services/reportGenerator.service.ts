@@ -34,19 +34,19 @@ const PDF_FACTOR_CONFIGS: FactorItem[] = [
   {
     key: 'keywordMatch',
     title: 'Keyword Relevance',
-    maxScore: 25,
+    maxScore: 20,
     explanation: "Overlap between resume skills and job requirements.",
   },
   {
     key: 'sectionCompleteness',
     title: 'Standard Sections',
-    maxScore: 20,
+    maxScore: 15,
     explanation: 'Presence of Skills, Experience, Education & Projects.',
   },
   {
     key: 'contactInfo',
     title: 'Contact Info & Links',
-    maxScore: 15,
+    maxScore: 10,
     explanation: 'Verified Email, Phone, Location & Professional Links.',
   },
   {
@@ -66,6 +66,12 @@ const PDF_FACTOR_CONFIGS: FactorItem[] = [
     title: 'Formatting & Layout',
     maxScore: 10,
     explanation: 'Optimal length (300-1500 words) & clean casing.',
+  },
+  {
+    key: 'writingQuality',
+    title: 'Writing Quality & Variety',
+    maxScore: 15,
+    explanation: 'Spelling accuracy, action variety & minimal repetition.',
   },
 ];
 
@@ -170,6 +176,12 @@ export const generatePdfReportStream = (analysis: IAnalysis): PDFKit.PDFDocument
           score: (fmt?.score as number) ?? 10,
           maxScore: 10,
           feedback: (fmt?.feedback as string) || 'Clean formatting and optimal word count.',
+        };
+      case 'writingQuality':
+        return {
+          score: 15,
+          maxScore: 15,
+          feedback: 'Clean writing quality with strong phrasing variety.',
         };
       default:
         return { score: 10, maxScore: defaultMax, feedback: '' };

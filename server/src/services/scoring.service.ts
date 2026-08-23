@@ -20,108 +20,117 @@ export interface RoleWeightProfile {
     actionVerbs: number;
     quantifiedImpact: number;
     formattingCleanliness: number;
+    writingQuality: number;
   };
 }
 
 /**
  * Role-specific ATS weight profiles.
- * Every profile sums to exactly 100 total points across the 6 core deterministic factors.
+ * Every profile sums to exactly 100 total points across the 7 core deterministic factors.
  */
 export const ROLE_WEIGHT_PROFILES: Record<RoleCategory, RoleWeightProfile> = {
   general: {
     name: 'General Industry',
     description: 'Standard balanced ATS weighting across all core factors.',
     weights: {
-      keywordMatch: 25,
-      sectionCompleteness: 20,
-      contactInfo: 15,
+      keywordMatch: 20,
+      sectionCompleteness: 15,
+      contactInfo: 10,
       actionVerbs: 15,
       quantifiedImpact: 15,
       formattingCleanliness: 10,
+      writingQuality: 15,
     },
   },
   other: {
     name: 'General Industry',
     description: 'Standard balanced ATS weighting across all core factors.',
     weights: {
-      keywordMatch: 25,
-      sectionCompleteness: 20,
-      contactInfo: 15,
+      keywordMatch: 20,
+      sectionCompleteness: 15,
+      contactInfo: 10,
       actionVerbs: 15,
       quantifiedImpact: 15,
       formattingCleanliness: 10,
+      writingQuality: 15,
     },
   },
   software_engineering: {
     name: 'Software Engineering',
-    description: 'Weighted towards high-impact action verbs and technical achievements.',
+    description: 'Weighted towards high-impact action verbs, technical achievements, and domain skills.',
     weights: {
-      keywordMatch: 25,
-      sectionCompleteness: 15,
+      keywordMatch: 20,
+      sectionCompleteness: 10,
       contactInfo: 10,
       actionVerbs: 20,
       quantifiedImpact: 20,
       formattingCleanliness: 10,
+      writingQuality: 10,
     },
   },
   data_analytics: {
     name: 'Data & Analytics',
     description: 'Heavily weighted towards quantifiable metrics, statistical outcomes, and tooling.',
     weights: {
-      keywordMatch: 25,
-      sectionCompleteness: 15,
+      keywordMatch: 20,
+      sectionCompleteness: 10,
       contactInfo: 10,
       actionVerbs: 15,
       quantifiedImpact: 25,
       formattingCleanliness: 10,
+      writingQuality: 10,
     },
   },
   hardware_vlsi: {
     name: 'Hardware & VLSI',
     description: 'Prioritizes domain-specific hardware keywords, RTL architecture, and metrics.',
     weights: {
-      keywordMatch: 30,
-      sectionCompleteness: 15,
+      keywordMatch: 25,
+      sectionCompleteness: 10,
       contactInfo: 10,
       actionVerbs: 15,
       quantifiedImpact: 20,
       formattingCleanliness: 10,
+      writingQuality: 10,
     },
   },
   core_engineering: {
     name: 'Core Engineering',
     description: 'Emphasizes standard technical sections, project metrics, and domain tools.',
     weights: {
-      keywordMatch: 25,
-      sectionCompleteness: 20,
+      keywordMatch: 20,
+      sectionCompleteness: 15,
       contactInfo: 10,
       actionVerbs: 15,
       quantifiedImpact: 20,
       formattingCleanliness: 10,
+      writingQuality: 10,
     },
   },
   design_creative: {
     name: 'Design & Creative',
-    description: 'Emphasizes portfolio links, layout cleanliness, and visual presentation.',
+    description: 'Emphasizes portfolio links, layout cleanliness, phrasing variety, and visual presentation.',
     weights: {
-      keywordMatch: 20,
+      keywordMatch: 15,
       sectionCompleteness: 15,
-      contactInfo: 20,
+      contactInfo: 15,
       actionVerbs: 10,
       quantifiedImpact: 15,
-      formattingCleanliness: 20,
+      formattingCleanliness: 15,
+      writingQuality: 15,
     },
   },
   general_business: {
     name: 'Business & Management',
     description: 'Prioritizes leadership action verbs, business metrics, and revenue impact.',
     weights: {
-      keywordMatch: 20,
-      sectionCompleteness: 15,
-      contactInfo: 15,
+      keywordMatch: 15,
+      sectionCompleteness: 10,
+      contactInfo: 10,
       actionVerbs: 20,
       quantifiedImpact: 20,
       formattingCleanliness: 10,
+      writingQuality: 15,
     },
   },
 };
@@ -202,6 +211,7 @@ export interface AtsScoreResult {
     actionVerbs: ScoreBreakdownCategory;
     quantifiedImpact: ScoreBreakdownCategory;
     formattingCleanliness: ScoreBreakdownCategory;
+    writingQuality: ScoreBreakdownCategory;
     scoringProfile?: string;
     roleCategory?: string;
   };
@@ -214,6 +224,164 @@ const ACTION_VERBS = [
   'refactored', 'automated', 'orchestrated', 'authored', 'managed', 'streamlined',
   'executed', 'enhanced', 'formulated', 'collaborated', 'programmed', 'coordinated'
 ];
+
+/**
+ * Curated dictionary of common spelling errors frequently appearing in resumes.
+ */
+const COMMON_TYPOS: Record<string, string> = {
+  acheive: 'achieve',
+  acheived: 'achieved',
+  acheivement: 'achievement',
+  acheivements: 'achievements',
+  analisys: 'analysis',
+  analize: 'analyze',
+  analized: 'analyzed',
+  architechture: 'architecture',
+  architech: 'architect',
+  architechtural: 'architectural',
+  asist: 'assist',
+  asisted: 'assisted',
+  asistance: 'assistance',
+  avialable: 'available',
+  availiable: 'available',
+  buisness: 'business',
+  busines: 'business',
+  calender: 'calendar',
+  collaberated: 'collaborated',
+  collabarate: 'collaborate',
+  collaberation: 'collaboration',
+  comunication: 'communication',
+  comunicate: 'communicate',
+  confortable: 'comfortable',
+  databse: 'database',
+  databses: 'databases',
+  definately: 'definitely',
+  definate: 'definite',
+  developement: 'development',
+  develope: 'develop',
+  developped: 'developed',
+  developr: 'developer',
+  documantation: 'documentation',
+  documant: 'document',
+  effecient: 'efficient',
+  efficent: 'efficient',
+  effeciently: 'efficiently',
+  enviroment: 'environment',
+  enviromental: 'environmental',
+  engeneer: 'engineer',
+  enginer: 'engineer',
+  engeneering: 'engineering',
+  evalution: 'evaluation',
+  evalute: 'evaluate',
+  experiance: 'experience',
+  experianced: 'experienced',
+  faciliate: 'facilitate',
+  faciliated: 'facilitated',
+  flater: 'flutter',
+  frameowrk: 'framework',
+  framwork: 'framework',
+  fronend: 'frontend',
+  frontned: 'frontend',
+  guarentee: 'guarantee',
+  garantee: 'guarantee',
+  implimented: 'implemented',
+  impliment: 'implement',
+  implimentation: 'implementation',
+  independant: 'independent',
+  independantaly: 'independently',
+  intigrated: 'integrated',
+  intigration: 'integration',
+  knowlege: 'knowledge',
+  knowlegeable: 'knowledgeable',
+  leaded: 'led',
+  leaderhip: 'leadership',
+  libary: 'library',
+  libaries: 'libraries',
+  maintainance: 'maintenance',
+  maintanence: 'maintenance',
+  managment: 'management',
+  managament: 'management',
+  manger: 'manager',
+  neccessary: 'necessary',
+  necessery: 'necessary',
+  occured: 'occurred',
+  occuring: 'occurring',
+  oppurtunity: 'opportunity',
+  opurtunity: 'opportunity',
+  oppurtunities: 'opportunities',
+  optmize: 'optimize',
+  optmized: 'optimized',
+  optmization: 'optimization',
+  peformance: 'performance',
+  preformance: 'performance',
+  preceeding: 'preceding',
+  privelege: 'privilege',
+  priviledge: 'privilege',
+  profesional: 'professional',
+  proffessional: 'professional',
+  programing: 'programming',
+  programer: 'programmer',
+  recommand: 'recommend',
+  recommanded: 'recommended',
+  reccomend: 'recommend',
+  recieved: 'received',
+  recieve: 'receive',
+  recieving: 'receiving',
+  referance: 'reference',
+  refered: 'referred',
+  relavent: 'relevant',
+  relevent: 'relevant',
+  reponsible: 'responsible',
+  responcible: 'responsible',
+  responsibilty: 'responsibility',
+  responsabilities: 'responsibilities',
+  requirment: 'requirement',
+  requiremnts: 'requirements',
+  requirments: 'requirements',
+  scedule: 'schedule',
+  schedual: 'schedule',
+  seperate: 'separate',
+  seperated: 'separated',
+  strategie: 'strategy',
+  stratagy: 'strategy',
+  succesful: 'successful',
+  sucessful: 'successful',
+  successfully: 'successfully',
+  sucessfully: 'successfully',
+  supervize: 'supervise',
+  supervized: 'supervised',
+  technolgy: 'technology',
+  techology: 'technology',
+  tommorrow: 'tomorrow',
+  transferred: 'transferred',
+  transfered: 'transferred',
+  unforseen: 'unforeseen',
+  untill: 'until',
+  upgradeable: 'upgradable',
+  usefull: 'useful',
+  writting: 'writing',
+};
+
+/**
+ * Whitelist of technical acronyms and domain tools that must NEVER be flagged as spelling errors.
+ */
+const TECH_WHITELIST = new Set([
+  'aws', 'gcp', 'azure', 'ci', 'cd', 'api', 'apis', 'rest', 'restful', 'graphql',
+  'sql', 'nosql', 'json', 'xml', 'html', 'css', 'sass', 'scss', 'jwt', 'sso', 'oauth',
+  'sdk', 'sdks', 'cli', 'gui', 'iot', 'saas', 'paas', 'iaas', 'erp', 'crm', 'etl',
+  'k8s', 'kubernetes', 'docker', 'kafka', 'redis', 'nginx', 'linux', 'unix', 'git',
+  'github', 'gitlab', 'jira', 'confluence', 'agile', 'scrum', 'kanban', 'devops',
+  'sre', 'ci/cd', 'frontend', 'backend', 'fullstack', 'ui', 'ux', 'ai', 'ml', 'nlp',
+  'opencv', 'llm', 'llms', 'rag', 'pytorch', 'tensorflow', 'scikit', 'numpy', 'pandas',
+  'react', 'redux', 'nextjs', 'vue', 'angular', 'svelte', 'nodejs', 'express', 'nestjs',
+  'fastapi', 'flask', 'django', 'spring', 'springboot', 'hibernate', 'microservices',
+  'postgresql', 'postgres', 'mysql', 'mongodb', 'sqlite', 'dynamodb', 'cassandra',
+  'typescript', 'javascript', 'python', 'java', 'c++', 'c#', 'golang', 'rust', 'ruby',
+  'php', 'swift', 'kotlin', 'dart', 'scala', 'r', 'matlab', 'verilog', 'vhdl', 'systemverilog',
+  'fpga', 'asic', 'pcb', 'rtl', 'vlsi', 'cadence', 'synopsys', 'solidworks', 'ansys', 'autocad',
+  'figma', 'canva', 'photoshop', 'illustrator', 'tableau', 'powerbi', 'spark', 'hadoop',
+  'linkedin', 'leetcode', 'hackerrank', 'geeksforgeeks', 'codeforces', 'kaggle', 'medium'
+]);
 
 /**
  * Calculates a deterministic, explainable Estimated ATS Compatibility Score (0-100)
@@ -498,9 +666,142 @@ export const calculateAtsScore = (
       : formatIssues.join(' ');
 
   // -------------------------------------------------------------------------
-  // Total Score & Summary
+  // 7. Writing Quality, Spelling & Phrasing Variety
   // -------------------------------------------------------------------------
-  const totalScore = keywordScore + sectionScore + contactScore + actionScore + metricScore + formatScore;
+  const maxWriting = weights.writingQuality;
+  let writingScore = maxWriting;
+  const writingIssues: string[] = [];
+
+  // A. Common Spelling Typos Check (with dynamic skills & tech whitelist)
+  const foundTypos: string[] = [];
+  const textWords = text.split(/[\s,.;:()/\-–—\[\]{}"]+/).filter(Boolean);
+
+  const dynamicSkillWhitelist = new Set<string>();
+  if (parsedSections.skills) {
+    parsedSections.skills.forEach((s) => {
+      s.toLowerCase()
+        .split(/[\s/]+/)
+        .forEach((w) => {
+          const clean = w.replace(/[^a-z0-9]/g, '');
+          if (clean.length > 1) dynamicSkillWhitelist.add(clean);
+        });
+    });
+  }
+
+  for (const rawWord of textWords) {
+    const cleanWord = rawWord.toLowerCase().replace(/[^a-z]/g, '');
+    if (cleanWord.length < 3) continue;
+
+    if (COMMON_TYPOS[cleanWord]) {
+      const correction = COMMON_TYPOS[cleanWord];
+      if (!TECH_WHITELIST.has(cleanWord) && !dynamicSkillWhitelist.has(cleanWord)) {
+        const typoReport = `'${cleanWord}' (suggested: ${correction})`;
+        if (!foundTypos.includes(typoReport)) {
+          foundTypos.push(typoReport);
+        }
+      }
+    }
+  }
+
+  // Check for duplicated consecutive words (e.g. "the the", "with with")
+  const duplicateWords: string[] = [];
+  const dupRegex = /\b([a-zA-Z]{3,})\s+\1\b/gi;
+  let dupMatch: RegExpExecArray | null;
+  while ((dupMatch = dupRegex.exec(text)) !== null) {
+    const dupWord = dupMatch[1].toLowerCase();
+    if (!TECH_WHITELIST.has(dupWord) && !duplicateWords.includes(dupWord)) {
+      duplicateWords.push(dupWord);
+    }
+  }
+
+  if (foundTypos.length > 0) {
+    const penalty = Math.min(
+      Math.round(maxWriting * 0.45),
+      foundTypos.length * Math.max(1, Math.round(maxWriting * 0.18))
+    );
+    writingScore -= penalty;
+    writingIssues.push(
+      `Flagged ${foundTypos.length} potential spelling issue${foundTypos.length > 1 ? 's' : ''}: ${foundTypos.slice(0, 3).join(', ')}.`
+    );
+  }
+
+  if (duplicateWords.length > 0) {
+    writingScore -= Math.min(Math.round(maxWriting * 0.2), duplicateWords.length * 2);
+    writingIssues.push(
+      `Repeated consecutive word${duplicateWords.length > 1 ? 's' : ''} detected: ${duplicateWords.map((w) => `'${w} ${w}'`).join(', ')}.`
+    );
+  }
+
+  // B. Bullet Opening Verb Repetition Check
+  const bulletLines = rawLines.filter(
+    (line) => /^[•\-\*–—\d+\.]\s*/.test(line) || (line.length >= 25 && line.length <= 250)
+  );
+  const startingVerbs: string[] = [];
+
+  for (const b of bulletLines) {
+    const clean = b.replace(/^[•\-\*–—\d+\.]+\s*/, '').trim();
+    const firstWord = clean.split(/\s+/)[0]?.toLowerCase().replace(/[^a-z]/g, '');
+    if (
+      firstWord &&
+      firstWord.length >= 3 &&
+      !/^(the|and|for|with|from|this|that|also|each|into|over|upon|via)$/.test(firstWord)
+    ) {
+      startingVerbs.push(firstWord);
+    }
+  }
+
+  const verbFreq: Record<string, number> = {};
+  for (const v of startingVerbs) {
+    verbFreq[v] = (verbFreq[v] || 0) + 1;
+  }
+
+  const overusedVerbs = Object.entries(verbFreq).filter(([_, count]) => count >= 4);
+  if (overusedVerbs.length > 0) {
+    writingScore -= Math.round(maxWriting * 0.25);
+    const verbList = overusedVerbs.map(([verb, count]) => `'${verb}' (${count}x)`).join(', ');
+    writingIssues.push(
+      `High repetition in bullet openings: started 4+ bullet points with ${verbList}. Varying action verbs demonstrates broader ownership.`
+    );
+  }
+
+  // C. Passive / Weak Filler Phrase Check
+  const foundFillers: string[] = [];
+  const FILLER_PHRASES = [
+    { phrase: 'responsible for', threshold: 3, label: "'responsible for'" },
+    { phrase: 'worked on', threshold: 4, label: "'worked on'" },
+    { phrase: 'helped to', threshold: 3, label: "'helped to'" },
+    { phrase: 'assisted with', threshold: 3, label: "'assisted with'" },
+    { phrase: 'tasked with', threshold: 2, label: "'tasked with'" },
+    { phrase: 'duties included', threshold: 2, label: "'duties included'" },
+    { phrase: 'participated in', threshold: 3, label: "'participated in'" },
+  ];
+
+  for (const { phrase, threshold, label } of FILLER_PHRASES) {
+    const regex = new RegExp(`\\b${phrase}\\b`, 'gi');
+    const matches = lowerText.match(regex) || [];
+    if (matches.length >= threshold) {
+      foundFillers.push(`${label} across ${matches.length} bullet points`);
+    }
+  }
+
+  if (foundFillers.length > 0) {
+    writingScore -= Math.round(maxWriting * 0.25);
+    writingIssues.push(
+      `Repeated use of passive filler phrasing: ${foundFillers.join(', ')}. Replace with active verbs like 'spearheaded', 'built', or 'delivered'.`
+    );
+  }
+
+  writingScore = Math.min(maxWriting, Math.max(0, writingScore));
+  const writingFeedback =
+    writingIssues.length === 0
+      ? 'Clean writing quality with strong phrasing variety, zero detected spelling typos, and no repetitive filler language.'
+      : writingIssues.join(' ');
+
+  // -------------------------------------------------------------------------
+  // Total Score & Summary (Sum of all 7 core deterministic factors = 100)
+  // -------------------------------------------------------------------------
+  const totalScore =
+    keywordScore + sectionScore + contactScore + actionScore + metricScore + formatScore + writingScore;
   const boundedScore = Math.min(100, Math.max(0, totalScore));
 
   let summary = '';
@@ -517,7 +818,7 @@ export const calculateAtsScore = (
   return {
     estimatedAtsScore: boundedScore,
     disclaimer:
-      'Estimated ATS Compatibility Score based on role-contextual structural, keyword, action-oriented, and formatting heuristics. Not affiliated with any commercial ATS vendor.',
+      'Estimated ATS Compatibility Score based on role-contextual structural, keyword, action-oriented, writing quality, and formatting heuristics. Not affiliated with any commercial ATS vendor.',
     roleCategory: detectedCategory,
     scoringProfile: profile.name,
     scoringProfileDescription: profile.description,
@@ -557,6 +858,12 @@ export const calculateAtsScore = (
         maxScore: maxFormat,
         label: 'Formatting & Length Balance',
         feedback: formattingFeedback,
+      },
+      writingQuality: {
+        score: writingScore,
+        maxScore: maxWriting,
+        label: 'Writing Quality & Variety',
+        feedback: writingFeedback,
       },
       scoringProfile: profile.name,
       roleCategory: detectedCategory,
