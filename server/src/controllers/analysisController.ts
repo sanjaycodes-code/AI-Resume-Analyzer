@@ -108,6 +108,13 @@ export const createAnalysis = asyncHandler(
       roleCategory
     );
 
+    console.log('[DEBUG Controller createAnalysis] calculateAtsScore output:', {
+      estimatedAtsScore: scoreResult.estimatedAtsScore,
+      writingQualityScore: scoreResult.breakdown.writingQuality.score,
+      maxWriting: scoreResult.breakdown.writingQuality.maxScore,
+      roleCategory,
+    });
+
     // 6. Run AI Analysis (wrapped to handle transient AI provider errors cleanly without partial saves)
     let aiResult;
     try {
@@ -174,6 +181,14 @@ export const createAnalysis = asyncHandler(
       rawAIResponse: aiResult,
     });
 
+    console.log('[DEBUG Controller createAnalysis] Document written to MongoDB:', {
+      id: analysis._id,
+      atsScore: analysis.atsScore,
+      overallScore: analysis.overallScore,
+      scoringVersion: analysis.scoringVersion,
+      createdAt: analysis.createdAt,
+    });
+
     // Remove rawAIResponse from payload
     const sanitized = analysis.toObject();
     delete (sanitized as unknown as Record<string, unknown>).rawAIResponse;
@@ -197,9 +212,41 @@ export const getAnalyses = asyncHandler(
 
     const analyses = await Analysis.find({ userId: new mongoose.Types.ObjectId(userId) })
       .select('-rawAIResponse')
-      .populate('resumeId', 'originalFileName fileType createdAt')
-      .populate('jobDescriptionId', 'title createdAt')
+      .populate('resumeId', 'originalFileName fileType createdAt extractedText parsedSections')
+      .populate('jobDescriptionId', 'title createdAt rawText roleCategory')
       .sort({ createdAt: -1 });
+
+    // Check if any legacy analysis needs upgrading in the list
+    for (const analysis of analyses) {
+      if (
+        analysis.scoringVersion !== SCORING_VERSION &&
+        analysis.resumeId &&
+        typeof analysis.resumeId === 'object' &&
+        'extractedText' in analysis.resumeId
+      ) {
+        const resumeDoc = analysis.resumeId as unknown as { extractedText: string; parsedSections: unknown };
+        const jdDoc = analysis.jobDescriptionId as unknown as { rawText?: string; roleCategory?: string } | null;
+        const calculated = calculateAtsScore(
+          resumeDoc.extractedText,
+          (resumeDoc.parsedSections || {}) as never,
+          jdDoc?.rawText,
+          jdDoc?.roleCategory
+        );
+        analysis.scoringVersion = SCORING_VERSION;
+        analysis.atsScore = calculated.estimatedAtsScore;
+        analysis.scoreBreakdown = calculated.breakdown;
+        await Analysis.updateOne(
+          { _id: analysis._id },
+          {
+            $set: {
+              scoringVersion: SCORING_VERSION,
+              atsScore: calculated.estimatedAtsScore,
+              scoreBreakdown: calculated.breakdown,
+            },
+          }
+        );
+      }
+    }
 
     res.status(200).json({
       success: true,
@@ -256,6 +303,13 @@ export const getAnalysisById = asyncHandler(
           jdDoc?.roleCategory
         );
 
+        console.log('[DEBUG getAnalysisById] Upgrading legacy analysis document:', {
+          id: analysis._id,
+          oldAtsScore: analysis.atsScore,
+          newAtsScore: calculated.estimatedAtsScore,
+          newWritingQuality: calculated.breakdown.writingQuality.score,
+        });
+
         const expRating = (analysis.experienceAnalysis as Record<string, number>)?.rating || 75;
         const eduRating = (analysis.educationAnalysis as Record<string, number>)?.rating || 80;
         const projRating = (analysis.projectAnalysis as Record<string, number>)?.rating || 80;
@@ -287,6 +341,14 @@ export const getAnalysisById = asyncHandler(
         analysisObj.formattingAnalysis = analysis.formattingAnalysis;
       }
     }
+
+    console.log('[DEBUG getAnalysisById] Sending analysis payload:', {
+      id: analysisObj._id,
+      atsScore: analysisObj.atsScore,
+      overallScore: analysisObj.overallScore,
+      scoringVersion: analysisObj.scoringVersion,
+      writingQualityScore: (analysisObj.scoreBreakdown as Record<string, { score: number }>)?.writingQuality?.score,
+    });
 
     res.status(200).json({
       success: true,
