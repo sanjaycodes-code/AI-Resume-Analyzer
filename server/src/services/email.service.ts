@@ -42,7 +42,7 @@ export const sendPasswordResetEmail = async (
                     <table align="center" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto 28px auto;">
                       <tr>
                         <td align="center" style="border-radius: 10px; background-color: #2563eb;">
-                          <a href="${resetUrl}" target="_blank" style="font-size: 14px; font-weight: 700; color: #ffffff; text-decoration: none; padding: 14px 28px; display: inline-block; border-radius: 10px;">
+                          <a ses:no-track href="${resetUrl}" target="_blank" style="font-size: 14px; font-weight: 700; color: #ffffff; text-decoration: none; padding: 14px 28px; display: inline-block; border-radius: 10px;">
                             Reset My Password
                           </a>
                         </td>
