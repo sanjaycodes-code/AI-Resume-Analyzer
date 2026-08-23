@@ -126,8 +126,8 @@ export const FileDropzone: React.FC<FileDropzoneProps> = ({
           onClick={() => !isUploading && fileInputRef.current?.click()}
           className={`border-2 border-dashed rounded-2xl p-8 sm:p-12 text-center cursor-pointer transition-all duration-200 ${
             isDragOver
-              ? 'border-blue-500 bg-blue-50/70 scale-[1.01]'
-              : 'border-slate-300 hover:border-blue-400 bg-white hover:bg-slate-50/60'
+              ? 'border-blue-500 bg-blue-50/80 scale-[1.01]'
+              : 'border-slate-300 hover:border-blue-400 bg-[#F4F8FC]/60 hover:bg-[#EBF3FA]/70'
           } ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           <div className="max-w-sm mx-auto flex flex-col items-center space-y-4">
@@ -157,7 +157,7 @@ export const FileDropzone: React.FC<FileDropzoneProps> = ({
         </div>
       ) : (
         /* Selected File Card */
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
+        <div className="bg-[#F8FAFD] rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3 truncate">
               <div className="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0">
