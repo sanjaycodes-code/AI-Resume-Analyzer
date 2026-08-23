@@ -141,7 +141,7 @@ export const AnalysisDetails: React.FC = () => {
     const ctx = gsap.context(() => {
       const mm = gsap.matchMedia();
 
-      // Desktop & Tablet only (>= 768px). Fully disabled on mobile (< 768px).
+      // 1. Desktop & Tablet (>= 768px): Cinematic scale down & soft fade
       mm.add('(min-width: 768px)', () => {
         if (scoreGaugesRef.current) {
           gsap.to(scoreGaugesRef.current, {
@@ -154,6 +154,25 @@ export const AnalysisDetails: React.FC = () => {
               start: 'top 100px',
               end: 'bottom top',
               scrub: 0.6,
+              invalidateOnRefresh: true,
+            },
+          });
+        }
+      });
+
+      // 2. Mobile (< 768px): Touch-calibrated subtle receding effect (zero edge clipping, responsive inertia)
+      mm.add('(max-width: 767px)', () => {
+        if (scoreGaugesRef.current) {
+          gsap.to(scoreGaugesRef.current, {
+            scale: 0.96,
+            opacity: 0.92,
+            transformOrigin: 'center top',
+            ease: 'none',
+            scrollTrigger: {
+              trigger: scoreGaugesRef.current,
+              start: 'top 80px',
+              end: 'bottom top',
+              scrub: 0.4, // Responsive touch response
               invalidateOnRefresh: true,
             },
           });
