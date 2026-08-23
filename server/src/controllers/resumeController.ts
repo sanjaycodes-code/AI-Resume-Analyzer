@@ -26,21 +26,53 @@ export const uploadResume = asyncHandler(async (req: Request, res: Response): Pr
   // 1. Text extraction (defends against corrupted/malformed files before storage upload)
   const extractedText = await extractText(file.buffer, fileType);
 
-  // 2. Heuristic section parsing
-  const parsedSections = parseSections(extractedText);
+  // 2. Cap extractedText storage at 20KB per document
+  const MAX_EXTRACTED_TEXT_BYTES = 20 * 1024; // 20KB
+  let finalExtractedText = extractedText;
+  if (finalExtractedText.length > MAX_EXTRACTED_TEXT_BYTES) {
+    console.warn(
+      `[Resume Model] extractedText for "${file.originalname}" exceeded 20KB limit (${finalExtractedText.length} bytes). Truncating to first 20KB.`
+    );
+    finalExtractedText = finalExtractedText.slice(0, MAX_EXTRACTED_TEXT_BYTES);
+  }
 
-  // 3. Storage upload
+  // 3. Heuristic section parsing
+  const parsedSections = parseSections(finalExtractedText);
+
+  // 4. Enforce maximum 3 resumes per user: delete oldest before saving new
+  const userObjectId = new mongoose.Types.ObjectId(userId);
+  const existingCount = await Resume.countDocuments({ userId: userObjectId });
+  if (existingCount >= 3) {
+    const oldestResumes = await Resume.find({ userId: userObjectId })
+      .sort({ createdAt: 1 })
+      .limit(existingCount - 2); // Deletes enough so adding 1 keeps total at 3
+
+    for (const oldest of oldestResumes) {
+      console.log(
+        `[Resume FIFO Cleanup] User has ${existingCount} resumes. Purging oldest resume: ${oldest._id} ("${oldest.originalFileName}")`
+      );
+      if (oldest.fileUrl) {
+        await deleteFile(oldest.fileUrl).catch((err) =>
+          console.error('[Resume FIFO Error] Failed to delete storage file:', err)
+        );
+      }
+      await Analysis.deleteMany({ resumeId: oldest._id });
+      await Resume.findByIdAndDelete(oldest._id);
+    }
+  }
+
+  // 5. Storage upload
   const { fileUrl, publicId } = await uploadBuffer(file.buffer, file.originalname);
 
-  // 4. Save to MongoDB with compensating cleanup on failure
+  // 6. Save to MongoDB with compensating cleanup on failure
   let savedResume;
   try {
     savedResume = await Resume.create({
-      userId: new mongoose.Types.ObjectId(userId),
+      userId: userObjectId,
       originalFileName: file.originalname,
       fileUrl,
       fileType,
-      extractedText,
+      extractedText: finalExtractedText,
       parsedSections,
     });
   } catch (dbError) {

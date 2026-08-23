@@ -137,6 +137,11 @@ const AnalysisSchema = new Schema<IAnalysis>(
 // Compound index for dashboard queries
 AnalysisSchema.index({ userId: 1, createdAt: -1 });
 
+// 30-day TTL index: MongoDB automatically purges documents 30 days after createdAt.
+// NOTE: MongoDB TTL deletion happens server-side via a background thread and does NOT
+// trigger Mongoose pre/post middleware hooks.
+AnalysisSchema.index({ createdAt: 1 }, { expireAfterSeconds: 30 * 24 * 60 * 60 });
+
 export const Analysis: Model<IAnalysis> =
   mongoose.models.Analysis || mongoose.model<IAnalysis>('Analysis', AnalysisSchema);
 

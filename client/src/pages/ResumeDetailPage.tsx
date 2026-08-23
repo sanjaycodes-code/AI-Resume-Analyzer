@@ -117,7 +117,7 @@ export const ResumeDetailPage: React.FC = () => {
             ⚡ Analyze with AI
           </button>
 
-          {resume.fileUrl && (
+          {resume.fileUrl ? (
             <a
               href={resume.fileUrl}
               target="_blank"
@@ -129,6 +129,13 @@ export const ResumeDetailPage: React.FC = () => {
               </svg>
               View File
             </a>
+          ) : (
+            <span
+              className="inline-flex items-center px-3 py-1.5 rounded-xl bg-slate-100 text-slate-500 text-xs font-medium border border-slate-200"
+              title="Raw file purged after 48h ephemeral retention. Parsed sections & text are fully preserved."
+            >
+              📁 Raw file purged (&gt;48h)
+            </span>
           )}
           <button
             type="button"

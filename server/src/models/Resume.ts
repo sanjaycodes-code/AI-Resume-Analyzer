@@ -12,7 +12,7 @@ export interface IParsedSections {
 export interface IResume extends Document {
   userId: Types.ObjectId;
   originalFileName: string;
-  fileUrl: string;
+  fileUrl?: string | null;
   fileType: ResumeFileType;
   extractedText: string;
   parsedSections: IParsedSections;
@@ -35,8 +35,9 @@ const ResumeSchema = new Schema<IResume>(
     },
     fileUrl: {
       type: String,
-      required: [true, 'File URL is required'],
+      required: false,
       trim: true,
+      default: null,
     },
     fileType: {
       type: String,
@@ -76,6 +77,12 @@ const ResumeSchema = new Schema<IResume>(
 
 // Compound index for user dashboard queries
 ResumeSchema.index({ userId: 1, createdAt: -1 });
+
+// 30-day TTL index: MongoDB automatically purges documents 30 days after createdAt.
+// NOTE: MongoDB TTL deletion happens server-side via a background thread and does NOT
+// trigger Mongoose pre/post middleware hooks. Storage file cleanup is handled separately
+// via the scheduled cleanup script and controller FIFO deletion.
+ResumeSchema.index({ createdAt: 1 }, { expireAfterSeconds: 30 * 24 * 60 * 60 });
 
 export const Resume: Model<IResume> = mongoose.models.Resume || mongoose.model<IResume>('Resume', ResumeSchema);
 

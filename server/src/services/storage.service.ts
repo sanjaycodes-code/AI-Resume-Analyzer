@@ -99,11 +99,16 @@ export const uploadBuffer = async (
   }
 };
 
-export const deleteFile = async (publicId: string): Promise<void> => {
-  if (!publicId) return;
+export const deleteFile = async (publicIdOrUrl: string): Promise<void> => {
+  if (!publicIdOrUrl) return;
 
-  if (publicId.startsWith('local_')) {
-    const fileName = publicId.replace('local_', '');
+  // Handle local files (publicId 'local_xxx' or local URL '/uploads/resumes/xxx')
+  if (publicIdOrUrl.startsWith('local_') || publicIdOrUrl.includes('/uploads/resumes/')) {
+    let fileName = publicIdOrUrl.startsWith('local_')
+      ? publicIdOrUrl.replace('local_', '')
+      : publicIdOrUrl.split('/uploads/resumes/').pop() || '';
+
+    fileName = fileName.split('?')[0]; // Strip query params if any
     const localFilePath = path.join(localUploadDir, fileName);
     if (fs.existsSync(localFilePath)) {
       try {
@@ -116,12 +121,22 @@ export const deleteFile = async (publicId: string): Promise<void> => {
     return;
   }
 
+  // Handle Cloudinary files (publicId or Cloudinary URL)
   if (isCloudinaryConfigured) {
     try {
+      let publicId = publicIdOrUrl;
+      // Extract Cloudinary publicId if full URL was provided
+      if (publicIdOrUrl.includes('res.cloudinary.com')) {
+        const matches = publicIdOrUrl.match(/ai-resume-analyzer\/resumes\/[^.]+/);
+        if (matches) {
+          publicId = matches[0];
+        }
+      }
+
       await cloudinary.uploader.destroy(publicId, { resource_type: 'raw' });
       console.log(`[Storage] Deleted cloud asset: ${publicId}`);
     } catch (err) {
-      console.error(`[Storage Error] Failed to delete Cloudinary asset ${publicId}:`, err);
+      console.error(`[Storage Error] Failed to delete Cloudinary asset ${publicIdOrUrl}:`, err);
     }
   }
 };
