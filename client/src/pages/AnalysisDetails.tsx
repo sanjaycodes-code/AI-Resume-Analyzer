@@ -401,6 +401,35 @@ export const AnalysisDetails: React.FC = () => {
     }
   };
 
+  // Single source of truth:
+  // Compute deterministic sum of breakdown factors so gauge and factor cards are mathematically synchronized
+  const factorSum = analysis.scoreBreakdown
+    ? Object.entries(analysis.scoreBreakdown).reduce((acc: number, [k, item]) => {
+        if (
+          k !== 'scoringProfile' &&
+          k !== 'roleCategory' &&
+          item &&
+          typeof item === 'object' &&
+          'score' in item &&
+          typeof (item as ScoreCategory).score === 'number'
+        ) {
+          return acc + (item as ScoreCategory).score;
+        }
+        return acc;
+      }, 0)
+    : (analysis.atsScore || 0);
+
+  const displayAtsScore = factorSum > 0 ? factorSum : (analysis.atsScore || 0);
+
+  const aiDerivedScore =
+    (((analysis.experienceAnalysis as unknown as Record<string, number>)?.rating || 75) +
+      ((analysis.educationAnalysis as unknown as Record<string, number>)?.rating || 80) +
+      ((analysis.projectAnalysis as unknown as Record<string, number>)?.rating || 80) +
+      ((analysis.keywordAnalysis as unknown as Record<string, number>)?.keywordDensityScore || 70)) /
+    4;
+
+  const displayOverallScore = Math.min(100, Math.max(0, Math.round(0.6 * displayAtsScore + 0.4 * aiDerivedScore)));
+
   return (
     <div ref={pageContainerRef} className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-8">
       {/* Header Banner */}
@@ -417,7 +446,7 @@ export const AnalysisDetails: React.FC = () => {
             <span className="px-2.5 py-1 rounded-lg text-xs font-mono font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200" title="Scoring Engine Version">
               Engine: {analysis.scoringVersion || '1.0.0-legacy'}
             </span>
-            {analysis.overallScore >= 80 && (
+            {displayOverallScore >= 80 && (
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-500 text-white tracking-wide shadow-md shadow-emerald-500/30 job-ready-glow">
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
@@ -520,7 +549,7 @@ export const AnalysisDetails: React.FC = () => {
         {/* Overall Weighted Score Gauge */}
         <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col items-center justify-center hover:shadow-md transition-shadow">
           <ScoreGauge
-            score={analysis.overallScore || 0}
+            score={displayOverallScore}
             label="Overall Match Score"
             subtitle="Weighted AI + ATS composite"
             size="lg"
@@ -530,7 +559,7 @@ export const AnalysisDetails: React.FC = () => {
         {/* Estimated ATS Compatibility Score Gauge */}
         <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col items-center justify-center hover:shadow-md transition-shadow">
           <ScoreGauge
-            score={analysis.atsScore || 0}
+            score={displayAtsScore}
             label="Estimated ATS Score"
             subtitle="7-Pillar Heuristic Scan"
             size="lg"

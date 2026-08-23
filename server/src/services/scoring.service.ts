@@ -5,7 +5,7 @@ import { IParsedSections } from '../models/Resume';
  * Incremented whenever scoring weights or heuristic detection logic change
  * to ensure deterministic cache invalidation across versions.
  */
-export const SCORING_VERSION = '2.0.0-writing-quality';
+export const SCORING_VERSION = '2.1.0-synchronized-pillars';
 
 export type RoleCategory =
   | 'software_engineering'

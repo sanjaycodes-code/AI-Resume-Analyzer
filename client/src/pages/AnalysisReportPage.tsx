@@ -81,6 +81,33 @@ export const AnalysisReportPage: React.FC = () => {
     return 'bg-red-500';
   };
 
+  const factorSum = analysis.scoreBreakdown
+    ? Object.entries(analysis.scoreBreakdown).reduce((acc: number, [k, item]) => {
+        if (
+          k !== 'scoringProfile' &&
+          k !== 'roleCategory' &&
+          item &&
+          typeof item === 'object' &&
+          'score' in item &&
+          typeof (item as { score: number }).score === 'number'
+        ) {
+          return acc + (item as { score: number }).score;
+        }
+        return acc;
+      }, 0)
+    : (analysis.atsScore || 0);
+
+  const displayAtsScore = factorSum > 0 ? factorSum : (analysis.atsScore || 0);
+
+  const aiDerivedScore =
+    (((analysis.experienceAnalysis as unknown as Record<string, number>)?.rating || 75) +
+      ((analysis.educationAnalysis as unknown as Record<string, number>)?.rating || 80) +
+      ((analysis.projectAnalysis as unknown as Record<string, number>)?.rating || 80) +
+      ((analysis.keywordAnalysis as unknown as Record<string, number>)?.keywordDensityScore || 70)) /
+    4;
+
+  const displayOverallScore = Math.min(100, Math.max(0, Math.round(0.6 * displayAtsScore + 0.4 * aiDerivedScore)));
+
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-8">
       {/* Header Banner */}
@@ -128,7 +155,7 @@ export const AnalysisReportPage: React.FC = () => {
       {/* Top Scores Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
         {/* Overall Weighted Score */}
-        <div className={`p-6 rounded-3xl border shadow-sm flex flex-col justify-between ${getScoreColor(analysis.overallScore)}`}>
+        <div className={`p-6 rounded-3xl border shadow-sm flex flex-col justify-between ${getScoreColor(displayOverallScore)}`}>
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider">Overall Match Score</span>
             <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-white/70">
@@ -136,13 +163,13 @@ export const AnalysisReportPage: React.FC = () => {
             </span>
           </div>
           <div className="my-4">
-            <span className="text-5xl font-extrabold tracking-tight">{analysis.overallScore}</span>
+            <span className="text-5xl font-extrabold tracking-tight">{displayOverallScore}</span>
             <span className="text-lg font-bold opacity-70"> / 100</span>
           </div>
           <p className="text-xs font-medium opacity-90">
-            {analysis.overallScore >= 80
+            {displayOverallScore >= 80
               ? 'Outstanding profile alignment.'
-              : analysis.overallScore >= 65
+              : displayOverallScore >= 65
               ? 'Competitive profile with key optimization opportunities.'
               : 'Requires structural and keyword enhancements.'}
           </p>
@@ -159,7 +186,7 @@ export const AnalysisReportPage: React.FC = () => {
             </div>
           </div>
           <div className="my-4">
-            <span className="text-5xl font-extrabold text-slate-900 tracking-tight">{analysis.atsScore}</span>
+            <span className="text-5xl font-extrabold text-slate-900 tracking-tight">{displayAtsScore}</span>
             <span className="text-lg font-bold text-slate-400"> / 100</span>
           </div>
           <p className="text-xs text-slate-500">
