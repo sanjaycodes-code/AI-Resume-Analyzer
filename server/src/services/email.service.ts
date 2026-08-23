@@ -84,15 +84,16 @@ export const sendPasswordResetEmail = async (
   // 1. Primary Priority: Gmail SMTP / Custom SMTP via Nodemailer (No custom domain required!)
   if (env.SMTP_USER && env.SMTP_PASS && env.SMTP_USER.trim() !== '' && env.SMTP_PASS.trim() !== '') {
     try {
+      const cleanPass = env.SMTP_PASS.replace(/\s+/g, '');
       const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
           user: env.SMTP_USER.trim(),
-          pass: env.SMTP_PASS.trim(),
+          pass: cleanPass,
         },
-        connectionTimeout: 4000, // 4s timeout for socket connection
-        greetingTimeout: 4000,   // 4s timeout for SMTP handshake greeting
-        socketTimeout: 6000,     // 6s timeout for socket activity
+        connectionTimeout: 8000, // 8s timeout for socket connection
+        greetingTimeout: 8000,   // 8s timeout for SMTP handshake greeting
+        socketTimeout: 8000,     // 8s timeout for socket activity
       });
 
       const fromAddress = env.EMAIL_FROM || `"AI Resume Analyzer" <${env.SMTP_USER.trim()}>`;
