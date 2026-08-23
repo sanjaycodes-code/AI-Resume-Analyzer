@@ -1,5 +1,12 @@
 import { IParsedSections } from '../models/Resume';
 
+/**
+ * Global scoring engine version identifier.
+ * Incremented whenever scoring weights or heuristic detection logic change
+ * to ensure deterministic cache invalidation across versions.
+ */
+export const SCORING_VERSION = '2.0.0-writing-quality';
+
 export type RoleCategory =
   | 'software_engineering'
   | 'data_analytics'

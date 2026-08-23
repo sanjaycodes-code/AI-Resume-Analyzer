@@ -4,7 +4,7 @@ import { Analysis } from '../models/Analysis';
 import { Resume } from '../models/Resume';
 import { JobDescription } from '../models/JobDescription';
 import { aiService } from '../services/ai/aiService';
-import { calculateAtsScore, classifyRoleCategory } from '../services/scoring.service';
+import { calculateAtsScore, classifyRoleCategory, SCORING_VERSION } from '../services/scoring.service';
 import { generatePdfReportStream } from '../services/reportGenerator.service';
 import { createAnalysisSchema } from '../validators/analysis.validator';
 import { bulletEnhanceRequestSchema } from '../validators/bulletEnhancement.validator';
@@ -14,10 +14,15 @@ import { asyncHandler } from '../utils/asyncHandler';
 import crypto from 'crypto';
 
 /**
- * Computes a deterministic SHA-256 hash of resumeText and optional job description text.
+ * Computes a deterministic SHA-256 hash of resumeText, optional job description text,
+ * and the current SCORING_VERSION to automatically invalidate cached analyses on engine updates.
  */
-export const computeContentHash = (resumeText: string, jobDescText?: string): string => {
-  const payload = `${(resumeText || '').trim()}:::${(jobDescText || '').trim()}`;
+export const computeContentHash = (
+  resumeText: string,
+  jobDescText?: string,
+  scoringVersion: string = SCORING_VERSION
+): string => {
+  const payload = `${(resumeText || '').trim()}:::${(jobDescText || '').trim()}:::${scoringVersion}`;
   return crypto.createHash('sha256').update(payload, 'utf8').digest('hex');
 };
 
@@ -53,68 +58,45 @@ export const createAnalysis = asyncHandler(
       }
     }
 
-    // 3. Compute Content Hash for deterministic caching
+    // 3. Compute Content Hash for deterministic caching (version-scoped)
     const contentHash = computeContentHash(
       resume.extractedText,
-      jobDescription ? jobDescription.rawText : undefined
+      jobDescription ? jobDescription.rawText : undefined,
+      SCORING_VERSION
     );
 
-    // 4. Check for existing cached analysis for this user and content
+    // 4. Check for existing cached analysis matching content AND current scoring engine version
     const userObjectId = new mongoose.Types.ObjectId(userId);
     const cachedAnalysis = await Analysis.findOne({
       userId: userObjectId,
       contentHash,
+      scoringVersion: SCORING_VERSION,
     }).sort({ createdAt: -1 });
 
     if (cachedAnalysis) {
-      const breakdown = cachedAnalysis.scoreBreakdown as Record<string, unknown> | undefined;
-      if (!breakdown?.writingQuality) {
-        const roleCategory = jobDescription?.roleCategory || (jobDescription ? classifyRoleCategory(`${jobDescription.title} ${jobDescription.rawText}`) : undefined);
-        const scoreResult = calculateAtsScore(
-          resume.extractedText,
-          resume.parsedSections,
-          jobDescription ? jobDescription.rawText : undefined,
-          roleCategory
+      if (process.env.DEBUG || process.env.NODE_ENV !== 'production') {
+        console.log(
+          `[Analysis Cache HIT] Returning cached analysis: ${cachedAnalysis._id} (Created: ${cachedAnalysis.createdAt}, Engine: ${cachedAnalysis.scoringVersion || 'legacy'}, Hash: ${contentHash.substring(0, 10)}...) for user ${userId}`
         );
-
-        const expRating = (cachedAnalysis.experienceAnalysis as Record<string, number>)?.rating || 75;
-        const eduRating = (cachedAnalysis.educationAnalysis as Record<string, number>)?.rating || 80;
-        const projRating = (cachedAnalysis.projectAnalysis as Record<string, number>)?.rating || 80;
-        const kwDensity = (cachedAnalysis.keywordAnalysis as Record<string, number>)?.keywordDensityScore || 70;
-        const aiDerivedScore = (expRating + eduRating + projRating + kwDensity) / 4;
-        const newOverall = Math.min(100, Math.max(0, Math.round(0.6 * scoreResult.estimatedAtsScore + 0.4 * aiDerivedScore)));
-
-        cachedAnalysis.atsScore = scoreResult.estimatedAtsScore;
-        cachedAnalysis.overallScore = newOverall;
-        cachedAnalysis.scoreBreakdown = scoreResult.breakdown;
-        cachedAnalysis.formattingAnalysis = {
-          ...scoreResult.breakdown.formattingCleanliness,
-          sectionStructure: scoreResult.breakdown.sectionCompleteness,
-          contactInfo: scoreResult.breakdown.contactInfo,
-          actionVerbs: scoreResult.breakdown.actionVerbs,
-          quantifiedImpact: scoreResult.breakdown.quantifiedImpact,
-          writingQuality: scoreResult.breakdown.writingQuality,
-          disclaimer: scoreResult.disclaimer,
-          summary: scoreResult.summary,
-        };
-        await cachedAnalysis.save();
       }
-
-      console.log(
-        `[Analysis Cache HIT] Returning cached analysis: ${cachedAnalysis._id} (Hash: ${contentHash.substring(0, 10)}...) for user ${userId}`
-      );
       const sanitized = cachedAnalysis.toObject();
       delete (sanitized as unknown as Record<string, unknown>).rawAIResponse;
 
       res.status(200).json({
         success: true,
-        message: 'Resume analysis retrieved from cache (identical content)',
+        message: 'Resume analysis retrieved from cache (identical content & engine version)',
         isCached: true,
         data: {
           analysis: sanitized,
         },
       });
       return;
+    }
+
+    if (process.env.DEBUG || process.env.NODE_ENV !== 'production') {
+      console.log(
+        `[Analysis Cache MISS] Computing fresh analysis (Engine Version: ${SCORING_VERSION}, Hash: ${contentHash.substring(0, 10)}...) for user ${userId}`
+      );
     }
 
     // 5. Compute Role-Contextual Deterministic ATS Compatibility Score
@@ -157,12 +139,13 @@ export const createAnalysis = asyncHandler(
       0.6 * scoreResult.estimatedAtsScore + 0.4 * aiDerivedScore
     );
 
-    // 8. Save complete Analysis document with contentHash
+    // 8. Save complete Analysis document with contentHash and scoringVersion
     const analysis = await Analysis.create({
       userId: userObjectId,
       resumeId: resume._id,
       jobDescriptionId: jobDescription ? jobDescription._id : undefined,
       contentHash,
+      scoringVersion: SCORING_VERSION,
       atsScore: scoreResult.estimatedAtsScore,
       overallScore: Math.min(100, Math.max(0, overallScore)),
       skillsFound: aiResult.skillsFound,
@@ -256,9 +239,9 @@ export const getAnalysisById = asyncHandler(
 
     const analysisObj = analysis.toObject();
 
-    // Ensure scoreBreakdown is upgraded with the latest 7-factor Writing Quality engine
+    // Ensure scoreBreakdown is upgraded if from an older scoring engine version or missing writing quality
     const currentBreakdown = analysis.scoreBreakdown as Record<string, unknown> | undefined;
-    if (!currentBreakdown || !currentBreakdown.writingQuality) {
+    if (analysis.scoringVersion !== SCORING_VERSION || !currentBreakdown || !currentBreakdown.writingQuality) {
       if (
         analysis.resumeId &&
         typeof analysis.resumeId === 'object' &&
@@ -280,6 +263,8 @@ export const getAnalysisById = asyncHandler(
         const aiDerivedScore = (expRating + eduRating + projRating + kwDensity) / 4;
         const newOverall = Math.min(100, Math.max(0, Math.round(0.6 * calculated.estimatedAtsScore + 0.4 * aiDerivedScore)));
 
+        analysis.scoringVersion = SCORING_VERSION;
+        analysis.contentHash = computeContentHash(resumeDoc.extractedText, jdDoc?.rawText, SCORING_VERSION);
         analysis.atsScore = calculated.estimatedAtsScore;
         analysis.overallScore = newOverall;
         analysis.scoreBreakdown = calculated.breakdown;
@@ -295,6 +280,7 @@ export const getAnalysisById = asyncHandler(
         };
         await analysis.save();
 
+        analysisObj.scoringVersion = SCORING_VERSION;
         analysisObj.atsScore = calculated.estimatedAtsScore;
         analysisObj.overallScore = newOverall;
         analysisObj.scoreBreakdown = calculated.breakdown;

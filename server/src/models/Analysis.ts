@@ -12,6 +12,7 @@ export interface IAnalysis extends Document {
   resumeId: Types.ObjectId;
   jobDescriptionId?: Types.ObjectId;
   contentHash?: string;
+  scoringVersion?: string;
   atsScore?: number;
   overallScore?: number;
   skillsFound: string[];
@@ -74,6 +75,10 @@ const AnalysisSchema = new Schema<IAnalysis>(
       index: true,
     },
     contentHash: {
+      type: String,
+      index: true,
+    },
+    scoringVersion: {
       type: String,
       index: true,
     },
