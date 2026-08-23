@@ -11,6 +11,16 @@ const registerLimiter = rateLimit({
   max: 3,
   standardHeaders: true,
   legacyHeaders: false,
+  skipFailedRequests: false, // Count all attempts to prevent brute force
+  keyGenerator: (req) => {
+    // Normalize localhost loopback variants (::1, ::ffff:127.0.0.1) so localhost testing is 100% consistent
+    const rawIp = req.ip || (req.headers['x-forwarded-for'] as string) || req.socket.remoteAddress || '127.0.0.1';
+    const cleanIp = String(rawIp).split(',')[0].trim();
+    if (cleanIp === '::1' || cleanIp === '::ffff:127.0.0.1' || cleanIp === 'localhost') {
+      return '127.0.0.1';
+    }
+    return cleanIp;
+  },
   handler: (_req, res) => {
     res.status(429).json({
       success: false,
