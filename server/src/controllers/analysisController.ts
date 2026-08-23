@@ -11,6 +11,16 @@ import { bulletEnhanceRequestSchema } from '../validators/bulletEnhancement.vali
 import { ApiError } from '../utils/apiError';
 import { asyncHandler } from '../utils/asyncHandler';
 
+import crypto from 'crypto';
+
+/**
+ * Computes a deterministic SHA-256 hash of resumeText and optional job description text.
+ */
+export const computeContentHash = (resumeText: string, jobDescText?: string): string => {
+  const payload = `${(resumeText || '').trim()}:::${(jobDescText || '').trim()}`;
+  return crypto.createHash('sha256').update(payload, 'utf8').digest('hex');
+};
+
 export const createAnalysis = asyncHandler(
   async (req: Request, res: Response): Promise<void> => {
     const userId = req.userId;
@@ -43,14 +53,45 @@ export const createAnalysis = asyncHandler(
       }
     }
 
-    // 3. Compute Deterministic ATS Compatibility Score
+    // 3. Compute Content Hash for deterministic caching
+    const contentHash = computeContentHash(
+      resume.extractedText,
+      jobDescription ? jobDescription.rawText : undefined
+    );
+
+    // 4. Check for existing cached analysis for this user and content
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+    const cachedAnalysis = await Analysis.findOne({
+      userId: userObjectId,
+      contentHash,
+    }).sort({ createdAt: -1 });
+
+    if (cachedAnalysis) {
+      console.log(
+        `[Analysis Cache HIT] Returning cached analysis: ${cachedAnalysis._id} (Hash: ${contentHash.substring(0, 10)}...) for user ${userId}`
+      );
+      const sanitized = cachedAnalysis.toObject();
+      delete (sanitized as unknown as Record<string, unknown>).rawAIResponse;
+
+      res.status(200).json({
+        success: true,
+        message: 'Resume analysis retrieved from cache (identical content)',
+        isCached: true,
+        data: {
+          analysis: sanitized,
+        },
+      });
+      return;
+    }
+
+    // 5. Compute Deterministic ATS Compatibility Score
     const scoreResult = calculateAtsScore(
       resume.extractedText,
       resume.parsedSections,
       jobDescription ? jobDescription.rawText : undefined
     );
 
-    // 4. Run AI Analysis (wrapped to handle transient AI provider errors cleanly without partial saves)
+    // 6. Run AI Analysis (wrapped to handle transient AI provider errors cleanly without partial saves)
     let aiResult;
     try {
       aiResult = await aiService.analyzeResume({
@@ -68,7 +109,7 @@ export const createAnalysis = asyncHandler(
       );
     }
 
-    // 5. Calculate Overall Combined Score
+    // 7. Calculate Overall Combined Score
     // Formula: 60% Deterministic ATS Score + 40% AI Evaluation Score
     const aiDerivedScore =
       ((aiResult.experienceAnalysis?.rating || 75) +
@@ -81,11 +122,12 @@ export const createAnalysis = asyncHandler(
       0.6 * scoreResult.estimatedAtsScore + 0.4 * aiDerivedScore
     );
 
-    // 6. Save complete Analysis document
+    // 8. Save complete Analysis document with contentHash
     const analysis = await Analysis.create({
-      userId: new mongoose.Types.ObjectId(userId),
+      userId: userObjectId,
       resumeId: resume._id,
       jobDescriptionId: jobDescription ? jobDescription._id : undefined,
+      contentHash,
       atsScore: scoreResult.estimatedAtsScore,
       overallScore: Math.min(100, Math.max(0, overallScore)),
       skillsFound: aiResult.skillsFound,

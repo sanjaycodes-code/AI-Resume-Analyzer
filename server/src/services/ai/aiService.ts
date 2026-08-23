@@ -8,6 +8,51 @@ import {
 } from '../../validators/bulletEnhancement.validator';
 import { env } from '../../config/env';
 import { ApiError } from '../../utils/apiError';
+import { DailyAiUsage } from '../../models/DailyAiUsage';
+
+export const DAILY_AI_CALL_LIMIT = 100;
+
+/**
+ * Checks and increments the global daily AI provider invocation count.
+ * Throws 503 Service Unavailable if 100 calls have already occurred today (UTC).
+ */
+export const checkAndIncrementDailyAiQuota = async (): Promise<number> => {
+  const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD in UTC
+
+  // 1. Pre-check existing count before performing atomic increment
+  const existing = await DailyAiUsage.findOne({ date: today });
+  if (existing && existing.count >= DAILY_AI_CALL_LIMIT) {
+    console.warn(
+      `[AI Daily Quota BLOCKED] Reached ${existing.count}/${DAILY_AI_CALL_LIMIT} for date: ${today} (UTC)`
+    );
+    throw ApiError.serviceUnavailable(
+      'Daily community AI quota reached. Resets at midnight UTC.',
+      'AI_DAILY_QUOTA_EXCEEDED'
+    );
+  }
+
+  // 2. Atomic increment
+  const updated = await DailyAiUsage.findOneAndUpdate(
+    { date: today },
+    { $inc: { count: 1 } },
+    { upsert: true, new: true, setDefaultsOnInsert: true }
+  );
+
+  if (updated.count > DAILY_AI_CALL_LIMIT) {
+    console.warn(
+      `[AI Daily Quota BLOCKED] Exceeded ${updated.count}/${DAILY_AI_CALL_LIMIT} for date: ${today} (UTC)`
+    );
+    throw ApiError.serviceUnavailable(
+      'Daily community AI quota reached. Resets at midnight UTC.',
+      'AI_DAILY_QUOTA_EXCEEDED'
+    );
+  }
+
+  console.log(
+    `[AI Daily Quota ALLOWED] Global AI Invocations: ${updated.count}/${DAILY_AI_CALL_LIMIT} for ${today} (UTC)`
+  );
+  return updated.count;
+};
 
 export class AIService {
   private provider: AIProvider;
@@ -32,6 +77,9 @@ export class AIService {
     if (!input.resumeText || input.resumeText.trim() === '') {
       throw ApiError.badRequest('Resume text cannot be empty for AI analysis.', 'EMPTY_RESUME_TEXT');
     }
+
+    // Enforce global daily AI quota (100 calls/day max) BEFORE calling provider
+    await checkAndIncrementDailyAiQuota();
 
     let rawResult: unknown;
     let attempt = 1;
@@ -81,6 +129,9 @@ export class AIService {
    */
   public async enhanceBullet(input: EnhanceBulletInput): Promise<BulletEnhancementResult> {
     const validatedInput = bulletEnhanceRequestSchema.parse(input);
+
+    // Enforce global daily AI quota (100 calls/day max) BEFORE calling provider
+    await checkAndIncrementDailyAiQuota();
 
     let rawResult: unknown;
     let attempt = 1;

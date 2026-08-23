@@ -38,20 +38,83 @@ Return ONLY the transcribed plain text content without conversational commentary
   }
 };
 
+const PARSE_TIMEOUT_MS = 5000;
+
+/**
+ * Wraps an asynchronous task in a strict timeout using Promise.race().
+ */
+const withTimeout = <T>(promise: Promise<T>, timeoutMs: number): Promise<T> => {
+  let timer: NodeJS.Timeout;
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => {
+      reject(
+        ApiError.unprocessableEntity(
+          "Couldn't process this file in time — it may be corrupted or unusually complex",
+          'PARSER_TIMEOUT'
+        )
+      );
+    }, timeoutMs);
+  });
+
+  return Promise.race([promise, timeoutPromise]).finally(() => {
+    clearTimeout(timer);
+  });
+};
+
+/**
+ * Verifies the binary magic bytes of the uploaded file against claimed fileType.
+ */
+export const verifyFileSignature = (buffer: Buffer, fileType: 'pdf' | 'docx'): void => {
+  if (!buffer || buffer.length < 4) {
+    throw ApiError.unprocessableEntity(
+      "File content doesn't match its extension. The file is empty or corrupted.",
+      'INVALID_FILE_SIGNATURE'
+    );
+  }
+
+  if (fileType === 'pdf') {
+    // PDF Header signature: '%PDF-'
+    const header = buffer.slice(0, 5).toString('ascii');
+    if (!header.startsWith('%PDF-')) {
+      throw ApiError.unprocessableEntity(
+        "File content doesn't match its extension. The uploaded file is not a valid PDF document.",
+        'INVALID_FILE_SIGNATURE'
+      );
+    }
+  } else if (fileType === 'docx') {
+    // DOCX Header signature: PK\x03\x04 (ZIP container)
+    const isZip =
+      buffer[0] === 0x50 &&
+      buffer[1] === 0x4b &&
+      buffer[2] === 0x03 &&
+      buffer[3] === 0x04;
+
+    if (!isZip) {
+      throw ApiError.unprocessableEntity(
+        "File content doesn't match its extension. The uploaded file is not a valid DOCX document.",
+        'INVALID_FILE_SIGNATURE'
+      );
+    }
+  }
+};
+
 export const extractText = async (buffer: Buffer, fileType: 'pdf' | 'docx'): Promise<string> => {
+  // 1. Verify binary magic bytes first before attempting any parsing
+  verifyFileSignature(buffer, fileType);
+
   if (fileType === 'pdf') {
     try {
-      // 1. First attempt fast vector text stream extraction with isolated Buffer slice
+      // 2. Vector text stream extraction wrapped in strict 5s timeout
       const uint8 = new Uint8Array(
         buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength)
       );
-      const data = await pdfParse(uint8 as unknown as Buffer);
+      const data = await withTimeout(pdfParse(uint8 as unknown as Buffer), PARSE_TIMEOUT_MS);
       let extractedText = data.text?.trim() || '';
 
-      // 2. If vector extraction returns empty (scanned, image-only, or flattened PDF), use Gemini Vision OCR fallback
+      // 3. If vector extraction returns empty (scanned/image-only), attempt Gemini Vision OCR with timeout
       if (!extractedText || extractedText.length < 20) {
         console.log('[Parser Info] PDF has no vector text stream (scanned/image-only). Triggering Gemini Vision OCR...');
-        extractedText = await extractWithGeminiVision(buffer);
+        extractedText = await withTimeout(extractWithGeminiVision(buffer), PARSE_TIMEOUT_MS);
       }
 
       if (!extractedText || extractedText.trim() === '') {
@@ -71,7 +134,8 @@ export const extractText = async (buffer: Buffer, fileType: 'pdf' | 'docx'): Pro
 
   if (fileType === 'docx') {
     try {
-      const result = await mammoth.extractRawText({ buffer });
+      // DOCX extraction wrapped in strict 5s timeout
+      const result = await withTimeout(mammoth.extractRawText({ buffer }), PARSE_TIMEOUT_MS);
       const extractedText = result.value?.trim() || '';
       if (!extractedText) {
         throw new Error('DOCX contains no extractable text content.');
