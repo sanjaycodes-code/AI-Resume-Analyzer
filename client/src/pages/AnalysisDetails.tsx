@@ -1,10 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import analysisApi from '../services/api/analysisApi';
 import enhancerApi from '../services/api/enhancerApi';
 import { ScoreGauge } from '../components/ScoreGauge';
 import type { EnhanceBulletResult } from '../services/api/enhancerApi';
 import type { Analysis, EnhancedBullet, ScoreCategory } from '../types';
+
+gsap.registerPlugin(ScrollTrigger);
 
 interface FactorConfig {
   key: string;
@@ -85,6 +89,8 @@ const FACTOR_CONFIGS: FactorConfig[] = [
 
 export const AnalysisDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const pageContainerRef = useRef<HTMLDivElement>(null);
+  const scoreGaugesRef = useRef<HTMLDivElement>(null);
 
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -127,6 +133,44 @@ export const AnalysisDetails: React.FC = () => {
 
     fetchAnalysis();
   }, [id]);
+
+  // Scroll-scrubbed scale & soft fade on the top 3 score gauge cards (Desktop/Tablet only)
+  useEffect(() => {
+    if (!analysis || isLoading || !scoreGaugesRef.current) return;
+
+    const ctx = gsap.context(() => {
+      const mm = gsap.matchMedia();
+
+      // Desktop & Tablet only (>= 768px). Fully disabled on mobile (< 768px).
+      mm.add('(min-width: 768px)', () => {
+        if (scoreGaugesRef.current) {
+          gsap.to(scoreGaugesRef.current, {
+            scale: 0.94,
+            opacity: 0.9,
+            transformOrigin: 'center top',
+            ease: 'none',
+            scrollTrigger: {
+              trigger: scoreGaugesRef.current,
+              start: 'top 100px',
+              end: 'bottom top',
+              scrub: 0.6,
+              invalidateOnRefresh: true,
+            },
+          });
+        }
+      });
+    }, pageContainerRef);
+
+    // Refresh ScrollTrigger after DOM renders & settles
+    const timer = setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 100);
+
+    return () => {
+      clearTimeout(timer);
+      ctx.revert();
+    };
+  }, [analysis, isLoading]);
 
   const handleDownloadReport = async () => {
     if (!id) return;
@@ -319,7 +363,7 @@ export const AnalysisDetails: React.FC = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-8">
+    <div ref={pageContainerRef} className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-8">
       {/* Header Banner */}
       <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-6">
         <div className="space-y-2">
@@ -408,8 +452,11 @@ export const AnalysisDetails: React.FC = () => {
         </div>
       )}
 
-      {/* Prominent Radial Score Gauges */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+      {/* Prominent Radial Score Gauges (Scroll-Scrubbed Receding Row on Desktop) */}
+      <div
+        ref={scoreGaugesRef}
+        className="grid grid-cols-1 sm:grid-cols-3 gap-6 will-change-[transform,opacity]"
+      >
         {/* Overall Weighted Score Gauge */}
         <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col items-center justify-center hover:shadow-md transition-shadow">
           <ScoreGauge
