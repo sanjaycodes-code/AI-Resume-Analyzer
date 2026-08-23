@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, type Variants } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import resumeApi from '../services/api/resumeApi';
 import analysisApi from '../services/api/analysisApi';
@@ -52,6 +52,48 @@ const getScoreTierRowClasses = (score: number): string => {
   return 'bg-rose-50/35 hover:bg-rose-50/70 border-rose-200/50 hover:border-rose-300/80';
 };
 
+// Motion animation variants for staged hero entrance
+const heroContainerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.05,
+    },
+  },
+};
+
+const heroItemVariants: Variants = {
+  hidden: { opacity: 0, y: 16 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: 'easeOut' },
+  },
+};
+
+// Motion animation variants for score summary cards
+const cardsContainerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.08,
+      delayChildren: 0.2,
+    },
+  },
+};
+
+const cardItemVariants: Variants = {
+  hidden: { opacity: 0, y: 14 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.45, ease: 'easeOut' },
+  },
+};
+
 export const Dashboard: React.FC = () => {
   const { user } = useAuth();
   const [resumes, setResumes] = useState<Resume[]>([]);
@@ -88,47 +130,99 @@ export const Dashboard: React.FC = () => {
   return (
     <div className="flex-1 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-100/40 via-slate-50 to-slate-50 min-h-[calc(100vh-4rem)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 space-y-8">
-        {/* Modern Welcome Banner */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-6 sm:p-10 shadow-xl border border-indigo-900/30">
-          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div className="space-y-2 max-w-xl">
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-                ✨ Recruiter-Grade AI Optimization
-              </span>
-              <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight">
+        
+        {/* Animated Dramatic Hero Banner */}
+        <div className="relative overflow-hidden rounded-3xl bg-slate-950 text-white p-6 sm:p-10 shadow-2xl border border-indigo-900/40">
+          
+          {/* Animated Gradient Mesh Layer */}
+          <div
+            className="absolute inset-0 animate-gradient-mesh opacity-90 pointer-events-none"
+            style={{
+              backgroundImage: `
+                radial-gradient(circle at 15% 20%, rgba(99, 102, 241, 0.45) 0%, transparent 40%),
+                radial-gradient(circle at 85% 75%, rgba(168, 85, 247, 0.4) 0%, transparent 45%),
+                radial-gradient(circle at 50% 50%, rgba(30, 27, 75, 0.95) 0%, rgba(2, 6, 23, 1) 100%)
+              `,
+            }}
+          />
+
+          {/* Subtle Grid Texture */}
+          <div className="absolute inset-0 bg-grid-pattern opacity-15 pointer-events-none" />
+
+          {/* Drifting Glowing Orbs (Tailored for Dark Canvas) */}
+          <div className="absolute -top-12 -left-12 w-64 h-64 sm:w-80 sm:h-80 rounded-full bg-gradient-to-br from-indigo-500/30 to-violet-600/25 blur-3xl pointer-events-none animate-float-slow" />
+          <div className="absolute -bottom-16 -right-16 w-72 h-72 sm:w-96 sm:h-96 rounded-full bg-gradient-to-tl from-purple-500/30 to-indigo-600/20 blur-3xl pointer-events-none animate-float-reverse" />
+          <div className="hidden md:block absolute top-1/4 left-1/3 w-64 h-64 rounded-full bg-gradient-to-tr from-blue-600/20 to-fuchsia-500/15 blur-2xl pointer-events-none animate-float-drift" />
+
+          {/* Hero Content with Staggered Framer Motion Entrance */}
+          <motion.div
+            variants={heroContainerVariants}
+            initial="hidden"
+            animate="visible"
+            className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6"
+          >
+            <div className="space-y-3 max-w-xl">
+              {/* Recruiter Badge with Pulsing Glow */}
+              <motion.div variants={heroItemVariants}>
+                <span className="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-200 border border-indigo-500/40 backdrop-blur-md animate-badge-glow shadow-sm">
+                  ✨ Recruiter-Grade AI Optimization
+                </span>
+              </motion.div>
+
+              {/* Headings */}
+              <motion.h1
+                variants={heroItemVariants}
+                className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white drop-shadow-sm"
+              >
                 Welcome back, {user?.name || 'Candidate'}
-              </h1>
-              <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
+              </motion.h1>
+
+              <motion.p
+                variants={heroItemVariants}
+                className="text-slate-300 text-sm sm:text-base leading-relaxed"
+              >
                 Track your ATS scores, scan resumes against job requirements, and upgrade experience with the STAR method.
-              </p>
+              </motion.p>
             </div>
-            <div className="flex flex-wrap items-center gap-3">
+
+            {/* Action Buttons with Subtle Hover Box-Shadow Bloom */}
+            <motion.div variants={heroItemVariants} className="flex flex-wrap items-center gap-3">
               <Link
                 to="/upload"
-                className="inline-flex items-center justify-center px-5 py-3 rounded-2xl bg-white text-slate-900 font-bold text-sm shadow-md hover:bg-slate-50 transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-white/25 active:scale-[0.97] w-full sm:w-auto"
+                className="inline-flex items-center justify-center px-5 py-3 rounded-2xl bg-white text-slate-900 font-bold text-sm shadow-md hover:bg-slate-50 transition-all hover:scale-[1.02] hover:shadow-[0_0_22px_rgba(255,255,255,0.35)] active:scale-[0.97] w-full sm:w-auto group"
               >
-                <svg className="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 mr-2 text-indigo-600 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                 </svg>
                 Upload Resume
               </Link>
               <Link
                 to="/job-match"
-                className="inline-flex items-center justify-center px-5 py-3 rounded-2xl bg-purple-900/40 text-white border border-white/30 font-bold text-sm backdrop-blur-sm hover:bg-purple-900/60 transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-purple-500/20 active:scale-[0.97] w-full sm:w-auto"
+                className="inline-flex items-center justify-center px-5 py-3 rounded-2xl bg-purple-900/40 text-white border border-purple-400/30 font-bold text-sm backdrop-blur-md hover:bg-purple-900/60 transition-all hover:scale-[1.02] hover:shadow-[0_0_25px_rgba(168,85,247,0.4)] active:scale-[0.97] w-full sm:w-auto group"
               >
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 mr-2 text-purple-300 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
                 Target a Job
               </Link>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
 
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Summary Cards: Calm, Readable & Micro-Interactive */}
+        <motion.div
+          variants={cardsContainerVariants}
+          initial="hidden"
+          animate="visible"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+        >
           {/* Latest Overall Score Gauge */}
-          <div className={`p-6 rounded-3xl border shadow-sm flex flex-col justify-between hover:shadow-md transition-all duration-300 ${overallCardTheme.cardBg}`}>
+          <motion.div
+            variants={cardItemVariants}
+            whileHover={{ scale: 1.02, y: -2 }}
+            transition={{ duration: 0.15 }}
+            className={`p-6 rounded-3xl border shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow duration-300 cursor-default ${overallCardTheme.cardBg}`}
+          >
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 Latest Overall Score
@@ -158,10 +252,15 @@ export const Dashboard: React.FC = () => {
             <p className="text-[11px] text-slate-500 mt-1 text-center sm:text-left">
               {latestAnalysis ? 'Weighted AI + ATS composite' : 'Awaiting first analysis'}
             </p>
-          </div>
+          </motion.div>
 
           {/* Latest ATS Score Gauge */}
-          <div className={`p-6 rounded-3xl border shadow-sm flex flex-col justify-between hover:shadow-md transition-all duration-300 ${atsCardTheme.cardBg}`}>
+          <motion.div
+            variants={cardItemVariants}
+            whileHover={{ scale: 1.02, y: -2 }}
+            transition={{ duration: 0.15 }}
+            className={`p-6 rounded-3xl border shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow duration-300 cursor-default ${atsCardTheme.cardBg}`}
+          >
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 Latest ATS Score
@@ -191,10 +290,15 @@ export const Dashboard: React.FC = () => {
             <p className="text-[11px] text-slate-500 mt-1 text-center sm:text-left">
               {latestAnalysis ? 'Deterministic scan score' : 'Awaiting first analysis'}
             </p>
-          </div>
+          </motion.div>
 
-          {/* Total Resumes (Metric Card with Count-Up - Neutral Slate Tint) */}
-          <div className="bg-slate-50/70 hover:bg-slate-100/80 p-6 rounded-3xl border border-slate-200/80 hover:border-slate-300 shadow-sm flex flex-col justify-between hover:shadow-md transition-all duration-300">
+          {/* Total Resumes (Metric Card with Count-Up) */}
+          <motion.div
+            variants={cardItemVariants}
+            whileHover={{ scale: 1.02, y: -2 }}
+            transition={{ duration: 0.15 }}
+            className="bg-slate-50/70 hover:bg-slate-100/80 p-6 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow duration-300 cursor-default"
+          >
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 Total Resumes
@@ -217,10 +321,15 @@ export const Dashboard: React.FC = () => {
             <p className="text-[11px] text-slate-500 mt-1">
               {resumes.length === 1 ? '1 active resume file' : `${resumes.length} active resume files`}
             </p>
-          </div>
+          </motion.div>
 
           {/* Total Analyses (Metric Card with Count-Up) */}
-          <div className="bg-purple-50/50 hover:bg-purple-50/80 p-6 rounded-3xl border border-purple-200/60 hover:border-purple-300/80 shadow-sm shadow-purple-500/5 flex flex-col justify-between hover:shadow-md transition-all duration-300">
+          <motion.div
+            variants={cardItemVariants}
+            whileHover={{ scale: 1.02, y: -2 }}
+            transition={{ duration: 0.15 }}
+            className="bg-purple-50/50 hover:bg-purple-50/80 p-6 rounded-3xl border border-purple-200/60 shadow-sm shadow-purple-500/5 flex flex-col justify-between hover:shadow-md transition-shadow duration-300 cursor-default"
+          >
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 Total Analyses
@@ -243,8 +352,8 @@ export const Dashboard: React.FC = () => {
             <p className="text-[11px] text-slate-500 mt-1">
               {analyses.length === 1 ? '1 generated report' : `${analyses.length} generated reports`}
             </p>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* Main Grid: Recent Analyses + Uploaded Resumes */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -294,7 +403,8 @@ export const Dashboard: React.FC = () => {
                       key={item._id}
                       initial={{ opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.3), ease: 'easeOut' }}
+                      transition={{ duration: 0.35, delay: Math.min(index * 0.06, 0.3), ease: 'easeOut' }}
+                      whileHover={{ scale: 1.008 }}
                       className={`p-3.5 rounded-2xl border transition-all duration-200 flex items-center justify-between shadow-2xs ${getScoreTierRowClasses(
                         item.overallScore
                       )}`}
@@ -370,7 +480,8 @@ export const Dashboard: React.FC = () => {
                     key={item._id}
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.3), ease: 'easeOut' }}
+                    transition={{ duration: 0.35, delay: Math.min(index * 0.06, 0.3), ease: 'easeOut' }}
+                    whileHover={{ scale: 1.008 }}
                     className="p-3.5 rounded-2xl border bg-slate-50/70 hover:bg-indigo-50/40 border-slate-200/70 hover:border-indigo-200/80 transition-all duration-200 flex items-center justify-between shadow-2xs"
                   >
                     <div className="flex items-center space-x-3 truncate mr-2 min-w-0">

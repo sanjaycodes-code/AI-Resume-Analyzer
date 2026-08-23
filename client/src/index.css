@@ -73,6 +73,41 @@ body {
   animation: shimmer 1.8s infinite ease-in-out;
 }
 
+@keyframes gradientMesh {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes badgeGlowPulse {
+  0%, 100% {
+    box-shadow: 0 0 12px rgba(99, 102, 241, 0.25), inset 0 0 8px rgba(99, 102, 241, 0.15);
+    border-color: rgba(99, 102, 241, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 22px rgba(139, 92, 246, 0.5), inset 0 0 12px rgba(139, 92, 246, 0.3);
+    border-color: rgba(168, 85, 247, 0.6);
+  }
+}
+
+@keyframes floatDrift {
+  0%, 100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  33% {
+    transform: translate(-25px, -20px) scale(1.08);
+  }
+  66% {
+    transform: translate(25px, 20px) scale(0.94);
+  }
+}
+
 .job-ready-glow {
   animation: pulseGlow 2.5s infinite ease-in-out;
 }
@@ -83,6 +118,19 @@ body {
 
 .animate-float-reverse {
   animation: floatReverse 18s ease-in-out infinite;
+}
+
+.animate-float-drift {
+  animation: floatDrift 22s ease-in-out infinite;
+}
+
+.animate-gradient-mesh {
+  background-size: 250% 250%;
+  animation: gradientMesh 16s ease infinite;
+}
+
+.animate-badge-glow {
+  animation: badgeGlowPulse 3s ease-in-out infinite;
 }
 
 .bg-grid-pattern {
