@@ -9,12 +9,12 @@ export const sendPasswordResetEmail = async (
   resetUrl: string,
   userName?: string
 ): Promise<void> => {
-  const fromAddress = env.EMAIL_FROM || 'AI Resume Analyzer <onboarding@resend.dev>';
+  const fromAddress = env.EMAIL_FROM || 'onboarding@resend.dev';
 
   if (env.RESEND_API_KEY && env.RESEND_API_KEY.trim() !== '') {
     try {
       const resend = new Resend(env.RESEND_API_KEY.trim());
-      const { error } = await resend.emails.send({
+      const { data, error } = await resend.emails.send({
         from: fromAddress,
         to: email,
         subject: 'Reset Your AI Resume Analyzer Password',
@@ -65,20 +65,41 @@ export const sendPasswordResetEmail = async (
       });
 
       if (error) {
-        console.error('[EmailService] Resend API returned error:', error);
+        console.error('[EmailService:ERROR] Resend API rejected email dispatch:');
+        console.error(JSON.stringify(error, null, 2));
+
+        if (error.message?.includes('testing emails to your own email address')) {
+          console.warn(
+            `\n⚠️  [EmailService: RESEND ACCOUNT RESTRICTION NOTICE]\n` +
+            `Resend unverified accounts can only send emails to the Resend account owner's email address.\n` +
+            `To send to any recipient, verify a custom domain at https://resend.com/domains.\n`
+          );
+        }
+
+        // Fallback console log so local dev/testing is never blocked
+        console.log('==================================================================');
+        console.log('[EmailService: FALLBACK CONSOLE RESET LINK]');
+        console.log(`Recipient: ${email}`);
+        console.log(`Password Reset Link: ${resetUrl}`);
+        console.log('==================================================================');
       } else {
-        console.log(`[EmailService] Password reset email sent successfully via Resend to: ${email}`);
+        console.log(`[EmailService:SUCCESS] Password reset email sent via Resend! (ID: ${data?.id}, Recipient: ${email})`);
         return;
       }
     } catch (err) {
-      console.error('[EmailService] Exception while sending email via Resend:', err);
+      console.error('[EmailService:FATAL] Exception while invoking Resend SDK:', err);
+      console.log('==================================================================');
+      console.log('[EmailService: EXCEPTION FALLBACK CONSOLE RESET LINK]');
+      console.log(`Recipient: ${email}`);
+      console.log(`Password Reset Link: ${resetUrl}`);
+      console.log('==================================================================');
     }
+  } else {
+    // Development/Demo fallback: log the reset link prominently to console
+    console.log('==================================================================');
+    console.log('[EmailService: DEV / DEMO MODE — RESEND_API_KEY NOT CONFIGURED]');
+    console.log(`Recipient: ${email}`);
+    console.log(`Password Reset Link: ${resetUrl}`);
+    console.log('==================================================================');
   }
-
-  // Development/Demo fallback: log the reset link prominently to console
-  console.log('==================================================================');
-  console.log('[EmailService: DEV / DEMO MODE — RESEND_API_KEY NOT CONFIGURED]');
-  console.log(`Recipient: ${email}`);
-  console.log(`Password Reset Link: ${resetUrl}`);
-  console.log('==================================================================');
 };

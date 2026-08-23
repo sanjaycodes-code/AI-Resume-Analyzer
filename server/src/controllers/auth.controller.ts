@@ -194,7 +194,15 @@ export const forgotPassword = asyncHandler(async (req: Request, res: Response): 
     await user.save();
 
     const resetUrl = `${env.CLIENT_URL}/reset-password?token=${rawToken}&email=${encodeURIComponent(user.email)}`;
-    await sendPasswordResetEmail(user.email, resetUrl, user.name);
+    
+    try {
+      console.log(`[AuthController:forgotPassword] Triggering password reset email for user ID: ${user._id}, email: ${user.email}`);
+      await sendPasswordResetEmail(user.email, resetUrl, user.name);
+    } catch (emailErr) {
+      console.error('[AuthController:forgotPassword] Unhandled error during sendPasswordResetEmail:', emailErr);
+    }
+  } else {
+    console.log(`[AuthController:forgotPassword] Password reset requested for non-existent email: ${email}`);
   }
 
   // Always return the exact same generic message

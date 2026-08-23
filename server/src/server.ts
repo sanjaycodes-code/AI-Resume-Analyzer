@@ -11,6 +11,9 @@ const startServer = async () => {
     console.log(`[Server] Running on http://localhost:${env.PORT}`);
     console.log(`[Server] Accepting CORS requests from: ${env.CLIENT_URL}`);
     console.log(`[Server] Health check available at: http://localhost:${env.PORT}/api/health`);
+    console.log(
+      `[Server] Email Service: RESEND_API_KEY is ${env.RESEND_API_KEY ? 'CONFIGURED (Active)' : 'MISSING (Using Console Fallback)'}`
+    );
   });
 
   // Schedule automated background ephemeral storage cleanup (100% Free - In-Process)
