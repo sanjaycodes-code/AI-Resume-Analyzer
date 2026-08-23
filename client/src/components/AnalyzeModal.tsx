@@ -78,14 +78,29 @@ export const AnalyzeModal: React.FC<AnalyzeModalProps> = ({
     }
   };
 
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget && !isAnalyzing) {
+      onClose();
+    }
+  };
+
   return (
-    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
+    <div
+      onClick={handleBackdropClick}
+      className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white rounded-3xl w-full max-w-lg max-w-[calc(100vw-1.5rem)] sm:max-w-xl p-5 sm:p-8 shadow-2xl space-y-5 sm:space-y-6 my-auto max-h-[90dvh] overflow-y-auto"
+      >
         {/* Header */}
-        <div className="flex items-start justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-md shadow-blue-500/20">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center space-x-3 min-w-0">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-md shadow-blue-500/20">
+              <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -94,17 +109,21 @@ export const AnalyzeModal: React.FC<AnalyzeModalProps> = ({
                 />
               </svg>
             </div>
-            <div>
-              <h2 className="text-xl font-bold text-slate-900">AI Resume Analysis</h2>
-              <p className="text-xs text-slate-500 truncate max-w-xs sm:max-w-md">
+            <div className="min-w-0">
+              <h2 id="modal-title" className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight truncate">
+                AI Resume Analysis
+              </h2>
+              <p className="text-xs text-slate-500 truncate max-w-[200px] sm:max-w-md">
                 Analyzing: <span className="font-semibold text-slate-700">{resumeFileName}</span>
               </p>
             </div>
           </div>
           {!isAnalyzing && (
             <button
+              type="button"
               onClick={onClose}
-              className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors"
+              aria-label="Close modal"
+              className="text-slate-400 hover:text-slate-600 p-2 rounded-xl hover:bg-slate-100 transition-colors flex-shrink-0 active:scale-[0.95]"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -115,7 +134,7 @@ export const AnalyzeModal: React.FC<AnalyzeModalProps> = ({
 
         {/* Error Alert */}
         {errorMessage && (
-          <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-xl flex items-start space-x-3">
+          <div className="bg-red-50 border-l-4 border-red-500 p-3.5 sm:p-4 rounded-xl flex items-start space-x-3">
             <svg className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
@@ -123,8 +142,8 @@ export const AnalyzeModal: React.FC<AnalyzeModalProps> = ({
           </div>
         )}
 
-        {/* Mode Selector */}
-        <div className="grid grid-cols-2 gap-3 p-1.5 bg-slate-100 rounded-2xl">
+        {/* Mode Selector (Stacked on mobile, side-by-side on desktop) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 p-1.5 bg-slate-100 rounded-2xl">
           <button
             type="button"
             disabled={isAnalyzing}
@@ -132,9 +151,9 @@ export const AnalyzeModal: React.FC<AnalyzeModalProps> = ({
               setMode('general');
               setErrorMessage(null);
             }}
-            className={`py-2.5 px-3 rounded-xl text-xs font-bold transition-all ${
+            className={`min-h-[44px] py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center text-center active:scale-[0.98] ${
               mode === 'general'
-                ? 'bg-white text-blue-700 shadow-sm'
+                ? 'bg-white text-blue-700 shadow-sm border border-slate-200/50'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
@@ -147,9 +166,9 @@ export const AnalyzeModal: React.FC<AnalyzeModalProps> = ({
               setMode('targetJob');
               setErrorMessage(null);
             }}
-            className={`py-2.5 px-3 rounded-xl text-xs font-bold transition-all ${
+            className={`min-h-[44px] py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center text-center active:scale-[0.98] ${
               mode === 'targetJob'
-                ? 'bg-white text-blue-700 shadow-sm'
+                ? 'bg-white text-blue-700 shadow-sm border border-slate-200/50'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
@@ -159,9 +178,9 @@ export const AnalyzeModal: React.FC<AnalyzeModalProps> = ({
 
         {/* Form Body */}
         {mode === 'general' ? (
-          <div className="bg-blue-50/60 rounded-2xl p-5 border border-blue-100 text-xs text-slate-700 space-y-2">
+          <div className="bg-blue-50/60 rounded-2xl p-4 sm:p-5 border border-blue-100 text-xs text-slate-700 space-y-2">
             <p className="font-semibold text-blue-900">What General Review Checks:</p>
-            <ul className="list-disc list-inside space-y-1 text-slate-600">
+            <ul className="list-disc list-inside space-y-1 text-slate-600 text-[11px] sm:text-xs">
               <li>Deterministic Estimated ATS Compatibility Score (0–100)</li>
               <li>Overall industry competitiveness and tech stack depth</li>
               <li>Quantified metrics, action-oriented verbs, and formatting health</li>
@@ -180,7 +199,7 @@ export const AnalyzeModal: React.FC<AnalyzeModalProps> = ({
                 value={jobTitle}
                 onChange={(e) => setJobTitle(e.target.value)}
                 disabled={isAnalyzing}
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-slate-50"
+                className="w-full px-3.5 sm:px-4 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-slate-50"
               />
             </div>
             <div>
@@ -188,24 +207,24 @@ export const AnalyzeModal: React.FC<AnalyzeModalProps> = ({
                 Job Description Text *
               </label>
               <textarea
-                rows={5}
+                rows={4}
                 placeholder="Paste the job requirements, responsibilities, and required qualifications here..."
                 value={jobRawText}
                 onChange={(e) => setJobRawText(e.target.value)}
                 disabled={isAnalyzing}
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-slate-50 leading-relaxed font-sans"
+                className="w-full px-3.5 sm:px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-slate-50 leading-relaxed font-sans"
               />
             </div>
           </div>
         )}
 
-        {/* Action Button */}
-        <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+        {/* Action Buttons (Stacked on mobile with Start on top, side-by-side on desktop) */}
+        <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2.5 sm:gap-3 pt-3 sm:pt-4 border-t border-slate-100">
           <button
             type="button"
             onClick={onClose}
             disabled={isAnalyzing}
-            className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-50 transition-colors disabled:opacity-50"
+            className="w-full sm:w-auto min-h-[44px] px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-50 active:scale-[0.98] transition-all disabled:opacity-50 text-center flex items-center justify-center"
           >
             Cancel
           </button>
@@ -213,7 +232,7 @@ export const AnalyzeModal: React.FC<AnalyzeModalProps> = ({
             type="button"
             onClick={handleStartAnalysis}
             disabled={isAnalyzing}
-            className="inline-flex items-center justify-center px-6 py-2.5 rounded-xl bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 shadow-md shadow-blue-500/20 transition-all disabled:opacity-50"
+            className="w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center px-6 py-2.5 rounded-xl bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 shadow-md shadow-blue-500/20 active:scale-[0.98] transition-all disabled:opacity-50 text-center"
           >
             {isAnalyzing ? (
               <>
