@@ -5,8 +5,52 @@ import { useAuth } from '../context/AuthContext';
 import resumeApi from '../services/api/resumeApi';
 import analysisApi from '../services/api/analysisApi';
 import type { Resume, Analysis } from '../types';
-import { ScoreGauge, getScoreBadgeClasses } from '../components/ScoreGauge';
+import { ScoreGauge, getScoreBadgeClasses, SCORE_THRESHOLDS } from '../components/ScoreGauge';
 import { useCountUp } from '../hooks/useCountUp';
+
+const getScoreTierCardClasses = (score?: number | null): { cardBg: string; iconBox: string } => {
+  if (score === undefined || score === null) {
+    return {
+      cardBg: 'bg-white border-slate-200/80 hover:border-slate-300 shadow-sm',
+      iconBox: 'bg-slate-50 text-slate-600 border-slate-200/80 shadow-3xs',
+    };
+  }
+  if (score >= SCORE_THRESHOLDS.EXCELLENT) {
+    return {
+      cardBg: 'bg-emerald-50/50 hover:bg-emerald-50/80 border-emerald-200/60 hover:border-emerald-300/80 shadow-emerald-500/5',
+      iconBox: 'bg-white text-emerald-700 border-emerald-200/80 shadow-3xs',
+    };
+  }
+  if (score >= SCORE_THRESHOLDS.GOOD) {
+    return {
+      cardBg: 'bg-indigo-50/50 hover:bg-indigo-50/80 border-indigo-200/60 hover:border-indigo-300/80 shadow-indigo-500/5',
+      iconBox: 'bg-white text-indigo-700 border-indigo-200/80 shadow-3xs',
+    };
+  }
+  if (score >= SCORE_THRESHOLDS.FAIR) {
+    return {
+      cardBg: 'bg-amber-50/50 hover:bg-amber-50/80 border-amber-200/60 hover:border-amber-300/80 shadow-amber-500/5',
+      iconBox: 'bg-white text-amber-700 border-amber-200/80 shadow-3xs',
+    };
+  }
+  return {
+    cardBg: 'bg-rose-50/50 hover:bg-rose-50/80 border-rose-200/60 hover:border-rose-300/80 shadow-rose-500/5',
+    iconBox: 'bg-white text-rose-700 border-rose-200/80 shadow-3xs',
+  };
+};
+
+const getScoreTierRowClasses = (score: number): string => {
+  if (score >= SCORE_THRESHOLDS.EXCELLENT) {
+    return 'bg-emerald-50/35 hover:bg-emerald-50/70 border-emerald-200/50 hover:border-emerald-300/80';
+  }
+  if (score >= SCORE_THRESHOLDS.GOOD) {
+    return 'bg-indigo-50/35 hover:bg-indigo-50/70 border-indigo-200/50 hover:border-indigo-300/80';
+  }
+  if (score >= SCORE_THRESHOLDS.FAIR) {
+    return 'bg-amber-50/35 hover:bg-amber-50/70 border-amber-200/50 hover:border-amber-300/80';
+  }
+  return 'bg-rose-50/35 hover:bg-rose-50/70 border-rose-200/50 hover:border-rose-300/80';
+};
 
 export const Dashboard: React.FC = () => {
   const { user } = useAuth();
@@ -38,6 +82,8 @@ export const Dashboard: React.FC = () => {
   }, []);
 
   const latestAnalysis = analyses.length > 0 ? analyses[0] : null;
+  const overallCardTheme = getScoreTierCardClasses(latestAnalysis?.overallScore);
+  const atsCardTheme = getScoreTierCardClasses(latestAnalysis?.atsScore);
 
   return (
     <div className="flex-1 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-50/40 via-slate-50 to-slate-50 min-h-[calc(100vh-4rem)]">
@@ -82,12 +128,12 @@ export const Dashboard: React.FC = () => {
         {/* Summary Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Latest Overall Score Gauge */}
-          <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col justify-between hover:shadow-md hover:border-indigo-200 transition-all">
+          <div className={`p-6 rounded-3xl border shadow-sm flex flex-col justify-between hover:shadow-md transition-all duration-300 ${overallCardTheme.cardBg}`}>
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 Latest Overall Score
               </span>
-              <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-100/80 flex items-center justify-center shadow-3xs">
+              <div className={`w-8 h-8 rounded-xl border flex items-center justify-center ${overallCardTheme.iconBox}`}>
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -115,12 +161,12 @@ export const Dashboard: React.FC = () => {
           </div>
 
           {/* Latest ATS Score Gauge */}
-          <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col justify-between hover:shadow-md hover:border-purple-200 transition-all">
+          <div className={`p-6 rounded-3xl border shadow-sm flex flex-col justify-between hover:shadow-md transition-all duration-300 ${atsCardTheme.cardBg}`}>
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 Latest ATS Score
               </span>
-              <div className="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 border border-purple-100/80 flex items-center justify-center shadow-3xs">
+              <div className={`w-8 h-8 rounded-xl border flex items-center justify-center ${atsCardTheme.iconBox}`}>
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                 </svg>
@@ -148,12 +194,12 @@ export const Dashboard: React.FC = () => {
           </div>
 
           {/* Total Resumes (Metric Card with Count-Up) */}
-          <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col justify-between hover:shadow-md hover:border-indigo-200 transition-all">
+          <div className="bg-indigo-50/50 hover:bg-indigo-50/80 p-6 rounded-3xl border border-indigo-200/60 hover:border-indigo-300/80 shadow-sm shadow-indigo-500/5 flex flex-col justify-between hover:shadow-md transition-all duration-300">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 Total Resumes
               </span>
-              <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-100/80 flex items-center justify-center shadow-3xs">
+              <div className="w-8 h-8 rounded-xl bg-white text-indigo-700 border border-indigo-200/80 flex items-center justify-center shadow-3xs">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
@@ -174,12 +220,12 @@ export const Dashboard: React.FC = () => {
           </div>
 
           {/* Total Analyses (Metric Card with Count-Up) */}
-          <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col justify-between hover:shadow-md hover:border-purple-200 transition-all">
+          <div className="bg-purple-50/50 hover:bg-purple-50/80 p-6 rounded-3xl border border-purple-200/60 hover:border-purple-300/80 shadow-sm shadow-purple-500/5 flex flex-col justify-between hover:shadow-md transition-all duration-300">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 Total Analyses
               </span>
-              <div className="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 border border-purple-100/80 flex items-center justify-center shadow-3xs">
+              <div className="w-8 h-8 rounded-xl bg-white text-purple-700 border border-purple-200/80 flex items-center justify-center shadow-3xs">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
@@ -232,7 +278,7 @@ export const Dashboard: React.FC = () => {
                 </Link>
               </div>
             ) : (
-              <div className="divide-y divide-slate-100">
+              <div className="space-y-2.5">
                 {analyses.slice(0, 4).map((item, index) => {
                   const resName =
                     typeof item.resumeId === 'object' && item.resumeId?.originalFileName
@@ -249,9 +295,11 @@ export const Dashboard: React.FC = () => {
                       initial={{ opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.3), ease: 'easeOut' }}
-                      className="py-3.5 flex items-center justify-between"
+                      className={`p-3.5 rounded-2xl border transition-all duration-200 flex items-center justify-between shadow-2xs ${getScoreTierRowClasses(
+                        item.overallScore
+                      )}`}
                     >
-                      <div className="flex items-center space-x-3 truncate mr-2">
+                      <div className="flex items-center space-x-3 truncate mr-2 min-w-0">
                         {/* Dynamic Multi-Tier Score Badge (Consistent with ScoreGauge) */}
                         <div
                           className={`w-10 h-10 rounded-xl font-extrabold text-xs flex items-center justify-center flex-shrink-0 border shadow-3xs ${getScoreBadgeClasses(
@@ -260,7 +308,7 @@ export const Dashboard: React.FC = () => {
                         >
                           {item.overallScore}
                         </div>
-                        <div className="truncate">
+                        <div className="truncate min-w-0">
                           <Link
                             to={`/analysis/${item._id}`}
                             className="text-xs font-bold text-slate-900 hover:text-purple-600 transition-colors truncate block"
@@ -274,7 +322,7 @@ export const Dashboard: React.FC = () => {
                       </div>
                       <Link
                         to={`/analysis/${item._id}`}
-                        className="text-xs font-bold text-purple-600 hover:bg-purple-50 px-3 py-1.5 rounded-lg active:scale-[0.97] transition-all flex-shrink-0"
+                        className="text-xs font-bold text-purple-700 hover:bg-white/90 bg-white/60 border border-purple-200/70 px-3 py-1.5 rounded-xl active:scale-[0.97] transition-all flex-shrink-0 shadow-3xs"
                       >
                         View &rarr;
                       </Link>
@@ -316,27 +364,27 @@ export const Dashboard: React.FC = () => {
                 </Link>
               </div>
             ) : (
-              <div className="divide-y divide-slate-100">
+              <div className="space-y-2.5">
                 {resumes.slice(0, 4).map((item, index) => (
                   <motion.div
                     key={item._id}
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.3), ease: 'easeOut' }}
-                    className="py-3.5 flex items-center justify-between"
+                    className="p-3.5 rounded-2xl border bg-slate-50/70 hover:bg-indigo-50/40 border-slate-200/70 hover:border-indigo-200/80 transition-all duration-200 flex items-center justify-between shadow-2xs"
                   >
-                    <div className="flex items-center space-x-3 truncate mr-2">
-                      <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-700 font-bold text-xs flex items-center justify-center flex-shrink-0 border border-indigo-100/80">
+                    <div className="flex items-center space-x-3 truncate mr-2 min-w-0">
+                      <div className="w-10 h-10 rounded-xl bg-white text-indigo-700 font-bold text-xs flex items-center justify-center flex-shrink-0 border border-indigo-200/80 shadow-3xs">
                         {item.fileType.toUpperCase()}
                       </div>
-                      <div className="truncate">
+                      <div className="truncate min-w-0">
                         <Link
                           to={`/resumes/${item._id}`}
                           className="text-xs font-bold text-slate-900 hover:text-blue-600 transition-colors truncate block"
                         >
                           {item.originalFileName}
                         </Link>
-                        <p className="text-[11px] text-slate-500">
+                        <p className="text-[11px] text-slate-500 truncate">
                           {item.parsedSections?.skills?.length || 0} skills &middot; {new Date(item.createdAt).toLocaleDateString()}
                         </p>
                       </div>
@@ -344,7 +392,7 @@ export const Dashboard: React.FC = () => {
                     <div className="flex items-center gap-2">
                       <Link
                         to={`/resumes/${item._id}`}
-                        className="text-xs font-bold text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg active:scale-[0.97] transition-all flex-shrink-0"
+                        className="text-xs font-bold text-blue-700 hover:bg-white/90 bg-white/60 border border-blue-200/70 px-3 py-1.5 rounded-xl active:scale-[0.97] transition-all flex-shrink-0 shadow-3xs"
                       >
                         Inspect
                       </Link>
