@@ -61,7 +61,7 @@ export const History: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 bg-[#F4F7FC] min-h-[calc(100vh-4rem)] py-8">
+    <div className="flex-1 bg-[#F3F7FC] min-h-[calc(100vh-4rem)] py-8">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full space-y-8">
         {/* Header Bar */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -108,7 +108,7 @@ export const History: React.FC = () => {
 
         {/* Content */}
         {isLoading ? (
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+          <div className="bg-[#FBFCFF] rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
             <div className="h-8 skeleton-shimmer rounded-xl w-48 mb-2" />
             <div className="space-y-3">
               <div className="h-16 skeleton-shimmer rounded-2xl" />
@@ -118,7 +118,7 @@ export const History: React.FC = () => {
           </div>
         ) : resumes.length === 0 ? (
           /* Empty State */
-          <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center max-w-lg mx-auto space-y-4 shadow-sm">
+          <div className="bg-[#FBFCFF] rounded-3xl border border-slate-200 p-12 text-center max-w-lg mx-auto space-y-4 shadow-sm">
             <div className="w-16 h-16 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto">
               <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -139,10 +139,10 @@ export const History: React.FC = () => {
           </div>
         ) : (
           /* Resumes List Table / Grid */
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="bg-[#FBFCFF] rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-slate-200">
-                <thead className="bg-[#F8FAFD]">
+                <thead className="bg-[#F6F9FD]">
                   <tr>
                     <th className="px-6 py-3.5 text-left text-xs font-bold text-slate-600 uppercase tracking-wider">
                       Resume / File
@@ -171,7 +171,7 @@ export const History: React.FC = () => {
                         initial={{ opacity: 0, y: 8 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.3), ease: 'easeOut' }}
-                        className="hover:bg-[#F8FAFD] transition-colors"
+                        className="hover:bg-[#F6F9FD] transition-colors"
                       >
                       {/* Filename & Link */}
                       <td className="px-6 py-4 whitespace-nowrap">
