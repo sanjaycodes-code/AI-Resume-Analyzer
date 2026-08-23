@@ -323,6 +323,10 @@ export const generatePdfReportStream = (analysis: IAnalysis): PDFKit.PDFDocument
   // Ensure room for heading plus at least the first row of 2 cards
   ensureSpace(20 + rowHeight + rowGap);
 
+  const scoringProfileName =
+    (analysis.scoreBreakdown as Record<string, unknown>)?.scoringProfile as string ||
+    (job?.title ? 'Target Role' : 'General Industry');
+
   doc
     .font('Helvetica-Bold')
     .fontSize(10)
@@ -331,7 +335,7 @@ export const generatePdfReportStream = (analysis: IAnalysis): PDFKit.PDFDocument
     .font('Helvetica')
     .fontSize(7.5)
     .fillColor(textMuted)
-    .text('   (100 Pts Total • Deterministic Scoring Factors)');
+    .text(`   (100 Pts Total • Weighted for: ${scoringProfileName})`);
 
   currentY += 15;
 

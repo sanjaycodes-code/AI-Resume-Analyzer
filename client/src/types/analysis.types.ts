@@ -15,6 +15,8 @@ export interface ScoreBreakdown {
   actionVerbs: ScoreCategory;
   quantifiedImpact: ScoreCategory;
   formattingCleanliness: ScoreCategory;
+  scoringProfile?: string;
+  roleCategory?: string;
 }
 
 export interface FormattingAnalysis {
@@ -49,6 +51,7 @@ export interface JobDescription {
   userId: string;
   title: string;
   rawText: string;
+  roleCategory?: string;
   extractedKeywords: string[];
   createdAt: string;
   updatedAt: string;

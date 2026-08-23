@@ -445,20 +445,27 @@ export const AnalysisDetails: React.FC = () => {
       {/* DETERMINISTIC SCORE BREAKDOWN (Rule-Based Factors) */}
       {/* ========================================================================= */}
       <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-100 pb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-100 pb-4">
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center flex-wrap gap-2">
               <span className="px-2.5 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider bg-slate-100 text-slate-700 border border-slate-200">
                 Deterministic Scoring Factors
               </span>
               <span className="text-xs text-slate-400 font-mono">100 Pts Total</span>
+              <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200/80">
+                🎯 {analysis.scoreBreakdown?.scoringProfile
+                  ? `Weighted for: ${analysis.scoreBreakdown.scoringProfile} roles`
+                  : jobObj
+                  ? `Weighted for: ${jobObj.title}`
+                  : `General weighting (no job description provided)`}
+              </span>
             </div>
             <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight mt-1">
               ATS Compatibility Score Breakdown
             </h2>
           </div>
           <p className="text-xs text-slate-500 max-w-sm">
-            Deterministic rule-based checks evaluated directly against your resume's text and structure.
+            Deterministic rule-based checks evaluated with role-specific category weights.
           </p>
         </div>
 
@@ -467,7 +474,7 @@ export const AnalysisDetails: React.FC = () => {
           {FACTOR_CONFIGS.map((factor) => {
             const data = getFactorData(factor.key);
             const score = data.score ?? 0;
-            const max = factor.maxScore;
+            const max = data.maxScore || factor.maxScore;
             const percentage = Math.round((score / max) * 100);
 
             return (

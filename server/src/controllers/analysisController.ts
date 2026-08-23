@@ -4,7 +4,7 @@ import { Analysis } from '../models/Analysis';
 import { Resume } from '../models/Resume';
 import { JobDescription } from '../models/JobDescription';
 import { aiService } from '../services/ai/aiService';
-import { calculateAtsScore } from '../services/scoring.service';
+import { calculateAtsScore, classifyRoleCategory } from '../services/scoring.service';
 import { generatePdfReportStream } from '../services/reportGenerator.service';
 import { createAnalysisSchema } from '../validators/analysis.validator';
 import { bulletEnhanceRequestSchema } from '../validators/bulletEnhancement.validator';
@@ -84,11 +84,13 @@ export const createAnalysis = asyncHandler(
       return;
     }
 
-    // 5. Compute Deterministic ATS Compatibility Score
+    // 5. Compute Role-Contextual Deterministic ATS Compatibility Score
+    const roleCategory = jobDescription?.roleCategory || (jobDescription ? classifyRoleCategory(`${jobDescription.title} ${jobDescription.rawText}`) : undefined);
     const scoreResult = calculateAtsScore(
       resume.extractedText,
       resume.parsedSections,
-      jobDescription ? jobDescription.rawText : undefined
+      jobDescription ? jobDescription.rawText : undefined,
+      roleCategory
     );
 
     // 6. Run AI Analysis (wrapped to handle transient AI provider errors cleanly without partial saves)
@@ -208,7 +210,7 @@ export const getAnalysisById = asyncHandler(
     const analysis = await Analysis.findById(id)
       .select('-rawAIResponse')
       .populate('resumeId', 'originalFileName fileType fileUrl extractedText parsedSections')
-      .populate('jobDescriptionId', 'title rawText');
+      .populate('jobDescriptionId', 'title rawText roleCategory');
 
     if (!analysis) {
       throw ApiError.notFound('Analysis not found.', 'ANALYSIS_NOT_FOUND');
@@ -228,11 +230,12 @@ export const getAnalysisById = asyncHandler(
         'extractedText' in analysis.resumeId
       ) {
         const resumeDoc = analysis.resumeId as unknown as { extractedText: string; parsedSections: unknown };
-        const jdDoc = analysis.jobDescriptionId as unknown as { rawText?: string } | null;
+        const jdDoc = analysis.jobDescriptionId as unknown as { rawText?: string; roleCategory?: string } | null;
         const calculated = calculateAtsScore(
           resumeDoc.extractedText,
           (resumeDoc.parsedSections || {}) as never,
-          jdDoc?.rawText
+          jdDoc?.rawText,
+          jdDoc?.roleCategory
         );
         analysisObj.scoreBreakdown = calculated.breakdown;
       }

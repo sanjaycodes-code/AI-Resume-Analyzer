@@ -4,6 +4,7 @@ export interface IJobDescription extends Document {
   userId: Types.ObjectId;
   title: string;
   rawText: string;
+  roleCategory?: string;
   extractedKeywords: string[];
   createdAt: Date;
   updatedAt: Date;
@@ -25,6 +26,10 @@ const JobDescriptionSchema = new Schema<IJobDescription>(
     rawText: {
       type: String,
       required: [true, 'Job description text is required'],
+    },
+    roleCategory: {
+      type: String,
+      default: 'general',
     },
     extractedKeywords: {
       type: [String],

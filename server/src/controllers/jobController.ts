@@ -5,6 +5,8 @@ import { createJobSchema } from '../validators/job.validator';
 import { ApiError } from '../utils/apiError';
 import { asyncHandler } from '../utils/asyncHandler';
 
+import { classifyRoleCategory } from '../services/scoring.service';
+
 // Common technical stop-words to exclude from basic keyword extraction
 const STOP_WORDS = new Set([
   'with', 'from', 'have', 'this', 'that', 'your', 'will', 'their', 'about',
@@ -36,11 +38,13 @@ export const createJobDescription = asyncHandler(
     const { title, rawText } = createJobSchema.parse(req.body);
 
     const extractedKeywords = extractKeywords(rawText);
+    const roleCategory = classifyRoleCategory(`${title} ${rawText}`);
 
     const jobDescription = await JobDescription.create({
       userId: new mongoose.Types.ObjectId(userId),
       title,
       rawText,
+      roleCategory,
       extractedKeywords,
     });
 
