@@ -21,20 +21,23 @@ export const LandingPage: React.FC = () => {
     {
       title: 'Instant ATS Score',
       desc: 'Scan resumes against 6 deterministic heuristics including verb impact, measurable metrics, and contact integrity.',
-      icon: <Zap className="w-6 h-6" />,
-      colorClasses: 'bg-indigo-50 text-indigo-600 border-indigo-100 hover:border-indigo-300',
+      icon: <Zap className="w-6 h-6 text-indigo-600" />,
+      cardBg: 'bg-indigo-50/50 hover:bg-indigo-50/85 border-indigo-200/60 hover:border-indigo-300/80 shadow-indigo-500/5',
+      iconBox: 'bg-white text-indigo-600 border-indigo-100/90 shadow-sm shadow-indigo-100/80',
     },
     {
       title: 'STAR Bullet Enhancer',
       desc: 'Transform passive resume bullet points into high-impact, quantified Situation-Task-Action-Result power statements.',
-      icon: <Sparkles className="w-6 h-6" />,
-      colorClasses: 'bg-purple-50 text-purple-600 border-purple-100 hover:border-purple-300',
+      icon: <Sparkles className="w-6 h-6 text-purple-600" />,
+      cardBg: 'bg-purple-50/50 hover:bg-purple-50/85 border-purple-200/60 hover:border-purple-300/80 shadow-purple-500/5',
+      iconBox: 'bg-white text-purple-600 border-purple-100/90 shadow-sm shadow-purple-100/80',
     },
     {
       title: 'Vector PDF Reports',
       desc: 'Download executive multi-page audit reports with deterministic score breakdowns and AI recruiter summaries.',
-      icon: <FileDown className="w-6 h-6" />,
-      colorClasses: 'bg-emerald-50 text-emerald-600 border-emerald-100 hover:border-emerald-300',
+      icon: <FileDown className="w-6 h-6 text-emerald-600" />,
+      cardBg: 'bg-emerald-50/50 hover:bg-emerald-50/85 border-emerald-200/60 hover:border-emerald-300/80 shadow-emerald-500/5',
+      iconBox: 'bg-white text-emerald-600 border-emerald-100/90 shadow-sm shadow-emerald-100/80',
     },
   ];
 
@@ -289,9 +292,9 @@ export const LandingPage: React.FC = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.45, delay: index * 0.1, ease: 'easeOut' }}
-                className={`bg-white/85 backdrop-blur-md p-6 sm:p-7 rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between space-y-4 ${feature.colorClasses}`}
+                className={`backdrop-blur-md p-6 sm:p-7 rounded-3xl border shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between space-y-4 ${feature.cardBg}`}
               >
-                <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shadow-xs border border-inherit">
+                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border ${feature.iconBox}`}>
                   {feature.icon}
                 </div>
                 <div className="space-y-2">
