@@ -9,7 +9,8 @@
     "build": "tsc",
     "test": "jest --runInBand",
     "start": "node dist/server.js",
-    "cleanup:files": "tsx src/scripts/cleanupOrphanedFiles.ts"
+    "cleanup:files": "tsx src/scripts/cleanupOrphanedFiles.ts",
+    "check:indexes": "tsx src/scripts/checkIndexes.ts"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
