@@ -33,38 +33,38 @@ export const ROLE_WEIGHT_PROFILES: Record<RoleCategory, RoleWeightProfile> = {
     name: 'General Industry',
     description: 'Standard balanced ATS weighting across all core factors.',
     weights: {
-      keywordMatch: 20,
-      sectionCompleteness: 15,
-      contactInfo: 10,
-      actionVerbs: 15,
-      quantifiedImpact: 15,
+      keywordMatch: 22,
+      sectionCompleteness: 18,
+      contactInfo: 12,
+      actionVerbs: 14,
+      quantifiedImpact: 14,
       formattingCleanliness: 10,
-      writingQuality: 15,
+      writingQuality: 10,
     },
   },
   other: {
     name: 'General Industry',
     description: 'Standard balanced ATS weighting across all core factors.',
     weights: {
-      keywordMatch: 20,
-      sectionCompleteness: 15,
-      contactInfo: 10,
-      actionVerbs: 15,
-      quantifiedImpact: 15,
+      keywordMatch: 22,
+      sectionCompleteness: 18,
+      contactInfo: 12,
+      actionVerbs: 14,
+      quantifiedImpact: 14,
       formattingCleanliness: 10,
-      writingQuality: 15,
+      writingQuality: 10,
     },
   },
   software_engineering: {
     name: 'Software Engineering',
     description: 'Weighted towards high-impact action verbs, technical achievements, and domain skills.',
     weights: {
-      keywordMatch: 20,
-      sectionCompleteness: 10,
+      keywordMatch: 22,
+      sectionCompleteness: 13,
       contactInfo: 10,
-      actionVerbs: 20,
-      quantifiedImpact: 20,
-      formattingCleanliness: 10,
+      actionVerbs: 18,
+      quantifiedImpact: 18,
+      formattingCleanliness: 9,
       writingQuality: 10,
     },
   },
@@ -72,12 +72,12 @@ export const ROLE_WEIGHT_PROFILES: Record<RoleCategory, RoleWeightProfile> = {
     name: 'Data & Analytics',
     description: 'Heavily weighted towards quantifiable metrics, statistical outcomes, and tooling.',
     weights: {
-      keywordMatch: 20,
-      sectionCompleteness: 10,
+      keywordMatch: 22,
+      sectionCompleteness: 13,
       contactInfo: 10,
-      actionVerbs: 15,
-      quantifiedImpact: 25,
-      formattingCleanliness: 10,
+      actionVerbs: 14,
+      quantifiedImpact: 22,
+      formattingCleanliness: 9,
       writingQuality: 10,
     },
   },
@@ -85,12 +85,12 @@ export const ROLE_WEIGHT_PROFILES: Record<RoleCategory, RoleWeightProfile> = {
     name: 'Hardware & VLSI',
     description: 'Prioritizes domain-specific hardware keywords, RTL architecture, and metrics.',
     weights: {
-      keywordMatch: 25,
-      sectionCompleteness: 10,
+      keywordMatch: 26,
+      sectionCompleteness: 13,
       contactInfo: 10,
-      actionVerbs: 15,
-      quantifiedImpact: 20,
-      formattingCleanliness: 10,
+      actionVerbs: 14,
+      quantifiedImpact: 18,
+      formattingCleanliness: 9,
       writingQuality: 10,
     },
   },
@@ -98,12 +98,12 @@ export const ROLE_WEIGHT_PROFILES: Record<RoleCategory, RoleWeightProfile> = {
     name: 'Core Engineering',
     description: 'Emphasizes standard technical sections, project metrics, and domain tools.',
     weights: {
-      keywordMatch: 20,
-      sectionCompleteness: 15,
+      keywordMatch: 22,
+      sectionCompleteness: 17,
       contactInfo: 10,
-      actionVerbs: 15,
-      quantifiedImpact: 20,
-      formattingCleanliness: 10,
+      actionVerbs: 14,
+      quantifiedImpact: 18,
+      formattingCleanliness: 9,
       writingQuality: 10,
     },
   },
@@ -111,26 +111,26 @@ export const ROLE_WEIGHT_PROFILES: Record<RoleCategory, RoleWeightProfile> = {
     name: 'Design & Creative',
     description: 'Emphasizes portfolio links, layout cleanliness, phrasing variety, and visual presentation.',
     weights: {
-      keywordMatch: 15,
-      sectionCompleteness: 15,
-      contactInfo: 15,
-      actionVerbs: 10,
-      quantifiedImpact: 15,
-      formattingCleanliness: 15,
-      writingQuality: 15,
+      keywordMatch: 18,
+      sectionCompleteness: 13,
+      contactInfo: 18,
+      actionVerbs: 9,
+      quantifiedImpact: 14,
+      formattingCleanliness: 18,
+      writingQuality: 10,
     },
   },
   general_business: {
     name: 'Business & Management',
     description: 'Prioritizes leadership action verbs, business metrics, and revenue impact.',
     weights: {
-      keywordMatch: 15,
-      sectionCompleteness: 10,
-      contactInfo: 10,
-      actionVerbs: 20,
-      quantifiedImpact: 20,
+      keywordMatch: 18,
+      sectionCompleteness: 13,
+      contactInfo: 13,
+      actionVerbs: 18,
+      quantifiedImpact: 18,
       formattingCleanliness: 10,
-      writingQuality: 15,
+      writingQuality: 10,
     },
   },
 };
@@ -231,16 +231,19 @@ const ACTION_VERBS = [
 const COMMON_TYPOS: Record<string, string> = {
   acheive: 'achieve',
   acheived: 'achieved',
+  acheiving: 'achieving',
   acheivement: 'achievement',
   acheivements: 'achievements',
   analisys: 'analysis',
   analize: 'analyze',
   analized: 'analyzed',
+  analizing: 'analyzing',
   architechture: 'architecture',
   architech: 'architect',
   architechtural: 'architectural',
   asist: 'assist',
   asisted: 'assisted',
+  asisting: 'assisting',
   asistance: 'assistance',
   avialable: 'available',
   availiable: 'available',
@@ -249,10 +252,15 @@ const COMMON_TYPOS: Record<string, string> = {
   calender: 'calendar',
   collaberated: 'collaborated',
   collabarate: 'collaborate',
+  collaberating: 'collaborating',
   collaberation: 'collaboration',
   comunication: 'communication',
   comunicate: 'communicate',
   confortable: 'comfortable',
+  cordinated: 'coordinated',
+  cordinate: 'coordinate',
+  coordiante: 'coordinate',
+  coodinated: 'coordinated',
   databse: 'database',
   databses: 'databases',
   definately: 'definitely',
@@ -260,23 +268,29 @@ const COMMON_TYPOS: Record<string, string> = {
   developement: 'development',
   develope: 'develop',
   developped: 'developed',
+  developping: 'developing',
   developr: 'developer',
   documantation: 'documentation',
   documant: 'document',
+  documanted: 'documented',
   effecient: 'efficient',
   efficent: 'efficient',
   effeciently: 'efficiently',
   enviroment: 'environment',
   enviromental: 'environmental',
+  enviroments: 'environments',
   engeneer: 'engineer',
   enginer: 'engineer',
   engeneering: 'engineering',
   evalution: 'evaluation',
   evalute: 'evaluate',
+  evaluted: 'evaluated',
   experiance: 'experience',
   experianced: 'experienced',
+  experiances: 'experiences',
   faciliate: 'facilitate',
   faciliated: 'facilitated',
+  faciliating: 'facilitating',
   flater: 'flutter',
   frameowrk: 'framework',
   framwork: 'framework',
@@ -286,10 +300,12 @@ const COMMON_TYPOS: Record<string, string> = {
   garantee: 'guarantee',
   implimented: 'implemented',
   impliment: 'implement',
+  implimenting: 'implementing',
   implimentation: 'implementation',
   independant: 'independent',
   independantaly: 'independently',
   intigrated: 'integrated',
+  intigrate: 'integrate',
   intigration: 'integration',
   knowlege: 'knowledge',
   knowlegeable: 'knowledgeable',
@@ -299,6 +315,7 @@ const COMMON_TYPOS: Record<string, string> = {
   libaries: 'libraries',
   maintainance: 'maintenance',
   maintanence: 'maintenance',
+  maintaind: 'maintained',
   managment: 'management',
   managament: 'management',
   manger: 'manager',
@@ -311,19 +328,26 @@ const COMMON_TYPOS: Record<string, string> = {
   oppurtunities: 'opportunities',
   optmize: 'optimize',
   optmized: 'optimized',
+  optmizing: 'optimizing',
   optmization: 'optimization',
+  optamized: 'optimized',
   peformance: 'performance',
   preformance: 'performance',
+  performace: 'performance',
+  perfomance: 'performance',
   preceeding: 'preceding',
   privelege: 'privilege',
   priviledge: 'privilege',
   profesional: 'professional',
   proffessional: 'professional',
+  profesionalism: 'professionalism',
   programing: 'programming',
   programer: 'programmer',
+  programed: 'programmed',
   recommand: 'recommend',
   recommanded: 'recommended',
   reccomend: 'recommend',
+  reccommended: 'recommended',
   recieved: 'received',
   recieve: 'receive',
   recieving: 'receiving',
@@ -335,19 +359,23 @@ const COMMON_TYPOS: Record<string, string> = {
   responcible: 'responsible',
   responsibilty: 'responsibility',
   responsabilities: 'responsibilities',
+  reponsibilities: 'responsibilities',
   requirment: 'requirement',
   requiremnts: 'requirements',
   requirments: 'requirements',
   scedule: 'schedule',
   schedual: 'schedule',
+  sceduled: 'scheduled',
   seperate: 'separate',
   seperated: 'separated',
+  seperately: 'separately',
   strategie: 'strategy',
   stratagy: 'strategy',
   succesful: 'successful',
   sucessful: 'successful',
   successfully: 'successfully',
   sucessfully: 'successfully',
+  succesfull: 'successful',
   supervize: 'supervise',
   supervized: 'supervised',
   technolgy: 'technology',
@@ -355,11 +383,28 @@ const COMMON_TYPOS: Record<string, string> = {
   tommorrow: 'tomorrow',
   transferred: 'transferred',
   transfered: 'transferred',
+  troubleshoting: 'troubleshooting',
+  troubleshuting: 'troubleshooting',
   unforseen: 'unforeseen',
   untill: 'until',
   upgradeable: 'upgradable',
   usefull: 'useful',
+  utilitsed: 'utilized',
   writting: 'writing',
+};
+
+/**
+ * Normalizes leading action verbs to their base stem (e.g. developed/developing -> develop).
+ */
+const getVerbStem = (verb: string): string => {
+  let stem = verb.toLowerCase();
+  if (stem.endsWith('ing') && stem.length > 5) stem = stem.slice(0, -3);
+  else if (stem.endsWith('ed') && stem.length > 4) stem = stem.slice(0, -2);
+  else if (stem.endsWith('es') && stem.length > 4) stem = stem.slice(0, -2);
+  else if (stem.endsWith('s') && stem.length > 4) stem = stem.slice(0, -1);
+  if (stem === 'built') stem = 'build';
+  if (stem === 'led') stem = 'lead';
+  return stem;
 };
 
 /**
@@ -716,82 +761,95 @@ export const calculateAtsScore = (
 
   if (foundTypos.length > 0) {
     const penalty = Math.min(
-      Math.round(maxWriting * 0.45),
-      foundTypos.length * Math.max(1, Math.round(maxWriting * 0.18))
+      Math.round(maxWriting * 0.5),
+      Math.round(foundTypos.length * 2.5)
     );
     writingScore -= penalty;
     writingIssues.push(
-      `Flagged ${foundTypos.length} potential spelling issue${foundTypos.length > 1 ? 's' : ''}: ${foundTypos.slice(0, 3).join(', ')}.`
+      `Flagged ${foundTypos.length} potential spelling issue${foundTypos.length > 1 ? 's' : ''}: ${foundTypos.slice(0, 4).join(', ')}.`
     );
   }
 
   if (duplicateWords.length > 0) {
-    writingScore -= Math.min(Math.round(maxWriting * 0.2), duplicateWords.length * 2);
+    writingScore -= Math.min(Math.round(maxWriting * 0.25), duplicateWords.length * 2);
     writingIssues.push(
       `Repeated consecutive word${duplicateWords.length > 1 ? 's' : ''} detected: ${duplicateWords.map((w) => `'${w} ${w}'`).join(', ')}.`
     );
   }
 
-  // B. Bullet Opening Verb Repetition Check
-  const bulletLines = rawLines.filter(
-    (line) => /^[•\-\*–—\d+\.]\s*/.test(line) || (line.length >= 25 && line.length <= 250)
-  );
-  const startingVerbs: string[] = [];
+  // B. Bullet Opening Verb & Stem Repetition Check
+  const rawSegments = text
+    .split(/(?:[\r\n]+|[•\-\*–—▪▫◆✓o]\s+)/)
+    .map((s) => s.trim())
+    .filter((s) => s.length >= 15);
 
-  for (const b of bulletLines) {
-    const clean = b.replace(/^[•\-\*–—\d+\.]+\s*/, '').trim();
-    const firstWord = clean.split(/\s+/)[0]?.toLowerCase().replace(/[^a-z]/g, '');
+  const startingStems: string[] = [];
+  const rawOpeners: Record<string, string[]> = {};
+
+  for (const seg of rawSegments) {
+    const words = seg.replace(/^[•\-\*–—▪▫◆✓o\d+\.]+\s*/, '').trim().split(/\s+/);
+    const firstWord = words[0]?.toLowerCase().replace(/[^a-z]/g, '');
     if (
       firstWord &&
       firstWord.length >= 3 &&
-      !/^(the|and|for|with|from|this|that|also|each|into|over|upon|via)$/.test(firstWord)
+      !/^(the|and|for|with|from|this|that|also|each|into|over|upon|via|in|on|at|by|to)$/.test(firstWord)
     ) {
-      startingVerbs.push(firstWord);
+      const stem = getVerbStem(firstWord);
+      startingStems.push(stem);
+      rawOpeners[stem] = rawOpeners[stem] || [];
+      if (!rawOpeners[stem].includes(firstWord)) {
+        rawOpeners[stem].push(firstWord);
+      }
     }
   }
 
-  const verbFreq: Record<string, number> = {};
-  for (const v of startingVerbs) {
-    verbFreq[v] = (verbFreq[v] || 0) + 1;
+  const stemCounts: Record<string, number> = {};
+  for (const s of startingStems) {
+    stemCounts[s] = (stemCounts[s] || 0) + 1;
   }
 
-  const overusedVerbs = Object.entries(verbFreq).filter(([_, count]) => count >= 4);
-  if (overusedVerbs.length > 0) {
-    writingScore -= Math.round(maxWriting * 0.25);
-    const verbList = overusedVerbs.map(([verb, count]) => `'${verb}' (${count}x)`).join(', ');
+  const overusedStems = Object.entries(stemCounts).filter(([_, count]) => count >= 3);
+  if (overusedStems.length > 0) {
+    const repPenalty = Math.min(Math.round(maxWriting * 0.4), Math.round(overusedStems.length * 2.5));
+    writingScore -= repPenalty;
+    const desc = overusedStems
+      .map(([stem, count]) => `'${rawOpeners[stem].join('/')}' (${count}x)`)
+      .join(', ');
     writingIssues.push(
-      `High repetition in bullet openings: started 4+ bullet points with ${verbList}. Varying action verbs demonstrates broader ownership.`
+      `Repetitive bullet openings: started multiple bullet points with ${desc}. Varying action verbs demonstrates broader ownership.`
     );
   }
 
   // C. Passive / Weak Filler Phrase Check
   const foundFillers: string[] = [];
   const FILLER_PHRASES = [
-    { phrase: 'responsible for', threshold: 3, label: "'responsible for'" },
-    { phrase: 'worked on', threshold: 4, label: "'worked on'" },
-    { phrase: 'helped to', threshold: 3, label: "'helped to'" },
-    { phrase: 'assisted with', threshold: 3, label: "'assisted with'" },
+    { phrase: 'responsible for', threshold: 2, label: "'responsible for'" },
+    { phrase: 'worked on', threshold: 2, label: "'worked on'" },
+    { phrase: 'helped to', threshold: 2, label: "'helped to'" },
+    { phrase: 'assisted with', threshold: 2, label: "'assisted with'" },
     { phrase: 'tasked with', threshold: 2, label: "'tasked with'" },
-    { phrase: 'duties included', threshold: 2, label: "'duties included'" },
-    { phrase: 'participated in', threshold: 3, label: "'participated in'" },
+    { phrase: 'duties included', threshold: 1, label: "'duties included'" },
+    { phrase: 'participated in', threshold: 2, label: "'participated in'" },
+    { phrase: 'involved in', threshold: 2, label: "'involved in'" },
   ];
 
   for (const { phrase, threshold, label } of FILLER_PHRASES) {
     const regex = new RegExp(`\\b${phrase}\\b`, 'gi');
     const matches = lowerText.match(regex) || [];
     if (matches.length >= threshold) {
-      foundFillers.push(`${label} across ${matches.length} bullet points`);
+      foundFillers.push(`${label} (${matches.length}x)`);
     }
   }
 
   if (foundFillers.length > 0) {
-    writingScore -= Math.round(maxWriting * 0.25);
+    const fillerPenalty = Math.min(Math.round(maxWriting * 0.4), foundFillers.length * 2);
+    writingScore -= fillerPenalty;
     writingIssues.push(
-      `Repeated use of passive filler phrasing: ${foundFillers.join(', ')}. Replace with active verbs like 'spearheaded', 'built', or 'delivered'.`
+      `Passive filler phrasing detected: ${foundFillers.join(', ')}. Replace with active verbs like 'spearheaded', 'built', or 'delivered'.`
     );
   }
 
-  writingScore = Math.min(maxWriting, Math.max(0, writingScore));
+  writingScore = Math.min(maxWriting, Math.max(0, Math.round(writingScore)));
   const writingFeedback =
     writingIssues.length === 0
       ? 'Clean writing quality with strong phrasing variety, zero detected spelling typos, and no repetitive filler language.'
