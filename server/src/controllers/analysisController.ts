@@ -67,6 +67,39 @@ export const createAnalysis = asyncHandler(
     }).sort({ createdAt: -1 });
 
     if (cachedAnalysis) {
+      const breakdown = cachedAnalysis.scoreBreakdown as Record<string, unknown> | undefined;
+      if (!breakdown?.writingQuality) {
+        const roleCategory = jobDescription?.roleCategory || (jobDescription ? classifyRoleCategory(`${jobDescription.title} ${jobDescription.rawText}`) : undefined);
+        const scoreResult = calculateAtsScore(
+          resume.extractedText,
+          resume.parsedSections,
+          jobDescription ? jobDescription.rawText : undefined,
+          roleCategory
+        );
+
+        const expRating = (cachedAnalysis.experienceAnalysis as Record<string, number>)?.rating || 75;
+        const eduRating = (cachedAnalysis.educationAnalysis as Record<string, number>)?.rating || 80;
+        const projRating = (cachedAnalysis.projectAnalysis as Record<string, number>)?.rating || 80;
+        const kwDensity = (cachedAnalysis.keywordAnalysis as Record<string, number>)?.keywordDensityScore || 70;
+        const aiDerivedScore = (expRating + eduRating + projRating + kwDensity) / 4;
+        const newOverall = Math.min(100, Math.max(0, Math.round(0.6 * scoreResult.estimatedAtsScore + 0.4 * aiDerivedScore)));
+
+        cachedAnalysis.atsScore = scoreResult.estimatedAtsScore;
+        cachedAnalysis.overallScore = newOverall;
+        cachedAnalysis.scoreBreakdown = scoreResult.breakdown;
+        cachedAnalysis.formattingAnalysis = {
+          ...scoreResult.breakdown.formattingCleanliness,
+          sectionStructure: scoreResult.breakdown.sectionCompleteness,
+          contactInfo: scoreResult.breakdown.contactInfo,
+          actionVerbs: scoreResult.breakdown.actionVerbs,
+          quantifiedImpact: scoreResult.breakdown.quantifiedImpact,
+          writingQuality: scoreResult.breakdown.writingQuality,
+          disclaimer: scoreResult.disclaimer,
+          summary: scoreResult.summary,
+        };
+        await cachedAnalysis.save();
+      }
+
       console.log(
         `[Analysis Cache HIT] Returning cached analysis: ${cachedAnalysis._id} (Hash: ${contentHash.substring(0, 10)}...) for user ${userId}`
       );
@@ -223,8 +256,9 @@ export const getAnalysisById = asyncHandler(
 
     const analysisObj = analysis.toObject();
 
-    // Ensure scoreBreakdown is populated for existing older analyses
-    if (!analysisObj.scoreBreakdown) {
+    // Ensure scoreBreakdown is upgraded with the latest 7-factor Writing Quality engine
+    const currentBreakdown = analysis.scoreBreakdown as Record<string, unknown> | undefined;
+    if (!currentBreakdown || !currentBreakdown.writingQuality) {
       if (
         analysis.resumeId &&
         typeof analysis.resumeId === 'object' &&
@@ -238,7 +272,33 @@ export const getAnalysisById = asyncHandler(
           jdDoc?.rawText,
           jdDoc?.roleCategory
         );
+
+        const expRating = (analysis.experienceAnalysis as Record<string, number>)?.rating || 75;
+        const eduRating = (analysis.educationAnalysis as Record<string, number>)?.rating || 80;
+        const projRating = (analysis.projectAnalysis as Record<string, number>)?.rating || 80;
+        const kwDensity = (analysis.keywordAnalysis as Record<string, number>)?.keywordDensityScore || 70;
+        const aiDerivedScore = (expRating + eduRating + projRating + kwDensity) / 4;
+        const newOverall = Math.min(100, Math.max(0, Math.round(0.6 * calculated.estimatedAtsScore + 0.4 * aiDerivedScore)));
+
+        analysis.atsScore = calculated.estimatedAtsScore;
+        analysis.overallScore = newOverall;
+        analysis.scoreBreakdown = calculated.breakdown;
+        analysis.formattingAnalysis = {
+          ...calculated.breakdown.formattingCleanliness,
+          sectionStructure: calculated.breakdown.sectionCompleteness,
+          contactInfo: calculated.breakdown.contactInfo,
+          actionVerbs: calculated.breakdown.actionVerbs,
+          quantifiedImpact: calculated.breakdown.quantifiedImpact,
+          writingQuality: calculated.breakdown.writingQuality,
+          disclaimer: calculated.disclaimer,
+          summary: calculated.summary,
+        };
+        await analysis.save();
+
+        analysisObj.atsScore = calculated.estimatedAtsScore;
+        analysisObj.overallScore = newOverall;
         analysisObj.scoreBreakdown = calculated.breakdown;
+        analysisObj.formattingAnalysis = analysis.formattingAnalysis;
       }
     }
 
