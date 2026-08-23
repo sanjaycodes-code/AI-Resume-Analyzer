@@ -52,10 +52,12 @@ export const sendPasswordResetEmail = async (
                       ⏱️ <strong>Note:</strong> This link is valid for <strong>15 minutes</strong>. If you did not request a password reset, you can safely ignore this email.
                     </p>
                     <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0;" />
-                    <p style="color: #94a3b8; font-size: 11px; line-height: 1.5; margin: 0;">
-                      Having trouble with the button? Copy and paste this link into your browser:<br />
-                      <a href="${resetUrl}" style="color: #3b82f6; word-break: break-all;">${resetUrl}</a>
+                    <p style="color: #64748b; font-size: 12px; line-height: 1.5; margin: 0 0 8px 0; font-weight: 600;">
+                      Button not opening? Copy and paste this exact link directly into your browser:
                     </p>
+                    <div style="background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px 14px; font-family: monospace; font-size: 11px; word-break: break-all; color: #1e293b; line-height: 1.4; user-select: all;">
+                      ${resetUrl}
+                    </div>
                   </td>
                 </tr>
               </table>
