@@ -58,15 +58,19 @@ async function runCleanup() {
     process.exit(1);
   }
 
+  const shouldManageConnection = mongoose.connection.readyState === 0;
+
   try {
-    await mongoose.connect(mongoUri);
-    console.log('✅ [Cleanup Job] Connected to MongoDB Atlas.');
+    if (shouldManageConnection) {
+      await mongoose.connect(mongoUri);
+      console.log('✅ [Cleanup Job] Connected to MongoDB Atlas.');
+    }
 
     // -------------------------------------------------------------------------
     // Phase 1: Ephemeral File Cleanup (> 48h with extractedText safely stored)
     // -------------------------------------------------------------------------
     const cutoffTime = new Date(Date.now() - EXPIRY_HOURS * 60 * 60 * 1000);
-    console.log(`🔍 Searching for resumes created before: ${cutoffTime.toISOString()} with raw files attached...`);
+    console.log(`🔍 [Cleanup Job] Searching for resumes created before: ${cutoffTime.toISOString()} with raw files...`);
 
     const expiredResumes = await Resume.find({
       createdAt: { $lt: cutoffTime },
@@ -151,15 +155,19 @@ async function runCleanup() {
     console.log('\n🎉 [Cleanup Job] All cleanup tasks and storage audits completed successfully.');
   } catch (err) {
     console.error('❌ [Cleanup Job Fatal Error]', err);
-    process.exit(1);
+    if (shouldManageConnection) {
+      process.exit(1);
+    }
   } finally {
-    await mongoose.disconnect();
-    console.log('🔒 Disconnected from MongoDB.\n');
+    if (shouldManageConnection) {
+      await mongoose.disconnect();
+      console.log('🔒 Disconnected from MongoDB.\n');
+    }
   }
 }
 
-// Run immediately when executed as a script
-if (require.main === module || process.argv[1]?.includes('cleanupOrphanedFiles')) {
+// Run immediately when executed as standalone CLI script
+if (require.main === module || (process.argv[1] && process.argv[1].endsWith('cleanupOrphanedFiles.ts'))) {
   runCleanup()
     .then(() => process.exit(0))
     .catch(() => process.exit(1));
