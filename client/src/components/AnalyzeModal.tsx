@@ -87,15 +87,18 @@ export const AnalyzeModal: React.FC<AnalyzeModalProps> = ({
   return (
     <div
       onClick={handleBackdropClick}
-      className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
+      className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto"
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-title"
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-white rounded-3xl w-full max-w-lg max-w-[calc(100vw-1.5rem)] sm:max-w-xl p-5 sm:p-8 shadow-2xl space-y-5 sm:space-y-6 my-auto max-h-[90dvh] overflow-y-auto"
+        className="bg-white rounded-t-[2rem] sm:rounded-3xl w-full sm:max-w-xl p-5 sm:p-8 shadow-2xl space-y-5 sm:space-y-6 max-h-[88dvh] overflow-y-auto pb-7 sm:pb-8 border-t sm:border border-slate-100"
       >
+        {/* Mobile Pull Handle Indicator */}
+        <div className="w-12 h-1.5 bg-slate-300/80 rounded-full mx-auto -mt-1 mb-2 sm:hidden flex-shrink-0" />
+
         {/* Header */}
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center space-x-3 min-w-0">
