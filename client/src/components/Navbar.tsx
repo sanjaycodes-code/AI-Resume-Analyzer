@@ -103,11 +103,11 @@ export const Navbar: React.FC = () => {
                   )}
                 </Link>
 
-                <div className="flex items-center space-x-2 pl-2 pr-3 py-1 bg-slate-100/80 rounded-full border border-slate-200/80">
-                  <div className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-semibold flex-shrink-0">
+                <div className="flex items-center space-x-2 pl-1.5 pr-3 py-1 bg-[#EEF4FF] hover:bg-[#E8F0FF] rounded-full border border-[#D7E5FF] hover:border-[#C4DAFF] shadow-xs hover:shadow-sm transition-all duration-200 cursor-default">
+                  <div className="w-6 h-6 rounded-full bg-[#2563EB] text-white flex items-center justify-center text-xs font-bold flex-shrink-0 shadow-sm shadow-blue-500/30 ring-1 ring-blue-400/20">
                     {user.name.charAt(0).toUpperCase()}
                   </div>
-                  <span className="text-xs font-semibold text-slate-800 max-w-[100px] truncate">
+                  <span className="text-xs font-semibold text-[#1E293B] max-w-[120px] truncate">
                     {user.name}
                   </span>
                 </div>
@@ -162,12 +162,12 @@ export const Navbar: React.FC = () => {
           {isAuthenticated && user ? (
             <>
               {/* User Profile Pill in Mobile View */}
-              <div className="flex items-center space-x-3 px-3 py-2.5 mb-2 bg-slate-50/90 rounded-2xl border border-slate-100">
-                <div className="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-sm flex-shrink-0">
+              <div className="flex items-center space-x-3 px-3.5 py-2.5 mb-2 bg-[#EEF4FF] rounded-2xl border border-[#D7E5FF] shadow-xs">
+                <div className="w-9 h-9 rounded-full bg-[#2563EB] text-white flex items-center justify-center font-bold text-sm shadow-sm shadow-blue-500/30 ring-1 ring-blue-400/20 flex-shrink-0">
                   {user.name.charAt(0).toUpperCase()}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-bold text-slate-900 truncate">{user.name}</p>
+                  <p className="text-sm font-semibold text-[#1E293B] truncate">{user.name}</p>
                   <p className="text-xs text-slate-500 truncate">{user.email}</p>
                 </div>
               </div>
