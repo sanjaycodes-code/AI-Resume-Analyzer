@@ -1,12 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, type Variants } from 'framer-motion';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useAuth } from '../context/AuthContext';
 import resumeApi from '../services/api/resumeApi';
 import analysisApi from '../services/api/analysisApi';
 import type { Resume, Analysis } from '../types';
 import { ScoreGauge, getScoreBadgeClasses, SCORE_THRESHOLDS } from '../components/ScoreGauge';
 import { useCountUp } from '../hooks/useCountUp';
+
+// Register GSAP ScrollTrigger plugin once safely
+gsap.registerPlugin(ScrollTrigger);
 
 const getScoreTierCardClasses = (score?: number | null): { cardBg: string; iconBox: string } => {
   if (score === undefined || score === null) {
@@ -100,9 +105,45 @@ export const Dashboard: React.FC = () => {
   const [analyses, setAnalyses] = useState<Analysis[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
+  const pageContainerRef = useRef<HTMLDivElement>(null);
+  const bgBlobsRef = useRef<HTMLDivElement>(null);
+
   // Animated counters for Total Resumes & Total Analyses
   const animatedResumesCount = useCountUp(resumes.length, 600);
   const animatedAnalysesCount = useCountUp(analyses.length, 600);
+
+  // Background subtle parallax on desktop scroll
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      const mm = gsap.matchMedia();
+
+      // Desktop / Tablet (>= 768px): Smooth background parallax drift
+      mm.add('(min-width: 768px)', () => {
+        if (bgBlobsRef.current && pageContainerRef.current) {
+          gsap.to(bgBlobsRef.current, {
+            y: 90,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: pageContainerRef.current,
+              start: 'top top',
+              end: 'bottom bottom',
+              scrub: 0.8,
+              invalidateOnRefresh: true,
+            },
+          });
+        }
+      });
+    }, pageContainerRef);
+
+    const timer = setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 150);
+
+    return () => {
+      clearTimeout(timer);
+      ctx.revert();
+    };
+  }, []);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -128,8 +169,23 @@ export const Dashboard: React.FC = () => {
   const atsCardTheme = getScoreTierCardClasses(latestAnalysis?.atsScore);
 
   return (
-    <div className="flex-1 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-100/40 via-slate-50 to-slate-50 min-h-[calc(100vh-4rem)]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 space-y-8">
+    <div
+      ref={pageContainerRef}
+      className="relative flex-1 min-h-[calc(100vh-4rem)] overflow-hidden animate-ambient-canvas bg-[radial-gradient(ellipse_at_top,_rgba(241,245,249,0.95)_0%,_rgba(248,250,252,0.85)_45%,_rgba(238,242,255,0.5)_75%,_rgba(248,250,252,1)_100%)]"
+    >
+      {/* Faint Large Ambient Color Blobs Drifting Behind Cards and Lists */}
+      <div ref={bgBlobsRef} className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+        {/* Blob 1: Soft Pastel Indigo / Violet (Top-Right / Mid) */}
+        <div className="absolute top-[320px] -right-32 w-[520px] h-[520px] rounded-full bg-gradient-to-bl from-indigo-200/25 via-purple-100/15 to-transparent blur-3xl animate-float-slow" />
+
+        {/* Blob 2: Soft Pastel Slate / Blue (Bottom-Left) */}
+        <div className="absolute bottom-[100px] -left-32 w-[480px] h-[480px] rounded-full bg-gradient-to-tr from-blue-200/20 via-indigo-50/20 to-transparent blur-3xl animate-float-reverse" />
+
+        {/* Blob 3: Mid-Scroll Atmospheric Drift (Desktop Only) */}
+        <div className="hidden md:block absolute top-[60%] left-1/3 w-[420px] h-[420px] rounded-full bg-gradient-to-r from-purple-100/15 to-slate-200/15 blur-3xl animate-float-drift" />
+      </div>
+
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 space-y-8">
         
         {/* Animated Dramatic Hero Banner */}
         <div className="relative overflow-hidden rounded-3xl bg-slate-950 text-white p-6 sm:p-10 shadow-2xl border border-indigo-900/40">
