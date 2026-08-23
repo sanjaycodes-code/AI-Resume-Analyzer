@@ -182,16 +182,23 @@ export const me = asyncHandler(async (req: Request, res: Response): Promise<void
  * Returns a uniform generic message to prevent email enumeration.
  */
 export const forgotPassword = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  const reqStart = Date.now();
   const { email } = forgotPasswordSchema.parse(req.body);
 
+  const dbStart = Date.now();
   const user = await User.findOne({ email });
+  let dbDurationMs = Date.now() - dbStart;
+  let emailDurationMs = 0;
+
   if (user) {
     const { rawToken, hashedToken } = generateResetToken();
 
     // Store hashed token with 15-minute expiration
     user.passwordResetToken = hashedToken;
     user.passwordResetExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
+    const saveStart = Date.now();
     await user.save();
+    dbDurationMs += Date.now() - saveStart;
 
     // Dynamically resolve client base URL from request origin (falling back to env.CLIENT_URL)
     const requestOrigin = (req.headers.origin as string) || (req.headers.referer as string);
@@ -209,6 +216,7 @@ export const forgotPassword = asyncHandler(async (req: Request, res: Response): 
 
     const resetUrl = `${clientBaseUrl}/reset-password?token=${rawToken}&email=${encodeURIComponent(user.email)}`;
     
+    const emailStart = Date.now();
     try {
       console.log(`[AuthController:forgotPassword] Generated reset URL: ${resetUrl}`);
       console.log(`[AuthController:forgotPassword] Triggering password reset email for user ID: ${user._id}, email: ${user.email}`);
@@ -216,9 +224,18 @@ export const forgotPassword = asyncHandler(async (req: Request, res: Response): 
     } catch (emailErr) {
       console.error('[AuthController:forgotPassword] Unhandled error during sendPasswordResetEmail:', emailErr);
     }
+    emailDurationMs = Date.now() - emailStart;
   } else {
     console.log(`[AuthController:forgotPassword] Password reset requested for non-existent email: ${email}`);
   }
+
+  const totalHandlerMs = Date.now() - reqStart;
+  console.log(
+    `\n⏱️  [AuthController:forgotPassword:TIMING]\n` +
+    `  - DB Lookup & Token Save : ${dbDurationMs}ms\n` +
+    `  - Email Dispatch Duration: ${emailDurationMs}ms\n` +
+    `  - Total Handler Duration : ${totalHandlerMs}ms\n`
+  );
 
   // Always return the exact same generic message
   res.status(200).json({

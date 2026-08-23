@@ -47,10 +47,14 @@ export const ForgotPassword: React.FC = () => {
       setIsSubmitted(true);
     } catch (err) {
       const axiosError = err as AxiosError<ApiResponse>;
-      const message =
+      let message =
         axiosError.response?.data?.message ||
         axiosError.message ||
         'Failed to process request. Please try again.';
+
+      if (axiosError.code === 'ECONNABORTED' || axiosError.message?.includes('timeout')) {
+        message = 'Request timed out. Please check your connection and try again.';
+      }
       setApiError(message);
     } finally {
       setIsSubmitting(false);

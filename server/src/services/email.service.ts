@@ -54,6 +54,7 @@ const getPasswordResetHtml = (resetUrl: string, userName?: string): string => `
 
 /**
  * Sends a password reset email using Nodemailer (Gmail SMTP), Resend, or Console Fallback.
+ * Enforces an 8-second strict timeout so external email latency never blocks user requests.
  */
 export const sendPasswordResetEmail = async (
   email: string,
@@ -61,6 +62,24 @@ export const sendPasswordResetEmail = async (
   userName?: string
 ): Promise<void> => {
   const htmlContent = getPasswordResetHtml(resetUrl, userName);
+
+  // Helper timeout wrapper
+  const executeWithTimeout = async <T>(task: () => Promise<T>, timeoutMs = 8000): Promise<T | null> => {
+    let timer: NodeJS.Timeout;
+    const timeoutPromise = new Promise<null>((resolve) => {
+      timer = setTimeout(() => {
+        console.warn(`[EmailService:TIMEOUT] Email dispatch timed out after ${timeoutMs}ms.`);
+        resolve(null);
+      }, timeoutMs);
+    });
+
+    try {
+      const result = await Promise.race([task(), timeoutPromise]);
+      return result;
+    } finally {
+      clearTimeout(timer!);
+    }
+  };
 
   // 1. Primary Priority: Gmail SMTP / Custom SMTP via Nodemailer (No custom domain required!)
   if (env.SMTP_USER && env.SMTP_PASS && env.SMTP_USER.trim() !== '' && env.SMTP_PASS.trim() !== '') {
@@ -71,19 +90,26 @@ export const sendPasswordResetEmail = async (
           user: env.SMTP_USER.trim(),
           pass: env.SMTP_PASS.trim(),
         },
+        connectionTimeout: 4000, // 4s timeout for socket connection
+        greetingTimeout: 4000,   // 4s timeout for SMTP handshake greeting
+        socketTimeout: 6000,     // 6s timeout for socket activity
       });
 
       const fromAddress = env.EMAIL_FROM || `"AI Resume Analyzer" <${env.SMTP_USER.trim()}>`;
 
-      const info = await transporter.sendMail({
-        from: fromAddress,
-        to: email,
-        subject: 'Reset Your AI Resume Analyzer Password',
-        html: htmlContent,
-      });
+      const info = await executeWithTimeout(() =>
+        transporter.sendMail({
+          from: fromAddress,
+          to: email,
+          subject: 'Reset Your AI Resume Analyzer Password',
+          html: htmlContent,
+        })
+      );
 
-      console.log(`[EmailService:GMAIL_SMTP:SUCCESS] Email delivered to: ${email} (MessageId: ${info.messageId})`);
-      return;
+      if (info) {
+        console.log(`[EmailService:GMAIL_SMTP:SUCCESS] Email delivered to: ${email} (MessageId: ${(info as any).messageId})`);
+        return;
+      }
     } catch (smtpErr) {
       console.error('[EmailService:GMAIL_SMTP:ERROR] Failed to send email via Gmail SMTP:', smtpErr);
     }
@@ -94,18 +120,23 @@ export const sendPasswordResetEmail = async (
     try {
       const fromAddress = env.EMAIL_FROM || 'onboarding@resend.dev';
       const resend = new Resend(env.RESEND_API_KEY.trim());
-      const { data, error } = await resend.emails.send({
-        from: fromAddress,
-        to: email,
-        subject: 'Reset Your AI Resume Analyzer Password',
-        html: htmlContent,
-      });
 
-      if (error) {
+      const resendResponse = await executeWithTimeout(() =>
+        resend.emails.send({
+          from: fromAddress,
+          to: email,
+          subject: 'Reset Your AI Resume Analyzer Password',
+          html: htmlContent,
+        })
+      );
+
+      if (!resendResponse) {
+        console.warn('[EmailService:RESEND:TIMEOUT] Resend API call took longer than 8s.');
+      } else if (resendResponse.error) {
         console.error('[EmailService:RESEND:ERROR] Resend API rejected email dispatch:');
-        console.error(JSON.stringify(error, null, 2));
+        console.error(JSON.stringify(resendResponse.error, null, 2));
 
-        if (error.message?.includes('testing emails to your own email address')) {
+        if (resendResponse.error.message?.includes('testing emails to your own email address')) {
           console.warn(
             `\n⚠️  [EmailService: RESEND ACCOUNT RESTRICTION NOTICE]\n` +
             `Resend unverified accounts can only send emails to the Resend account owner's email address.\n` +
@@ -120,7 +151,9 @@ export const sendPasswordResetEmail = async (
         console.log(`Password Reset Link: ${resetUrl}`);
         console.log('==================================================================');
       } else {
-        console.log(`[EmailService:RESEND:SUCCESS] Password reset email sent via Resend! (ID: ${data?.id}, Recipient: ${email})`);
+        console.log(
+          `[EmailService:RESEND:SUCCESS] Password reset email sent via Resend! (ID: ${resendResponse.data?.id}, Recipient: ${email})`
+        );
         return;
       }
     } catch (err) {

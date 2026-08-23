@@ -50,6 +50,7 @@ export const createPersistentRateLimiter = (options: RateLimiterOptions) => {
   } = options;
 
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    const rlStart = Date.now();
     try {
       const clientIp = getClientIp(req);
       const key = `${keyPrefix}:${clientIp}`;
@@ -67,12 +68,13 @@ export const createPersistentRateLimiter = (options: RateLimiterOptions) => {
       );
 
       const currentCount = record.count;
+      const rlDurationMs = Date.now() - rlStart;
 
       // Check if threshold exceeded
       if (currentCount > max) {
         // Structured debug log for rate limit verification
         console.warn(
-          `[RateLimiter:BLOCKED] Key: "${key}" | Client IP: ${clientIp} | Count: ${currentCount}/${max} | Window: ${windowMs / 1000}s`
+          `[RateLimiter:BLOCKED] Key: "${key}" | Client IP: ${clientIp} | Count: ${currentCount}/${max} | Duration: ${rlDurationMs}ms`
         );
 
         res.status(429).json({
@@ -90,7 +92,7 @@ export const createPersistentRateLimiter = (options: RateLimiterOptions) => {
 
       // Log successful increment in development / debugging
       console.log(
-        `[RateLimiter:ALLOWED] Key: "${key}" | Client IP: ${clientIp} | Count: ${currentCount}/${max}`
+        `[RateLimiter:ALLOWED] Key: "${key}" | Client IP: ${clientIp} | Count: ${currentCount}/${max} | Duration: ${rlDurationMs}ms`
       );
 
       next();
