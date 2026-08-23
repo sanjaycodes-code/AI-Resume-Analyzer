@@ -4,6 +4,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import analysisApi from '../services/api/analysisApi';
 import enhancerApi from '../services/api/enhancerApi';
+import AnalyzeModal from '../components/AnalyzeModal';
 import { ScoreGauge } from '../components/ScoreGauge';
 import type { EnhanceBulletResult } from '../services/api/enhancerApi';
 import type { Analysis, EnhancedBullet, ScoreCategory } from '../types';
@@ -22,7 +23,7 @@ const FACTOR_CONFIGS: FactorConfig[] = [
   {
     key: 'keywordMatch',
     title: 'Keyword Relevance',
-    maxScore: 20,
+    maxScore: 22,
     explanation: "Measures overlap between your resume's technical skills and the job description or industry standards.",
     icon: (
       <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -33,7 +34,7 @@ const FACTOR_CONFIGS: FactorConfig[] = [
   {
     key: 'sectionCompleteness',
     title: 'Standard Sections',
-    maxScore: 15,
+    maxScore: 18,
     explanation: 'Evaluates the presence of standard ATS sections: Skills, Experience, Education, and Projects.',
     icon: (
       <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -44,7 +45,7 @@ const FACTOR_CONFIGS: FactorConfig[] = [
   {
     key: 'contactInfo',
     title: 'Contact Info & Links',
-    maxScore: 10,
+    maxScore: 12,
     explanation: 'Verifies presence of email, phone number, location, and professional links (LinkedIn / GitHub).',
     icon: (
       <svg className="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -55,7 +56,7 @@ const FACTOR_CONFIGS: FactorConfig[] = [
   {
     key: 'actionVerbs',
     title: 'Action Verb Usage',
-    maxScore: 15,
+    maxScore: 14,
     explanation: 'Scans for high-impact action verbs (e.g. built, engineered, optimized) driving your accomplishments.',
     icon: (
       <svg className="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -66,7 +67,7 @@ const FACTOR_CONFIGS: FactorConfig[] = [
   {
     key: 'quantifiedImpact',
     title: 'Quantified Achievements',
-    maxScore: 15,
+    maxScore: 14,
     explanation: 'Measures numbers, percentages (%), metrics, and scale demonstrating measurable business impact.',
     icon: (
       <svg className="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -88,7 +89,7 @@ const FACTOR_CONFIGS: FactorConfig[] = [
   {
     key: 'writingQuality',
     title: 'Writing Quality & Variety',
-    maxScore: 15,
+    maxScore: 10,
     explanation: 'Detects spelling accuracy, diverse action phrasing, and eliminates repetitive filler language.',
     icon: (
       <svg className="w-4 h-4 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -108,6 +109,7 @@ export const AnalysisDetails: React.FC = () => {
   const [isDownloading, setIsDownloading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [downloadError, setDownloadError] = useState<string | null>(null);
+  const [showAnalyzeModal, setShowAnalyzeModal] = useState(false);
 
   // Bullet Enhancer State
   const [bulletInput, setBulletInput] = useState('');
@@ -408,6 +410,13 @@ export const AnalysisDetails: React.FC = () => {
             <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800">
               Evaluation Report
             </span>
+            {/* Visual Diagnostic Badge for Testing & Verification */}
+            <span className="px-2.5 py-1 rounded-lg text-xs font-mono font-medium bg-slate-100 text-slate-700 border border-slate-200" title="MongoDB Analysis ID">
+              ID: <span className="font-bold text-slate-900">{analysis._id}</span>
+            </span>
+            <span className="px-2.5 py-1 rounded-lg text-xs font-mono font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200" title="Scoring Engine Version">
+              Engine: {analysis.scoringVersion || '1.0.0-legacy'}
+            </span>
             {analysis.overallScore >= 80 && (
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-500 text-white tracking-wide shadow-md shadow-emerald-500/30 job-ready-glow">
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -434,6 +443,20 @@ export const AnalysisDetails: React.FC = () => {
         </div>
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center flex-wrap gap-3">
+          {/* Re-run Analysis Button */}
+          {resumeObj?._id && (
+            <button
+              type="button"
+              onClick={() => setShowAnalyzeModal(true)}
+              className="inline-flex items-center justify-center px-4 py-2.5 rounded-xl bg-purple-50 text-purple-700 border border-purple-200 font-bold text-xs hover:bg-purple-100 active:scale-[0.98] transition-all w-full sm:w-auto text-center"
+            >
+              <svg className="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              ⚡ Re-run Analysis
+            </button>
+          )}
+
           {/* Download Report Button */}
           <button
             type="button"
@@ -461,7 +484,7 @@ export const AnalysisDetails: React.FC = () => {
 
           <Link
             to="/job-match"
-            className="inline-flex items-center justify-center px-4 py-2.5 rounded-xl bg-purple-50 text-purple-700 border border-purple-200 font-semibold text-xs hover:bg-purple-100 transition-colors w-full sm:w-auto text-center"
+            className="inline-flex items-center justify-center px-4 py-2.5 rounded-xl bg-slate-50 text-slate-700 border border-slate-200 font-semibold text-xs hover:bg-slate-100 transition-colors w-full sm:w-auto text-center"
           >
             Target Another Job
           </Link>
@@ -509,7 +532,7 @@ export const AnalysisDetails: React.FC = () => {
           <ScoreGauge
             score={analysis.atsScore || 0}
             label="Estimated ATS Score"
-            subtitle="6-Pillar Heuristic Scan"
+            subtitle="7-Pillar Heuristic Scan"
             size="lg"
           />
         </div>
@@ -1084,6 +1107,16 @@ export const AnalysisDetails: React.FC = () => {
             <p className="text-[11px] text-slate-300">Ready to paste into your resume.</p>
           </div>
         </div>
+      )}
+
+      {/* Analyze Modal */}
+      {showAnalyzeModal && resumeObj?._id && (
+        <AnalyzeModal
+          resumeId={resumeObj._id}
+          resumeFileName={resumeObj.originalFileName || 'Resume'}
+          isOpen={showAnalyzeModal}
+          onClose={() => setShowAnalyzeModal(false)}
+        />
       )}
     </div>
   );

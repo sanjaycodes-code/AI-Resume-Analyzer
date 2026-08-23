@@ -71,6 +71,8 @@ export interface Analysis {
   userId: string;
   resumeId: Resume | string;
   jobDescriptionId?: JobDescription | string;
+  contentHash?: string;
+  scoringVersion?: string;
   atsScore: number;
   overallScore: number;
   skillsFound: string[];
