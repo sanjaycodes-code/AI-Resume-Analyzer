@@ -1,28 +1,34 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import resumeApi from '../services/api/resumeApi';
 import analysisApi from '../services/api/analysisApi';
-import { ScoreGauge, getScoreBadgeClasses } from '../components/ScoreGauge';
 import type { Resume, Analysis } from '../types';
+import { ScoreGauge, getScoreBadgeClasses } from '../components/ScoreGauge';
+import { useCountUp } from '../hooks/useCountUp';
 
 export const Dashboard: React.FC = () => {
   const { user } = useAuth();
   const [resumes, setResumes] = useState<Resume[]>([]);
   const [analyses, setAnalyses] = useState<Analysis[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  // Animated counters for Total Resumes & Total Analyses
+  const animatedResumesCount = useCountUp(resumes.length, 600);
+  const animatedAnalysesCount = useCountUp(analyses.length, 600);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const [resRes, anaRes] = await Promise.all([
-          resumeApi.listResumes().catch(() => ({ data: { resumes: [] } })),
-          analysisApi.listAnalyses().catch(() => ({ data: { analyses: [] } })),
+        const [resumesRes, analysesRes] = await Promise.all([
+          resumeApi.listResumes(),
+          analysisApi.listAnalyses(),
         ]);
-        setResumes(resRes.data?.resumes || []);
-        setAnalyses(anaRes.data?.analyses || []);
+        setResumes(resumesRes.data?.resumes || []);
+        setAnalyses(analysesRes.data?.analyses || []);
       } catch (err) {
-        console.error('Failed to fetch dashboard data:', err);
+        console.error('Failed to load dashboard data:', err);
       } finally {
         setIsLoading(false);
       }
@@ -34,35 +40,35 @@ export const Dashboard: React.FC = () => {
   const latestAnalysis = analyses.length > 0 ? analyses[0] : null;
 
   return (
-    <div className="flex-1 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-50/40 via-slate-50 to-slate-50 min-h-[calc(100vh-4rem)] py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full space-y-8">
-        {/* Header Banner */}
-        <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-700 rounded-3xl p-6 sm:p-10 text-white shadow-xl">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
-            <div className="space-y-2">
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-white/20 text-white border border-white/20 backdrop-blur-sm">
-                AI Resume Intelligence
+    <div className="flex-1 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-50/40 via-slate-50 to-slate-50 min-h-[calc(100vh-4rem)]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 space-y-8">
+        {/* Modern Welcome Banner */}
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-6 sm:p-10 shadow-xl border border-indigo-900/30">
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="space-y-2 max-w-xl">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                ✨ Recruiter-Grade AI Optimization
               </span>
-              <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
-                Welcome back, {user?.name}!
+              <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight">
+                Welcome back, {user?.name || 'Candidate'}
               </h1>
-              <p className="text-blue-100 text-sm">
-                Logged in as <span className="font-medium text-white">{user?.email}</span>
+              <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
+                Track your ATS scores, scan resumes against job requirements, and upgrade experience with the STAR method.
               </p>
             </div>
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <Link
                 to="/upload"
-                className="inline-flex items-center justify-center px-5 py-3 rounded-2xl bg-white text-blue-700 font-bold text-sm shadow-md hover:bg-blue-50 transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-white/25 w-full sm:w-auto"
+                className="inline-flex items-center justify-center px-5 py-3 rounded-2xl bg-white text-slate-900 font-bold text-sm shadow-md hover:bg-slate-50 transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-white/25 active:scale-[0.97] w-full sm:w-auto"
               >
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                <svg className="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                 </svg>
                 Upload Resume
               </Link>
               <Link
                 to="/job-match"
-                className="inline-flex items-center justify-center px-5 py-3 rounded-2xl bg-purple-900/40 text-white border border-white/30 font-bold text-sm backdrop-blur-sm hover:bg-purple-900/60 transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-purple-500/20 w-full sm:w-auto"
+                className="inline-flex items-center justify-center px-5 py-3 rounded-2xl bg-purple-900/40 text-white border border-white/30 font-bold text-sm backdrop-blur-sm hover:bg-purple-900/60 transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-purple-500/20 active:scale-[0.97] w-full sm:w-auto"
               >
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -88,7 +94,7 @@ export const Dashboard: React.FC = () => {
               </div>
             </div>
             {isLoading ? (
-              <div className="h-24 bg-slate-100 rounded-2xl animate-pulse my-1" />
+              <div className="h-24 skeleton-shimmer rounded-2xl my-1" />
             ) : latestAnalysis ? (
               <div className="flex items-center justify-center py-1">
                 <ScoreGauge
@@ -121,7 +127,7 @@ export const Dashboard: React.FC = () => {
               </div>
             </div>
             {isLoading ? (
-              <div className="h-24 bg-slate-100 rounded-2xl animate-pulse my-1" />
+              <div className="h-24 skeleton-shimmer rounded-2xl my-1" />
             ) : latestAnalysis ? (
               <div className="flex items-center justify-center py-1">
                 <ScoreGauge
@@ -141,7 +147,7 @@ export const Dashboard: React.FC = () => {
             </p>
           </div>
 
-          {/* Total Resumes (Metric Card) */}
+          {/* Total Resumes (Metric Card with Count-Up) */}
           <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col justify-between hover:shadow-md hover:border-indigo-200 transition-all">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
@@ -155,10 +161,10 @@ export const Dashboard: React.FC = () => {
             </div>
             <div className="my-3">
               {isLoading ? (
-                <div className="h-8 bg-slate-100 rounded-lg animate-pulse w-16 my-1" />
+                <div className="h-8 skeleton-shimmer rounded-lg w-16 my-1" />
               ) : (
                 <p className="text-4xl font-extrabold text-slate-900 tracking-tight">
-                  {resumes.length}
+                  {animatedResumesCount}
                 </p>
               )}
             </div>
@@ -167,7 +173,7 @@ export const Dashboard: React.FC = () => {
             </p>
           </div>
 
-          {/* Total Analyses (Metric Card) */}
+          {/* Total Analyses (Metric Card with Count-Up) */}
           <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col justify-between hover:shadow-md hover:border-purple-200 transition-all">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
@@ -181,10 +187,10 @@ export const Dashboard: React.FC = () => {
             </div>
             <div className="my-3">
               {isLoading ? (
-                <div className="h-8 bg-slate-100 rounded-lg animate-pulse w-16 my-1" />
+                <div className="h-8 skeleton-shimmer rounded-lg w-16 my-1" />
               ) : (
                 <p className="text-4xl font-extrabold text-slate-900 tracking-tight">
-                  {analyses.length}
+                  {animatedAnalysesCount}
                 </p>
               )}
             </div>
@@ -211,23 +217,23 @@ export const Dashboard: React.FC = () => {
             </div>
 
             {isLoading ? (
-              <div className="space-y-3 animate-pulse">
-                <div className="h-16 bg-slate-100 rounded-2xl" />
-                <div className="h-16 bg-slate-100 rounded-2xl" />
+              <div className="space-y-3">
+                <div className="h-16 skeleton-shimmer rounded-2xl" />
+                <div className="h-16 skeleton-shimmer rounded-2xl" />
               </div>
             ) : analyses.length === 0 ? (
               <div className="p-8 text-center rounded-2xl bg-slate-50 border border-slate-100 space-y-3">
                 <p className="text-xs text-slate-600 font-medium">No analysis reports generated yet.</p>
                 <Link
                   to="/job-match"
-                  className="inline-flex items-center px-4 py-2 rounded-xl bg-purple-600 text-white font-bold text-xs hover:bg-purple-700 transition-colors"
+                  className="inline-flex items-center px-4 py-2 rounded-xl bg-purple-600 text-white font-bold text-xs hover:bg-purple-700 active:scale-[0.97] transition-all"
                 >
                   Run First Analysis
                 </Link>
               </div>
             ) : (
               <div className="divide-y divide-slate-100">
-                {analyses.slice(0, 4).map((item) => {
+                {analyses.slice(0, 4).map((item, index) => {
                   const resName =
                     typeof item.resumeId === 'object' && item.resumeId?.originalFileName
                       ? item.resumeId.originalFileName
@@ -238,7 +244,13 @@ export const Dashboard: React.FC = () => {
                       : null;
 
                   return (
-                    <div key={item._id} className="py-3.5 flex items-center justify-between">
+                    <motion.div
+                      key={item._id}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.3), ease: 'easeOut' }}
+                      className="py-3.5 flex items-center justify-between"
+                    >
                       <div className="flex items-center space-x-3 truncate mr-2">
                         {/* Dynamic Multi-Tier Score Badge (Consistent with ScoreGauge) */}
                         <div
@@ -262,11 +274,11 @@ export const Dashboard: React.FC = () => {
                       </div>
                       <Link
                         to={`/analysis/${item._id}`}
-                        className="text-xs font-bold text-purple-600 hover:bg-purple-50 px-3 py-1.5 rounded-lg transition-colors flex-shrink-0"
+                        className="text-xs font-bold text-purple-600 hover:bg-purple-50 px-3 py-1.5 rounded-lg active:scale-[0.97] transition-all flex-shrink-0"
                       >
                         View &rarr;
                       </Link>
-                    </div>
+                    </motion.div>
                   );
                 })}
               </div>
@@ -289,24 +301,30 @@ export const Dashboard: React.FC = () => {
             </div>
 
             {isLoading ? (
-              <div className="space-y-3 animate-pulse">
-                <div className="h-16 bg-slate-100 rounded-2xl" />
-                <div className="h-16 bg-slate-100 rounded-2xl" />
+              <div className="space-y-3">
+                <div className="h-16 skeleton-shimmer rounded-2xl" />
+                <div className="h-16 skeleton-shimmer rounded-2xl" />
               </div>
             ) : resumes.length === 0 ? (
               <div className="p-8 text-center rounded-2xl bg-slate-50 border border-slate-100 space-y-3">
                 <p className="text-xs text-slate-600 font-medium">No resumes uploaded yet.</p>
                 <Link
                   to="/upload"
-                  className="inline-flex items-center px-4 py-2 rounded-xl bg-blue-600 text-white font-bold text-xs hover:bg-blue-700 transition-colors"
+                  className="inline-flex items-center px-4 py-2 rounded-xl bg-blue-600 text-white font-bold text-xs hover:bg-blue-700 active:scale-[0.97] transition-all"
                 >
                   Upload Resume
                 </Link>
               </div>
             ) : (
               <div className="divide-y divide-slate-100">
-                {resumes.slice(0, 4).map((item) => (
-                  <div key={item._id} className="py-3.5 flex items-center justify-between">
+                {resumes.slice(0, 4).map((item, index) => (
+                  <motion.div
+                    key={item._id}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.3), ease: 'easeOut' }}
+                    className="py-3.5 flex items-center justify-between"
+                  >
                     <div className="flex items-center space-x-3 truncate mr-2">
                       <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-700 font-bold text-xs flex items-center justify-center flex-shrink-0 border border-indigo-100/80">
                         {item.fileType.toUpperCase()}
@@ -326,12 +344,12 @@ export const Dashboard: React.FC = () => {
                     <div className="flex items-center gap-2">
                       <Link
                         to={`/resumes/${item._id}`}
-                        className="text-xs font-bold text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors flex-shrink-0"
+                        className="text-xs font-bold text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg active:scale-[0.97] transition-all flex-shrink-0"
                       >
                         Inspect
                       </Link>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             )}

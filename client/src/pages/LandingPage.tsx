@@ -1,11 +1,33 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { ScoreGauge } from '../components/ScoreGauge';
 import { Zap, Sparkles, FileDown, ArrowRight, CheckCircle2 } from 'lucide-react';
 
 export const LandingPage: React.FC = () => {
   const { isAuthenticated } = useAuth();
+
+  const features = [
+    {
+      title: 'Instant ATS Score',
+      desc: 'Scan resumes against 6 deterministic heuristics including verb impact, measurable metrics, and contact integrity.',
+      icon: <Zap className="w-6 h-6" />,
+      colorClasses: 'bg-indigo-50 text-indigo-600 border-indigo-100 hover:border-indigo-300',
+    },
+    {
+      title: 'STAR Bullet Enhancer',
+      desc: 'Transform passive resume bullet points into high-impact, quantified Situation-Task-Action-Result power statements.',
+      icon: <Sparkles className="w-6 h-6" />,
+      colorClasses: 'bg-purple-50 text-purple-600 border-purple-100 hover:border-purple-300',
+    },
+    {
+      title: 'Vector PDF Reports',
+      desc: 'Download executive multi-page audit reports with deterministic score breakdowns and AI recruiter summaries.',
+      icon: <FileDown className="w-6 h-6" />,
+      colorClasses: 'bg-emerald-50 text-emerald-600 border-emerald-100 hover:border-emerald-300',
+    },
+  ];
 
   return (
     <div className="flex-1 relative overflow-hidden bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-50/60 via-slate-50 to-slate-50 flex flex-col justify-center items-center px-4 sm:px-6 lg:px-8 py-12 sm:py-16 min-h-[calc(100vh-4rem)]">
@@ -50,7 +72,7 @@ export const LandingPage: React.FC = () => {
               {isAuthenticated ? (
                 <Link
                   to="/dashboard"
-                  className="w-full sm:w-auto inline-flex items-center justify-center px-7 py-3.5 rounded-2xl bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 text-white font-bold text-sm shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 transition-all hover:scale-[1.02]"
+                  className="w-full sm:w-auto inline-flex items-center justify-center px-7 py-3.5 rounded-2xl bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 text-white font-bold text-sm shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:scale-[1.02] active:scale-[0.97] transition-all"
                 >
                   Go to Dashboard
                   <ArrowRight className="w-4 h-4 ml-2" />
@@ -59,14 +81,14 @@ export const LandingPage: React.FC = () => {
                 <>
                   <Link
                     to="/register"
-                    className="w-full sm:w-auto inline-flex items-center justify-center px-7 py-3.5 rounded-2xl bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 text-white font-bold text-sm shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 transition-all hover:scale-[1.02]"
+                    className="w-full sm:w-auto inline-flex items-center justify-center px-7 py-3.5 rounded-2xl bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 text-white font-bold text-sm shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:scale-[1.02] active:scale-[0.97] transition-all"
                   >
                     Get Started Free
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Link>
                   <Link
                     to="/login"
-                    className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3.5 rounded-2xl bg-white/90 border border-slate-200 text-slate-700 font-semibold text-sm hover:bg-slate-50 transition-all"
+                    className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3.5 rounded-2xl bg-white/90 border border-slate-200 text-slate-700 font-semibold text-sm hover:bg-slate-50 hover:scale-[1.01] active:scale-[0.97] transition-all"
                   >
                     Sign In
                   </Link>
@@ -139,8 +161,14 @@ export const LandingPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Feature Highlights 3-Card Grid */}
-        <div className="space-y-4 pt-4">
+        {/* Feature Highlights 3-Card Grid with Scroll-Reveal */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-50px' }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
+          className="space-y-4 pt-4"
+        >
           <div className="text-center max-w-xl mx-auto space-y-1">
             <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
               Engineered for Complete ATS & Career Success
@@ -151,52 +179,30 @@ export const LandingPage: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Feature 1 */}
-            <div className="bg-white/85 backdrop-blur-md p-6 sm:p-7 rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-xl hover:border-indigo-300 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between space-y-4">
-              <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shadow-xs border border-indigo-100">
-                <Zap className="w-6 h-6" />
-              </div>
-              <div className="space-y-2">
-                <h3 className="text-base font-bold text-slate-900 tracking-tight">
-                  Instant ATS Score
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                  Scan resumes against 6 deterministic heuristics including verb impact, measurable metrics, and contact integrity.
-                </p>
-              </div>
-            </div>
-
-            {/* Feature 2 */}
-            <div className="bg-white/85 backdrop-blur-md p-6 sm:p-7 rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-xl hover:border-purple-300 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between space-y-4">
-              <div className="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center shadow-xs border border-purple-100">
-                <Sparkles className="w-6 h-6" />
-              </div>
-              <div className="space-y-2">
-                <h3 className="text-base font-bold text-slate-900 tracking-tight">
-                  STAR Bullet Enhancer
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                  Transform passive resume bullet points into high-impact, quantified Situation-Task-Action-Result power statements.
-                </p>
-              </div>
-            </div>
-
-            {/* Feature 3 */}
-            <div className="bg-white/85 backdrop-blur-md p-6 sm:p-7 rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-xl hover:border-emerald-300 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between space-y-4">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shadow-xs border border-emerald-100">
-                <FileDown className="w-6 h-6" />
-              </div>
-              <div className="space-y-2">
-                <h3 className="text-base font-bold text-slate-900 tracking-tight">
-                  Vector PDF Reports
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                  Download executive multi-page audit reports with deterministic score breakdowns and AI recruiter summaries.
-                </p>
-              </div>
-            </div>
+            {features.map((feature, index) => (
+              <motion.div
+                key={feature.title}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.45, delay: index * 0.1, ease: 'easeOut' }}
+                className={`bg-white/85 backdrop-blur-md p-6 sm:p-7 rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between space-y-4 ${feature.colorClasses}`}
+              >
+                <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shadow-xs border border-inherit">
+                  {feature.icon}
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-base font-bold text-slate-900 tracking-tight">
+                    {feature.title}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                    {feature.desc}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
           </div>
-        </div>
+        </motion.div>
 
         {/* Footer Status Pill */}
         <div className="pt-6 border-t border-slate-200/60 flex items-center justify-center space-x-2 text-xs font-medium text-slate-500">

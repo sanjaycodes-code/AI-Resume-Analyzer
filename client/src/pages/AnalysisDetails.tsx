@@ -210,17 +210,21 @@ export const AnalysisDetails: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-6 animate-pulse">
-        <div className="h-32 bg-slate-100 rounded-3xl"></div>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-6">
+        {/* Header Skeleton */}
+        <div className="h-32 skeleton-shimmer rounded-3xl border border-slate-200/80"></div>
+        {/* 3 Top Score Gauges Skeleton */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          <div className="h-36 bg-slate-100 rounded-3xl"></div>
-          <div className="h-36 bg-slate-100 rounded-3xl"></div>
-          <div className="h-36 bg-slate-100 rounded-3xl"></div>
+          <div className="h-44 skeleton-shimmer rounded-3xl border border-slate-200/80"></div>
+          <div className="h-44 skeleton-shimmer rounded-3xl border border-slate-200/80"></div>
+          <div className="h-44 skeleton-shimmer rounded-3xl border border-slate-200/80"></div>
         </div>
-        <div className="h-48 bg-slate-100 rounded-3xl"></div>
+        {/* Breakdown Card Skeleton */}
+        <div className="h-64 skeleton-shimmer rounded-3xl border border-slate-200/80"></div>
+        {/* 2-Column Findings Skeleton */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="h-48 bg-slate-100 rounded-3xl"></div>
-          <div className="h-48 bg-slate-100 rounded-3xl"></div>
+          <div className="h-56 skeleton-shimmer rounded-3xl border border-slate-200/80"></div>
+          <div className="h-56 skeleton-shimmer rounded-3xl border border-slate-200/80"></div>
         </div>
       </div>
     );

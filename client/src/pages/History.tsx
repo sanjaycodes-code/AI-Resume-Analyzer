@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import resumeApi from '../services/api/resumeApi';
 import analysisApi from '../services/api/analysisApi';
 import AnalyzeModal from '../components/AnalyzeModal';
@@ -106,9 +107,13 @@ export const History: React.FC = () => {
 
       {/* Content */}
       {isLoading ? (
-        <div className="py-20 text-center space-y-3">
-          <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="text-sm font-medium text-slate-600">Loading your resumes...</p>
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+          <div className="h-8 skeleton-shimmer rounded-xl w-48 mb-2" />
+          <div className="space-y-3">
+            <div className="h-16 skeleton-shimmer rounded-2xl" />
+            <div className="h-16 skeleton-shimmer rounded-2xl" />
+            <div className="h-16 skeleton-shimmer rounded-2xl" />
+          </div>
         </div>
       ) : resumes.length === 0 ? (
         /* Empty State */
@@ -125,7 +130,7 @@ export const History: React.FC = () => {
           <div className="pt-2">
             <Link
               to="/upload"
-              className="inline-flex items-center px-5 py-2.5 rounded-xl bg-blue-600 text-white font-semibold text-sm hover:bg-blue-700 transition-colors shadow-sm"
+              className="inline-flex items-center px-5 py-2.5 rounded-xl bg-blue-600 text-white font-semibold text-sm hover:bg-blue-700 active:scale-[0.97] transition-all shadow-sm"
             >
               Upload Your First Resume
             </Link>
@@ -156,11 +161,17 @@ export const History: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-slate-100">
-                {resumes.map((item) => {
+                {resumes.map((item, index) => {
                   const latestAnalysis = getLatestAnalysisForResume(item._id);
 
                   return (
-                    <tr key={item._id} className="hover:bg-slate-50/70 transition-colors">
+                    <motion.tr
+                      key={item._id}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.3), ease: 'easeOut' }}
+                      className="hover:bg-slate-50/70 transition-colors"
+                    >
                       {/* Filename & Link */}
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center space-x-3">
@@ -250,7 +261,7 @@ export const History: React.FC = () => {
                           Delete
                         </button>
                       </td>
-                    </tr>
+                    </motion.tr>
                   );
                 })}
               </tbody>

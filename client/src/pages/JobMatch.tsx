@@ -265,7 +265,7 @@ export const JobMatch: React.FC = () => {
             <button
               type="submit"
               disabled={resumes.length === 0}
-              className="w-full py-4 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold text-sm shadow-lg shadow-purple-500/20 hover:from-purple-700 hover:to-indigo-700 transition-all hover:scale-[1.005] disabled:opacity-50"
+              className="w-full py-4 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold text-sm shadow-lg shadow-purple-500/20 hover:from-purple-700 hover:to-indigo-700 active:scale-[0.97] transition-all hover:scale-[1.005] disabled:opacity-50"
             >
               🚀 Match Resume & Run AI Analysis
             </button>
