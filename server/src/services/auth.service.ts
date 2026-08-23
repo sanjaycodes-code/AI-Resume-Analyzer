@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import bcrypt from 'bcrypt';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import { CookieOptions } from 'express';
@@ -10,6 +11,22 @@ export interface TokenPayload extends JwtPayload {
 }
 
 export const AUTH_COOKIE_NAME = 'refreshToken';
+
+/**
+ * Generates a secure random 32-byte hexadecimal token and its SHA-256 hash.
+ */
+export const generateResetToken = (): { rawToken: string; hashedToken: string } => {
+  const rawToken = crypto.randomBytes(32).toString('hex');
+  const hashedToken = crypto.createHash('sha256').update(rawToken).digest('hex');
+  return { rawToken, hashedToken };
+};
+
+/**
+ * Hashes a raw reset token using SHA-256 for secure constant-time database lookup.
+ */
+export const hashResetToken = (rawToken: string): string => {
+  return crypto.createHash('sha256').update(rawToken).digest('hex');
+};
 
 export const hashPassword = async (password: string): Promise<string> => {
   const saltRounds = 12;

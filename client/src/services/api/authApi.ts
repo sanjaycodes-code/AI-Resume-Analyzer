@@ -1,10 +1,13 @@
 import axiosClient from './axiosClient';
 import type {
   AuthResponse,
+  ForgotPasswordData,
+  GenericAuthResponse,
   LoginData,
   MeResponse,
   RefreshResponse,
   RegisterData,
+  ResetPasswordData,
 } from '../../types/auth.types';
 
 export const authApi = {
@@ -15,6 +18,16 @@ export const authApi = {
 
   login: async (data: LoginData): Promise<AuthResponse> => {
     const response = await axiosClient.post<AuthResponse>('/auth/login', data);
+    return response.data;
+  },
+
+  forgotPassword: async (data: ForgotPasswordData): Promise<GenericAuthResponse> => {
+    const response = await axiosClient.post<GenericAuthResponse>('/auth/forgot-password', data);
+    return response.data;
+  },
+
+  resetPassword: async (data: ResetPasswordData): Promise<GenericAuthResponse> => {
+    const response = await axiosClient.post<GenericAuthResponse>('/auth/reset-password', data);
     return response.data;
   },
 

@@ -117,4 +117,44 @@ describe('Authentication Endpoints', () => {
       expect(res.body.data.user.passwordHash).toBeUndefined();
     });
   });
+
+  describe('POST /api/auth/forgot-password & POST /api/auth/reset-password', () => {
+    beforeEach(async () => {
+      await request(app).post('/api/auth/register').send(validUser);
+    });
+
+    it('returns generic success message on forgot-password for existing user and sets hashed token', async () => {
+      const res = await request(app)
+        .post('/api/auth/forgot-password')
+        .send({ email: validUser.email });
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.message).toContain('If an account exists');
+    });
+
+    it('returns same generic success message on forgot-password for non-existing email (prevent enumeration)', async () => {
+      const res = await request(app)
+        .post('/api/auth/forgot-password')
+        .send({ email: 'nonexistent@example.com' });
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.message).toContain('If an account exists');
+    });
+
+    it('rejects invalid or expired reset tokens with 400 Bad Request', async () => {
+      const res = await request(app)
+        .post('/api/auth/reset-password')
+        .send({
+          email: validUser.email,
+          token: 'invalid_raw_token_123',
+          newPassword: 'BrandNewPassword999!',
+        });
+
+      expect(res.status).toBe(400);
+      expect(res.body.success).toBe(false);
+      expect(res.body.code).toBe('INVALID_RESET_TOKEN');
+    });
+  });
 });

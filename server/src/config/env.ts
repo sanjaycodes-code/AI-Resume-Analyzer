@@ -30,6 +30,8 @@ export interface EnvConfig {
   AI_API_KEY?: string;
   GEMINI_MODEL: string;
   DEMO_INVITE_CODE?: string;
+  RESEND_API_KEY?: string;
+  EMAIL_FROM?: string;
 }
 
 const nodeEnv = (process.env.NODE_ENV || 'development') as 'development' | 'production' | 'test';
@@ -95,4 +97,6 @@ export const env: EnvConfig = {
     process.env.DEMO_INVITE_CODE && process.env.DEMO_INVITE_CODE.trim() !== ''
       ? process.env.DEMO_INVITE_CODE.trim()
       : undefined,
+  RESEND_API_KEY: process.env.RESEND_API_KEY,
+  EMAIL_FROM: process.env.EMAIL_FROM || 'AI Resume Analyzer <onboarding@resend.dev>',
 };

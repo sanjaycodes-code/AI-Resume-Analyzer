@@ -7,9 +7,17 @@ import {
   generateRefreshToken,
   verifyRefreshToken,
   getRefreshTokenCookieOptions,
+  generateResetToken,
+  hashResetToken,
   AUTH_COOKIE_NAME,
 } from '../services/auth.service';
-import { registerSchema, loginSchema } from '../validators/auth.validator';
+import { sendPasswordResetEmail } from '../services/email.service';
+import {
+  registerSchema,
+  loginSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
+} from '../validators/auth.validator';
 import { ApiError } from '../utils/apiError';
 import { asyncHandler } from '../utils/asyncHandler';
 import { env } from '../config/env';
@@ -166,5 +174,68 @@ export const me = asyncHandler(async (req: Request, res: Response): Promise<void
     data: {
       user,
     },
+  });
+});
+
+/**
+ * Initiates password reset flow by creating a secure token and sending a reset email.
+ * Returns a uniform generic message to prevent email enumeration.
+ */
+export const forgotPassword = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  const { email } = forgotPasswordSchema.parse(req.body);
+
+  const user = await User.findOne({ email });
+  if (user) {
+    const { rawToken, hashedToken } = generateResetToken();
+
+    // Store hashed token with 15-minute expiration
+    user.passwordResetToken = hashedToken;
+    user.passwordResetExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
+    await user.save();
+
+    const resetUrl = `${env.CLIENT_URL}/reset-password?token=${rawToken}&email=${encodeURIComponent(user.email)}`;
+    await sendPasswordResetEmail(user.email, resetUrl, user.name);
+  }
+
+  // Always return the exact same generic message
+  res.status(200).json({
+    success: true,
+    message: 'If an account exists with that email, a password reset link has been sent.',
+  });
+});
+
+/**
+ * Completes password reset using raw token, email, and new password.
+ */
+export const resetPassword = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  const { email, token, newPassword } = resetPasswordSchema.parse(req.body);
+
+  const user = await User.findOne({ email });
+  if (!user || !user.passwordResetToken || !user.passwordResetExpires) {
+    throw ApiError.badRequest('Invalid or expired password reset token.', 'INVALID_RESET_TOKEN');
+  }
+
+  const providedHash = hashResetToken(token);
+  if (user.passwordResetToken !== providedHash) {
+    throw ApiError.badRequest('Invalid or expired password reset token.', 'INVALID_RESET_TOKEN');
+  }
+
+  if (user.passwordResetExpires.getTime() < Date.now()) {
+    // Clear expired token
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    await user.save();
+    throw ApiError.badRequest('Invalid or expired password reset token.', 'INVALID_RESET_TOKEN');
+  }
+
+  // Hash new password and clear reset fields
+  user.passwordHash = await hashPassword(newPassword);
+  user.passwordResetToken = undefined;
+  user.passwordResetExpires = undefined;
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    message: 'Password reset successful. You can now log in with your new password.',
   });
 });

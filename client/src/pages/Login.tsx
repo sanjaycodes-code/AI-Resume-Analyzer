@@ -17,6 +17,11 @@ export const Login: React.FC = () => {
   });
   const [formErrors, setFormErrors] = useState<{ email?: string; password?: string }>({});
   const [apiError, setApiError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(
+    (location.state as { resetSuccess?: string; message?: string })?.resetSuccess ||
+    (location.state as { resetSuccess?: string; message?: string })?.message ||
+    null
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // If already authenticated, redirect to destination
@@ -52,6 +57,9 @@ export const Login: React.FC = () => {
     }
     if (apiError) {
       setApiError(null);
+    }
+    if (successMessage) {
+      setSuccessMessage(null);
     }
   };
 
@@ -96,6 +104,18 @@ export const Login: React.FC = () => {
             Enter your credentials to access your resume analysis dashboard.
           </p>
         </div>
+
+        {/* Success Alert (e.g. from password reset) */}
+        {successMessage && (
+          <div className="bg-emerald-50 border-l-4 border-emerald-500 p-4 rounded-md animate-in fade-in">
+            <div className="flex items-center">
+              <svg className="w-5 h-5 text-emerald-600 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+              </svg>
+              <p className="text-sm text-emerald-800 font-medium">{successMessage}</p>
+            </div>
+          </div>
+        )}
 
         {/* API Error Alert */}
         {apiError && (
@@ -143,9 +163,17 @@ export const Login: React.FC = () => {
 
             {/* Password Field */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-1">
-                Password
-              </label>
+              <div className="flex items-center justify-between mb-1">
+                <label htmlFor="password" className="block text-sm font-medium text-slate-700">
+                  Password
+                </label>
+                <Link
+                  to="/forgot-password"
+                  className="text-xs font-semibold text-blue-600 hover:text-blue-500 transition-colors"
+                >
+                  Forgot password?
+                </Link>
+              </div>
               <input
                 id="password"
                 name="password"

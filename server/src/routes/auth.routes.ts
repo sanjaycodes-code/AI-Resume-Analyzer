@@ -14,11 +14,22 @@ const registerLimiter = createPersistentRateLimiter({
   keyPrefix: 'auth:register',
 });
 
-// Public routes (Rate limiter is mounted strictly before handler)
+// Persistent Forgot Password Rate Limiter: max 3 requests per IP per hour to prevent email abuse
+const forgotPasswordLimiter = createPersistentRateLimiter({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 3,
+  message: 'Too many password reset requests from this network. Please try again in an hour.',
+  code: 'TOO_MANY_RESET_REQUESTS',
+  keyPrefix: 'auth:forgot-password',
+});
+
+// Public routes (Rate limiters mounted strictly before handlers)
 authRouter.post('/register', registerLimiter, authController.register);
 authRouter.post('/login', authController.login);
 authRouter.post('/refresh', authController.refresh);
 authRouter.post('/logout', authController.logout);
+authRouter.post('/forgot-password', forgotPasswordLimiter, authController.forgotPassword);
+authRouter.post('/reset-password', authController.resetPassword);
 
 // Protected routes
 authRouter.get('/me', requireAuth, authController.me);

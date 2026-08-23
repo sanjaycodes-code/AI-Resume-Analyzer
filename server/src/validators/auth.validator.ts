@@ -33,5 +33,35 @@ export const loginSchema = z
   })
   .strict();
 
+export const forgotPasswordSchema = z
+  .object({
+    email: z
+      .string()
+      .trim()
+      .toLowerCase()
+      .email('Please provide a valid email address'),
+  })
+  .strict();
+
+export const resetPasswordSchema = z
+  .object({
+    email: z
+      .string()
+      .trim()
+      .toLowerCase()
+      .email('Please provide a valid email address'),
+    token: z
+      .string()
+      .trim()
+      .min(1, 'Password reset token is required'),
+    newPassword: z
+      .string()
+      .min(8, 'Password must be at least 8 characters long')
+      .max(128, 'Password cannot exceed 128 characters'),
+  })
+  .strict();
+
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
