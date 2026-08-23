@@ -14,11 +14,11 @@ const registerLimiter = createPersistentRateLimiter({
   keyPrefix: 'auth:register',
 });
 
-// Persistent Forgot Password Rate Limiter: max 3 requests per IP per hour to prevent email abuse
+// Persistent Forgot Password Rate Limiter: max 10 requests per IP per 15 minutes to prevent abuse
 const forgotPasswordLimiter = createPersistentRateLimiter({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  max: 3,
-  message: 'Too many password reset requests from this network. Please try again in an hour.',
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10,
+  message: 'Too many password reset requests from this network. Please try again in 15 minutes.',
   code: 'TOO_MANY_RESET_REQUESTS',
   keyPrefix: 'auth:forgot-password',
 });
