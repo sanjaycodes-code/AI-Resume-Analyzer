@@ -12,7 +12,13 @@ const startServer = async () => {
     console.log(`[Server] Accepting CORS requests from: ${env.CLIENT_URL}`);
     console.log(`[Server] Health check available at: http://localhost:${env.PORT}/api/health`);
     console.log(
-      `[Server] Email Service: RESEND_API_KEY is ${env.RESEND_API_KEY ? 'CONFIGURED (Active)' : 'MISSING (Using Console Fallback)'}`
+      `[Server] Email Service: ${
+        env.SMTP_USER && env.SMTP_PASS
+          ? 'Gmail SMTP (Active — Unlimited Recipients)'
+          : env.RESEND_API_KEY
+          ? 'Resend API (Active)'
+          : 'Console Fallback (Development Mode)'
+      }`
     );
   });
 

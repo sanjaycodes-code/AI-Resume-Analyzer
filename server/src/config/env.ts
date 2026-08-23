@@ -32,6 +32,10 @@ export interface EnvConfig {
   DEMO_INVITE_CODE?: string;
   RESEND_API_KEY?: string;
   EMAIL_FROM?: string;
+  SMTP_USER?: string;
+  SMTP_PASS?: string;
+  SMTP_HOST?: string;
+  SMTP_PORT?: number;
 }
 
 const nodeEnv = (process.env.NODE_ENV || 'development') as 'development' | 'production' | 'test';
@@ -99,4 +103,8 @@ export const env: EnvConfig = {
       : undefined,
   RESEND_API_KEY: process.env.RESEND_API_KEY,
   EMAIL_FROM: process.env.EMAIL_FROM || 'AI Resume Analyzer <onboarding@resend.dev>',
+  SMTP_USER: process.env.SMTP_USER,
+  SMTP_PASS: process.env.SMTP_PASS,
+  SMTP_HOST: process.env.SMTP_HOST || 'smtp.gmail.com',
+  SMTP_PORT: process.env.SMTP_PORT ? Number(process.env.SMTP_PORT) : 465,
 };
