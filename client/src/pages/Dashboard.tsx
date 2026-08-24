@@ -9,6 +9,7 @@ import analysisApi from '../services/api/analysisApi';
 import type { Resume, Analysis } from '../types';
 import { ScoreGauge, getScoreBadgeClasses, SCORE_THRESHOLDS } from '../components/ScoreGauge';
 import { useCountUp } from '../hooks/useCountUp';
+import GlassTiltCard from '../components/GlassTiltCard';
 
 // Register GSAP ScrollTrigger plugin once safely
 gsap.registerPlugin(ScrollTrigger);
@@ -16,31 +17,31 @@ gsap.registerPlugin(ScrollTrigger);
 const getScoreTierCardClasses = (score?: number | null): { cardBg: string; iconBox: string } => {
   if (score === undefined || score === null) {
     return {
-      cardBg: 'bg-white border-slate-200/80 hover:border-slate-300 shadow-sm',
-      iconBox: 'bg-slate-50 text-slate-600 border-slate-200/80 shadow-3xs',
+      cardBg: 'glass-card-slate hover:border-slate-300/90',
+      iconBox: 'bg-white/90 text-slate-600 border-slate-200/80 shadow-3xs',
     };
   }
   if (score >= SCORE_THRESHOLDS.EXCELLENT) {
     return {
-      cardBg: 'bg-emerald-50/50 hover:bg-emerald-50/80 border-emerald-200/60 hover:border-emerald-300/80 shadow-emerald-500/5',
-      iconBox: 'bg-white text-emerald-700 border-emerald-200/80 shadow-3xs',
+      cardBg: 'glass-card-emerald hover:border-emerald-300/90',
+      iconBox: 'bg-white/95 text-emerald-700 border-emerald-200/90 shadow-3xs',
     };
   }
   if (score >= SCORE_THRESHOLDS.GOOD) {
     return {
-      cardBg: 'bg-indigo-50/50 hover:bg-indigo-50/80 border-indigo-200/60 hover:border-indigo-300/80 shadow-indigo-500/5',
-      iconBox: 'bg-white text-indigo-700 border-indigo-200/80 shadow-3xs',
+      cardBg: 'glass-card-indigo hover:border-indigo-300/90',
+      iconBox: 'bg-white/95 text-indigo-700 border-indigo-200/90 shadow-3xs',
     };
   }
   if (score >= SCORE_THRESHOLDS.FAIR) {
     return {
-      cardBg: 'bg-amber-50/50 hover:bg-amber-50/80 border-amber-200/60 hover:border-amber-300/80 shadow-amber-500/5',
-      iconBox: 'bg-white text-amber-700 border-amber-200/80 shadow-3xs',
+      cardBg: 'glass-card-amber hover:border-amber-300/90',
+      iconBox: 'bg-white/95 text-amber-700 border-amber-200/90 shadow-3xs',
     };
   }
   return {
-    cardBg: 'bg-rose-50/50 hover:bg-rose-50/80 border-rose-200/60 hover:border-rose-300/80 shadow-rose-500/5',
-    iconBox: 'bg-white text-rose-700 border-rose-200/80 shadow-3xs',
+    cardBg: 'glass-card-rose hover:border-rose-300/90',
+    iconBox: 'bg-white/95 text-rose-700 border-rose-200/90 shadow-3xs',
   };
 };
 
@@ -273,11 +274,9 @@ export const Dashboard: React.FC = () => {
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
         >
           {/* Latest Overall Score Gauge */}
-          <motion.div
+          <GlassTiltCard
             variants={cardItemVariants}
-            whileHover={{ scale: 1.02, y: -2 }}
-            transition={{ duration: 0.15 }}
-            className={`p-6 rounded-3xl border shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow duration-300 cursor-default ${overallCardTheme.cardBg}`}
+            className={`p-6 rounded-3xl ${overallCardTheme.cardBg}`}
           >
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
@@ -308,14 +307,12 @@ export const Dashboard: React.FC = () => {
             <p className="text-[11px] text-slate-500 mt-1 text-center sm:text-left">
               {latestAnalysis ? 'Weighted AI + ATS composite' : 'Awaiting first analysis'}
             </p>
-          </motion.div>
+          </GlassTiltCard>
 
           {/* Latest ATS Score Gauge */}
-          <motion.div
+          <GlassTiltCard
             variants={cardItemVariants}
-            whileHover={{ scale: 1.02, y: -2 }}
-            transition={{ duration: 0.15 }}
-            className={`p-6 rounded-3xl border shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow duration-300 cursor-default ${atsCardTheme.cardBg}`}
+            className={`p-6 rounded-3xl ${atsCardTheme.cardBg}`}
           >
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
@@ -346,20 +343,18 @@ export const Dashboard: React.FC = () => {
             <p className="text-[11px] text-slate-500 mt-1 text-center sm:text-left">
               {latestAnalysis ? 'Deterministic scan score' : 'Awaiting first analysis'}
             </p>
-          </motion.div>
+          </GlassTiltCard>
 
           {/* Total Resumes (Metric Card with Count-Up) */}
-          <motion.div
+          <GlassTiltCard
             variants={cardItemVariants}
-            whileHover={{ scale: 1.02, y: -2 }}
-            transition={{ duration: 0.15 }}
-            className="bg-slate-50/70 hover:bg-slate-100/80 p-6 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow duration-300 cursor-default"
+            className="glass-card-slate p-6 rounded-3xl"
           >
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 Total Resumes
               </span>
-              <div className="w-8 h-8 rounded-xl bg-white text-slate-700 border border-slate-200/80 flex items-center justify-center shadow-3xs">
+              <div className="w-8 h-8 rounded-xl bg-white/90 text-slate-700 border border-slate-200/80 flex items-center justify-center shadow-3xs">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
@@ -377,20 +372,18 @@ export const Dashboard: React.FC = () => {
             <p className="text-[11px] text-slate-500 mt-1">
               {resumes.length === 1 ? '1 active resume file' : `${resumes.length} active resume files`}
             </p>
-          </motion.div>
+          </GlassTiltCard>
 
           {/* Total Analyses (Metric Card with Count-Up) */}
-          <motion.div
+          <GlassTiltCard
             variants={cardItemVariants}
-            whileHover={{ scale: 1.02, y: -2 }}
-            transition={{ duration: 0.15 }}
-            className="bg-purple-50/50 hover:bg-purple-50/80 p-6 rounded-3xl border border-purple-200/60 shadow-sm shadow-purple-500/5 flex flex-col justify-between hover:shadow-md transition-shadow duration-300 cursor-default"
+            className="glass-card-purple p-6 rounded-3xl"
           >
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 Total Analyses
               </span>
-              <div className="w-8 h-8 rounded-xl bg-white text-purple-700 border border-purple-200/80 flex items-center justify-center shadow-3xs">
+              <div className="w-8 h-8 rounded-xl bg-white/90 text-purple-700 border border-purple-200/80 flex items-center justify-center shadow-3xs">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
@@ -408,7 +401,7 @@ export const Dashboard: React.FC = () => {
             <p className="text-[11px] text-slate-500 mt-1">
               {analyses.length === 1 ? '1 generated report' : `${analyses.length} generated reports`}
             </p>
-          </motion.div>
+          </GlassTiltCard>
         </motion.div>
 
         {/* Main Grid: Recent Analyses + Uploaded Resumes */}
