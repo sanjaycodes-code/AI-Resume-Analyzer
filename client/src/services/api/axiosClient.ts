@@ -23,7 +23,7 @@ export const setOnAuthFailure = (callback: () => void): void => {
 
 export const axiosClient = axios.create({
   baseURL: apiBaseUrl,
-  timeout: 15000, // 15-second client timeout to prevent indefinite hangs
+  timeout: 45000, // 45-second client timeout to accommodate Render free-tier cold starts
   headers: {
     'Content-Type': 'application/json',
   },

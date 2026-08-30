@@ -71,11 +71,20 @@ export const Register: React.FC = () => {
       navigate('/dashboard', { replace: true });
     } catch (error) {
       const axiosError = error as AxiosError<ApiResponse>;
-      const message =
-        axiosError.response?.data?.message ||
-        axiosError.message ||
-        'Registration failed. Please try again.';
-      setApiError(message);
+      if (
+        axiosError.code === 'ECONNABORTED' ||
+        (axiosError.message && axiosError.message.toLowerCase().includes('timeout'))
+      ) {
+        setApiError(
+          'The backend server is waking up from sleep mode (Render cold start). Please wait a few seconds and click Register again!'
+        );
+      } else {
+        const message =
+          axiosError.response?.data?.message ||
+          axiosError.message ||
+          'Registration failed. Please try again.';
+        setApiError(message);
+      }
     } finally {
       setIsSubmitting(false);
     }

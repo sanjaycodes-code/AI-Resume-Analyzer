@@ -75,11 +75,20 @@ export const Login: React.FC = () => {
       navigate(from, { replace: true });
     } catch (error) {
       const axiosError = error as AxiosError<ApiResponse>;
-      const message =
-        axiosError.response?.data?.message ||
-        axiosError.message ||
-        'Failed to log in. Please check your credentials.';
-      setApiError(message);
+      if (
+        axiosError.code === 'ECONNABORTED' ||
+        (axiosError.message && axiosError.message.toLowerCase().includes('timeout'))
+      ) {
+        setApiError(
+          'The backend server is waking up from sleep mode (Render cold start). Please wait a few seconds and click Sign In again!'
+        );
+      } else {
+        const message =
+          axiosError.response?.data?.message ||
+          axiosError.message ||
+          'Failed to log in. Please check your credentials.';
+        setApiError(message);
+      }
     } finally {
       setIsSubmitting(false);
     }
