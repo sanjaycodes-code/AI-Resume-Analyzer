@@ -10,7 +10,8 @@
     "test": "jest --runInBand",
     "start": "node dist/server.js",
     "cleanup:files": "tsx src/scripts/cleanupOrphanedFiles.ts",
-    "check:indexes": "tsx src/scripts/checkIndexes.ts"
+    "check:indexes": "tsx src/scripts/checkIndexes.ts",
+    "list:resumes": "tsx src/scripts/listAllResumes.ts"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
