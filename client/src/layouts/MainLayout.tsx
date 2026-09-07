@@ -9,12 +9,13 @@ interface MainLayoutProps {
 
 export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const location = useLocation();
-  const isLandingPage = location.pathname === '/';
+  const authRoutes = ['/login', '/register', '/forgot-password', '/reset-password'];
+  const isDarkTheme = location.pathname === '/' || authRoutes.some((route) => location.pathname.startsWith(route));
 
   return (
     <div
       className={`min-h-screen flex flex-col ${
-        isLandingPage ? 'bg-[#090d16]' : 'bg-slate-50'
+        isDarkTheme ? 'bg-[#090d16]' : 'bg-slate-50'
       } text-slate-900 overflow-x-hidden w-full max-w-full`}
     >
       <Navbar />
@@ -34,14 +35,14 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       </main>
       <footer
         className={
-          isLandingPage
+          isDarkTheme
             ? 'bg-[#090d16] border-t border-white/10 py-6'
             : 'bg-white border-t border-slate-200 py-6'
         }
       >
         <div
           className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs ${
-            isLandingPage ? 'text-slate-400' : 'text-slate-500'
+            isDarkTheme ? 'text-slate-400' : 'text-slate-500'
           }`}
         >
           &copy; {new Date().getFullYear()} AI Resume Analyzer. Built for intelligent career optimization.

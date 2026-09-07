@@ -95,10 +95,22 @@ export const Login: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 flex flex-col justify-center items-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white p-8 sm:p-10 rounded-2xl shadow-xl border border-slate-100">
+    <div className="flex-1 flex flex-col justify-center items-center py-12 px-4 sm:px-6 lg:px-8 bg-[#090d16] text-white relative overflow-hidden">
+      {/* Subtle Dot Texture Background */}
+      <div
+        className="absolute inset-0 pointer-events-none opacity-20 z-0"
+        style={{
+          backgroundImage:
+            'radial-gradient(rgba(255, 255, 255, 0.25) 1px, transparent 1px)',
+          backgroundSize: '28px 28px',
+        }}
+      />
+      {/* Ambient Glowing Orb */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[380px] h-[380px] rounded-full bg-emerald-500/10 blur-[100px] pointer-events-none -z-0" />
+
+      <div className="relative z-10 max-w-md w-full space-y-8 bg-slate-900/85 backdrop-blur-xl p-8 sm:p-10 rounded-3xl shadow-2xl shadow-black/80 border border-white/15">
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-blue-50 text-blue-600 mb-2">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-2 shadow-sm shadow-emerald-500/10">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
@@ -108,29 +120,29 @@ export const Login: React.FC = () => {
               />
             </svg>
           </div>
-          <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">Welcome back</h2>
-          <p className="text-sm text-slate-600">
+          <h2 className="text-3xl font-extrabold text-white tracking-tight">Welcome back</h2>
+          <p className="text-sm text-slate-400">
             Enter your credentials to access your resume analysis dashboard.
           </p>
         </div>
 
         {/* Success Alert (e.g. from password reset) */}
         {successMessage && (
-          <div className="bg-emerald-50 border-l-4 border-emerald-500 p-4 rounded-md animate-in fade-in">
+          <div className="bg-emerald-950/60 border border-emerald-500/30 p-4 rounded-xl text-emerald-200 animate-in fade-in">
             <div className="flex items-center">
-              <svg className="w-5 h-5 text-emerald-600 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-emerald-400 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
               </svg>
-              <p className="text-sm text-emerald-800 font-medium">{successMessage}</p>
+              <p className="text-sm text-emerald-200 font-medium">{successMessage}</p>
             </div>
           </div>
         )}
 
         {/* API Error Alert */}
         {apiError && (
-          <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-md">
+          <div className="bg-red-950/60 border border-red-500/30 p-4 rounded-xl text-red-200">
             <div className="flex items-center">
-              <svg className="w-5 h-5 text-red-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-red-400 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -138,7 +150,7 @@ export const Login: React.FC = () => {
                   d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                 />
               </svg>
-              <p className="text-sm text-red-700 font-medium">{apiError}</p>
+              <p className="text-sm text-red-200 font-medium">{apiError}</p>
             </div>
           </div>
         )}
@@ -147,7 +159,7 @@ export const Login: React.FC = () => {
           <div className="space-y-4">
             {/* Email Field */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1">
+              <label htmlFor="email" className="block text-sm font-medium text-slate-200 mb-1">
                 Email address
               </label>
               <input
@@ -158,27 +170,27 @@ export const Login: React.FC = () => {
                 value={formData.email}
                 onChange={handleChange}
                 disabled={isSubmitting}
-                className={`w-full px-4 py-2.5 rounded-lg border text-sm text-slate-900 transition-colors focus:outline-none focus:ring-2 ${
+                className={`w-full px-4 py-2.5 rounded-xl border text-sm text-white placeholder-slate-500 bg-slate-950/60 transition-colors focus:outline-none focus:ring-2 ${
                   formErrors.email
-                    ? 'border-red-300 focus:border-red-500 focus:ring-red-200'
-                    : 'border-slate-300 focus:border-blue-500 focus:ring-blue-100'
+                    ? 'border-red-400/80 focus:border-red-400 focus:ring-red-400/20'
+                    : 'border-white/15 focus:border-emerald-400 focus:ring-emerald-400/20'
                 }`}
                 placeholder="you@example.com"
               />
               {formErrors.email && (
-                <p className="mt-1.5 text-xs text-red-600 font-medium">{formErrors.email}</p>
+                <p className="mt-1.5 text-xs text-red-400 font-medium">{formErrors.email}</p>
               )}
             </div>
 
             {/* Password Field */}
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label htmlFor="password" className="block text-sm font-medium text-slate-700">
+                <label htmlFor="password" className="block text-sm font-medium text-slate-200">
                   Password
                 </label>
                 <Link
                   to="/forgot-password"
-                  className="text-xs font-semibold text-blue-600 hover:text-blue-500 transition-colors"
+                  className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 transition-colors"
                 >
                   Forgot password?
                 </Link>
@@ -191,15 +203,15 @@ export const Login: React.FC = () => {
                 value={formData.password}
                 onChange={handleChange}
                 disabled={isSubmitting}
-                className={`w-full px-4 py-2.5 rounded-lg border text-sm text-slate-900 transition-colors focus:outline-none focus:ring-2 ${
+                className={`w-full px-4 py-2.5 rounded-xl border text-sm text-white placeholder-slate-500 bg-slate-950/60 transition-colors focus:outline-none focus:ring-2 ${
                   formErrors.password
-                    ? 'border-red-300 focus:border-red-500 focus:ring-red-200'
-                    : 'border-slate-300 focus:border-blue-500 focus:ring-blue-100'
+                    ? 'border-red-400/80 focus:border-red-400 focus:ring-red-400/20'
+                    : 'border-white/15 focus:border-emerald-400 focus:ring-emerald-400/20'
                 }`}
                 placeholder="••••••••"
               />
               {formErrors.password && (
-                <p className="mt-1.5 text-xs text-red-600 font-medium">{formErrors.password}</p>
+                <p className="mt-1.5 text-xs text-red-400 font-medium">{formErrors.password}</p>
               )}
             </div>
           </div>
@@ -207,12 +219,12 @@ export const Login: React.FC = () => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 active:scale-[0.97] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            className="w-full flex justify-center items-center py-3 px-4 rounded-xl shadow-lg shadow-emerald-500/20 text-sm font-bold text-slate-950 bg-emerald-500 hover:bg-emerald-400 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           >
             {isSubmitting ? (
               <>
                 <svg
-                  className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                  className="animate-spin -ml-1 mr-2 h-4 w-4 text-slate-950"
                   fill="none"
                   viewBox="0 0 24 24"
                 >
@@ -239,12 +251,12 @@ export const Login: React.FC = () => {
         </form>
 
         <div className="text-center pt-2">
-          <p className="text-sm text-slate-600">
+          <p className="text-sm text-slate-400">
             Don't have an account?{' '}
             <Link
               to="/register"
               state={location.state}
-              className="font-semibold text-blue-600 hover:text-blue-500 transition-colors"
+              className="font-semibold text-emerald-400 hover:text-emerald-300 transition-colors"
             >
               Create an account
             </Link>

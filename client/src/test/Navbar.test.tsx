@@ -4,7 +4,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { Navbar } from '../components/Navbar';
 import * as AuthContextModule from '../context/AuthContext';
 
-describe('Navbar Component - Scoped Landing Page Dark Theme vs Standard Pages', () => {
+describe('Navbar Component - Global Dark Theme Across All Pages', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -26,7 +26,7 @@ describe('Navbar Component - Scoped Landing Page Dark Theme vs Standard Pages', 
       </MemoryRouter>
     );
 
-    // Header has landing page dark background
+    // Header has global dark background
     const header = container.querySelector('header');
     expect(header?.className).toContain('bg-[#090d16]');
 
@@ -37,7 +37,7 @@ describe('Navbar Component - Scoped Landing Page Dark Theme vs Standard Pages', 
     expect(screen.queryByRole('link', { name: /get started/i })).not.toBeInTheDocument();
   });
 
-  it('renders standard light styling and includes "Get Started" button on other pages (e.g. "/login")', () => {
+  it('renders global dark styling and includes "Get Started" button on other pages (e.g. "/login")', () => {
     vi.spyOn(AuthContextModule, 'useAuth').mockReturnValue({
       user: null,
       accessToken: null,
@@ -54,16 +54,18 @@ describe('Navbar Component - Scoped Landing Page Dark Theme vs Standard Pages', 
       </MemoryRouter>
     );
 
-    // Header has standard light background
+    // Header has global dark background
     const header = container.querySelector('header');
-    expect(header?.className).toContain('bg-[#F8FAFE]');
+    expect(header?.className).toContain('bg-[#090d16]');
 
     // Contains BOTH Log In and Get Started
     expect(screen.getByRole('link', { name: /log in/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /get started/i })).toBeInTheDocument();
+    const getStartedLink = screen.getByRole('link', { name: /get started/i });
+    expect(getStartedLink).toBeInTheDocument();
+    expect(getStartedLink.className).toContain('bg-emerald-500');
   });
 
-  it('renders standard light styling for authenticated users on "/dashboard"', () => {
+  it('renders global dark styling and emerald active state for authenticated users on "/dashboard"', () => {
     vi.spyOn(AuthContextModule, 'useAuth').mockReturnValue({
       user: { _id: '1', name: 'John Doe', email: 'john@example.com' },
       accessToken: 'token-xyz',
@@ -81,8 +83,13 @@ describe('Navbar Component - Scoped Landing Page Dark Theme vs Standard Pages', 
     );
 
     const header = container.querySelector('header');
-    expect(header?.className).toContain('bg-[#F8FAFE]');
+    expect(header?.className).toContain('bg-[#090d16]');
     expect(screen.getByText('John Doe')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /log out/i })).toBeInTheDocument();
+
+    // Dashboard link has emerald active indicator
+    const dashboardLink = screen.getByRole('link', { name: /dashboard/i });
+    expect(dashboardLink.className).toContain('text-emerald-400');
+    expect(dashboardLink.className).toContain('bg-emerald-500/15');
   });
 });

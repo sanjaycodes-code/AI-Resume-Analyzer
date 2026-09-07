@@ -62,11 +62,23 @@ export const ForgotPassword: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 flex flex-col justify-center items-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white p-8 sm:p-10 rounded-2xl shadow-xl border border-slate-100">
+    <div className="flex-1 flex flex-col justify-center items-center py-12 px-4 sm:px-6 lg:px-8 bg-[#090d16] text-white relative overflow-hidden">
+      {/* Subtle Dot Texture Background */}
+      <div
+        className="absolute inset-0 pointer-events-none opacity-20 z-0"
+        style={{
+          backgroundImage:
+            'radial-gradient(rgba(255, 255, 255, 0.25) 1px, transparent 1px)',
+          backgroundSize: '28px 28px',
+        }}
+      />
+      {/* Ambient Glowing Orb */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[380px] h-[380px] rounded-full bg-emerald-500/10 blur-[100px] pointer-events-none -z-0" />
+
+      <div className="relative z-10 max-w-md w-full space-y-8 bg-slate-900/85 backdrop-blur-xl p-8 sm:p-10 rounded-3xl shadow-2xl shadow-black/80 border border-white/15">
         {isSubmitted ? (
           <div className="text-center space-y-6 animate-in fade-in">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-600 mb-2 ring-8 ring-emerald-50/50">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-2 ring-8 ring-emerald-500/5 shadow-sm shadow-emerald-500/10">
               <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
@@ -77,14 +89,14 @@ export const ForgotPassword: React.FC = () => {
               </svg>
             </div>
             <div>
-              <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">Check your email</h2>
-              <p className="mt-2 text-sm text-slate-600 leading-relaxed">
+              <h2 className="text-2xl font-extrabold text-white tracking-tight">Check your email</h2>
+              <p className="mt-2 text-sm text-slate-300 leading-relaxed">
                 {responseMessage}
               </p>
-              <div className="mt-4 p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl text-xs text-slate-500 text-left space-y-1">
-                <p className="font-semibold text-slate-700">Next steps:</p>
-                <p>1. Open the reset link sent to <strong>{email}</strong>.</p>
-                <p>2. Choose your new password within <strong>15 minutes</strong>.</p>
+              <div className="mt-4 p-4 bg-slate-950/60 border border-white/10 rounded-2xl text-xs text-slate-400 text-left space-y-1.5">
+                <p className="font-semibold text-slate-200">Next steps:</p>
+                <p>1. Open the reset link sent to <strong className="text-emerald-400 font-semibold">{email}</strong>.</p>
+                <p>2. Choose your new password within <strong className="text-slate-200 font-semibold">15 minutes</strong>.</p>
                 <p>3. If you don't see the email, check your spam or junk folder.</p>
               </div>
             </div>
@@ -96,13 +108,13 @@ export const ForgotPassword: React.FC = () => {
                   setIsSubmitted(false);
                   setEmail('');
                 }}
-                className="w-full py-2.5 px-4 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+                className="w-full py-2.5 px-4 border border-white/15 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition-colors"
               >
                 Send to a different email
               </button>
               <Link
                 to="/login"
-                className="w-full py-2.5 px-4 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors text-center"
+                className="w-full py-2.5 px-4 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl text-xs font-bold transition-colors text-center shadow-lg shadow-emerald-500/20"
               >
                 Back to Sign In
               </Link>
@@ -111,7 +123,7 @@ export const ForgotPassword: React.FC = () => {
         ) : (
           <>
             <div className="text-center space-y-2">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-blue-50 text-blue-600 mb-2">
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-2 shadow-sm shadow-emerald-500/10">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
@@ -121,17 +133,17 @@ export const ForgotPassword: React.FC = () => {
                   />
                 </svg>
               </div>
-              <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">Forgot password?</h2>
-              <p className="text-sm text-slate-600">
+              <h2 className="text-3xl font-extrabold text-white tracking-tight">Forgot password?</h2>
+              <p className="text-sm text-slate-400">
                 No worries! Enter your account email and we'll send you instructions to reset your password.
               </p>
             </div>
 
             {/* API Error Alert */}
             {apiError && (
-              <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-md">
+              <div className="bg-red-950/60 border border-red-500/30 p-4 rounded-xl text-red-200">
                 <div className="flex items-center">
-                  <svg className="w-5 h-5 text-red-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-red-400 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -139,14 +151,14 @@ export const ForgotPassword: React.FC = () => {
                       d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                     />
                   </svg>
-                  <p className="text-sm text-red-700 font-medium">{apiError}</p>
+                  <p className="text-sm text-red-200 font-medium">{apiError}</p>
                 </div>
               </div>
             )}
 
             <form className="mt-8 space-y-6" onSubmit={handleSubmit} noValidate>
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1">
+                <label htmlFor="email" className="block text-sm font-medium text-slate-200 mb-1">
                   Email address
                 </label>
                 <input
@@ -157,27 +169,27 @@ export const ForgotPassword: React.FC = () => {
                   value={email}
                   onChange={handleChange}
                   disabled={isSubmitting}
-                  className={`w-full px-4 py-2.5 rounded-lg border text-sm text-slate-900 transition-colors focus:outline-none focus:ring-2 ${
+                  className={`w-full px-4 py-2.5 rounded-xl border text-sm text-white placeholder-slate-500 bg-slate-950/60 transition-colors focus:outline-none focus:ring-2 ${
                     emailError
-                      ? 'border-red-300 focus:border-red-500 focus:ring-red-200'
-                      : 'border-slate-300 focus:border-blue-500 focus:ring-blue-100'
+                      ? 'border-red-400/80 focus:border-red-400 focus:ring-red-400/20'
+                      : 'border-white/15 focus:border-emerald-400 focus:ring-emerald-400/20'
                   }`}
                   placeholder="you@example.com"
                 />
                 {emailError && (
-                  <p className="mt-1.5 text-xs text-red-600 font-medium">{emailError}</p>
+                  <p className="mt-1.5 text-xs text-red-400 font-medium">{emailError}</p>
                 )}
               </div>
 
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 active:scale-[0.97] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                className="w-full flex justify-center items-center py-3 px-4 rounded-xl shadow-lg shadow-emerald-500/20 text-sm font-bold text-slate-950 bg-emerald-500 hover:bg-emerald-400 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
                 {isSubmitting ? (
                   <>
                     <svg
-                      className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                      className="animate-spin -ml-1 mr-2 h-4 w-4 text-slate-950"
                       fill="none"
                       viewBox="0 0 24 24"
                     >
@@ -204,11 +216,11 @@ export const ForgotPassword: React.FC = () => {
             </form>
 
             <div className="text-center pt-2">
-              <p className="text-sm text-slate-600">
+              <p className="text-sm text-slate-400">
                 Remembered your password?{' '}
                 <Link
                   to="/login"
-                  className="font-semibold text-blue-600 hover:text-blue-500 transition-colors"
+                  className="font-semibold text-emerald-400 hover:text-emerald-300 transition-colors"
                 >
                   Sign in
                 </Link>

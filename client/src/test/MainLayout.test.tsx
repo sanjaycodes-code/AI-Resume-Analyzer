@@ -4,7 +4,7 @@ import { MemoryRouter } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import * as AuthContextModule from '../context/AuthContext';
 
-describe('MainLayout Component - Footer Dark Theme Isolation', () => {
+describe('MainLayout Component - Theme Isolation (Landing & Auth Dark, App Pages Light)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.spyOn(AuthContextModule, 'useAuth').mockReturnValue({
@@ -42,7 +42,7 @@ describe('MainLayout Component - Footer Dark Theme Isolation', () => {
     ).toBeInTheDocument();
   });
 
-  it('renders standard light footer on non-landing pages (e.g. "/login")', () => {
+  it('renders dark themed footer and dark container on auth pages (e.g. "/login")', () => {
     const { container } = render(
       <MemoryRouter initialEntries={['/login']}>
         <MainLayout>
@@ -53,20 +53,20 @@ describe('MainLayout Component - Footer Dark Theme Isolation', () => {
 
     const footer = container.querySelector('footer');
     expect(footer).toBeInTheDocument();
-    expect(footer?.className).toContain('bg-white');
-    expect(footer?.className).toContain('border-slate-200');
-    expect(footer?.className).not.toContain('bg-[#090d16]');
+    expect(footer?.className).toContain('bg-[#090d16]');
+    expect(footer?.className).toContain('border-white/10');
+    expect(footer?.className).not.toContain('bg-white');
 
     const textDiv = footer?.querySelector('div');
-    expect(textDiv?.className).toContain('text-slate-500');
-    expect(textDiv?.className).not.toContain('text-slate-400');
+    expect(textDiv?.className).toContain('text-slate-400');
+    expect(textDiv?.className).not.toContain('text-slate-500');
 
     expect(
       screen.getByText(/AI Resume Analyzer\. Built for intelligent career optimization\./i)
     ).toBeInTheDocument();
   });
 
-  it('renders standard light footer for authenticated dashboard route ("/dashboard")', () => {
+  it('renders standard light footer and light container for authenticated dashboard route ("/dashboard")', () => {
     vi.spyOn(AuthContextModule, 'useAuth').mockReturnValue({
       user: { _id: '1', name: 'John Doe', email: 'john@example.com' },
       accessToken: 'token-xyz',

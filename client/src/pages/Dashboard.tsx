@@ -542,14 +542,14 @@ export const Dashboard: React.FC = () => {
                   >
                     <div className="flex items-center space-x-3 truncate mr-2 min-w-0">
                       <div className="w-10 h-10 rounded-xl bg-white text-indigo-700 font-bold text-xs flex items-center justify-center flex-shrink-0 border border-indigo-200/80 shadow-3xs">
-                        {item.fileType.toUpperCase()}
+                        {(item.fileType || 'pdf').toUpperCase()}
                       </div>
                       <div className="truncate min-w-0">
                         <Link
                           to={`/resumes/${item._id}`}
                           className="text-xs font-bold text-slate-900 hover:text-blue-600 transition-colors truncate block"
                         >
-                          {item.originalFileName}
+                          {item.originalFileName || 'Resume'}
                         </Link>
                         <p className="text-[11px] text-slate-500 truncate">
                           {item.parsedSections?.skills?.length || 0} skills &middot; {new Date(item.createdAt).toLocaleDateString()}
