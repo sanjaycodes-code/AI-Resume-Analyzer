@@ -256,7 +256,7 @@ export const LandingPage: React.FC = () => {
             {/* Static rotation: -6deg (No mouse tracking) */}
             {/* ------------------------------------------------------------- */}
             <div
-              className="absolute -top-4 sm:-top-6 left-0 sm:left-6 z-30 bg-slate-900/85 backdrop-blur-xl border border-white/10 p-4 rounded-2xl shadow-xl shadow-black/60 max-w-[210px] transform -rotate-6 hidden xs:flex flex-col gap-2"
+              className="absolute top-2 sm:top-4 left-0 sm:left-2 z-30 bg-slate-900/85 backdrop-blur-xl border border-white/10 p-4 rounded-2xl shadow-xl shadow-black/60 max-w-[210px] transform -rotate-6 hidden sm:flex flex-col gap-2"
             >
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
@@ -277,7 +277,7 @@ export const LandingPage: React.FC = () => {
             {/* Static rotation: +5deg (No mouse tracking) */}
             {/* ------------------------------------------------------------- */}
             <div
-              className="absolute -top-2 sm:-top-4 right-0 sm:right-6 z-30 bg-slate-900/85 backdrop-blur-xl border border-emerald-500/25 p-4 rounded-2xl shadow-xl shadow-black/60 max-w-[250px] transform rotate-6 hidden sm:flex flex-col gap-2"
+              className="absolute top-2 sm:top-4 right-0 sm:right-2 z-30 bg-slate-900/85 backdrop-blur-xl border border-emerald-500/25 p-4 rounded-2xl shadow-xl shadow-black/60 max-w-[250px] transform rotate-6 hidden sm:flex flex-col gap-2"
             >
               <div className="flex items-center justify-between text-xs border-b border-white/10 pb-2">
                 <span className="font-bold text-white flex items-center gap-1.5">
@@ -299,7 +299,7 @@ export const LandingPage: React.FC = () => {
             {/* Static rotation: +4deg (No mouse tracking) */}
             {/* ------------------------------------------------------------- */}
             <div
-              className="absolute bottom-2 sm:bottom-4 left-2 sm:left-12 z-30 bg-slate-900/85 backdrop-blur-xl border border-white/10 px-4 py-3 rounded-2xl shadow-xl shadow-black/60 transform rotate-3 hidden md:flex items-center gap-3"
+              className="absolute bottom-4 sm:bottom-6 left-0 sm:left-4 z-30 bg-slate-900/85 backdrop-blur-xl border border-white/10 px-4 py-3 rounded-2xl shadow-xl shadow-black/60 transform rotate-3 hidden md:flex items-center gap-3"
             >
               <div className="w-8 h-8 rounded-xl bg-teal-500/15 border border-teal-500/30 flex items-center justify-center text-teal-400">
                 <Target className="w-4 h-4" />
@@ -325,7 +325,7 @@ export const LandingPage: React.FC = () => {
             {/* Static rotation: -4deg (No mouse tracking) */}
             {/* ------------------------------------------------------------- */}
             <div
-              className="absolute bottom-2 sm:bottom-4 right-2 sm:right-12 z-30 bg-slate-900/85 backdrop-blur-xl border border-white/10 px-4 py-3 rounded-2xl shadow-xl shadow-black/60 transform -rotate-3 hidden md:flex items-center gap-3"
+              className="absolute bottom-4 sm:bottom-6 right-0 sm:right-4 z-30 bg-slate-900/85 backdrop-blur-xl border border-white/10 px-4 py-3 rounded-2xl shadow-xl shadow-black/60 transform -rotate-3 hidden md:flex items-center gap-3"
             >
               <div className="w-8 h-8 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
                 <FileText className="w-4 h-4" />
