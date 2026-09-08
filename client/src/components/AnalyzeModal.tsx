@@ -69,10 +69,18 @@ export const AnalyzeModal: React.FC<AnalyzeModalProps> = ({
       }
     } catch (err) {
       const axiosError = err as AxiosError<ApiResponse>;
-      const message =
+      let message =
         axiosError.response?.data?.message ||
         axiosError.message ||
-        'Failed to generate AI analysis. Please check your Gemini API key and try again.';
+        'Failed to generate AI analysis. Please check your connection and try again.';
+
+      if (
+        axiosError.code === 'ECONNABORTED' ||
+        axiosError.message?.toLowerCase().includes('timeout')
+      ) {
+        message =
+          'The server took longer than expected to finish analyzing (Render cold start + AI evaluation). Your analysis may already have completed in the background — click "Start AI Analysis" again to retrieve it instantly!';
+      }
       setErrorMessage(message);
       setIsAnalyzing(false);
     }

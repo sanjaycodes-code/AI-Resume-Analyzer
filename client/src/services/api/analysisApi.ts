@@ -11,7 +11,9 @@ import type {
 
 export const analysisApi = {
   createAnalysis: async (data: CreateAnalysisInput): Promise<AnalysisResponse> => {
-    const response = await axiosClient.post<AnalysisResponse>('/analysis', data);
+    const response = await axiosClient.post<AnalysisResponse>('/analysis', data, {
+      timeout: 120000, // 2-minute dedicated timeout to accommodate Render cold start + Gemini generation
+    });
     return response.data;
   },
 

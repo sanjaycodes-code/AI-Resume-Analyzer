@@ -100,10 +100,18 @@ export const JobMatch: React.FC = () => {
       }
     } catch (err) {
       const axiosError = err as AxiosError<ApiResponse>;
-      const msg =
+      let msg =
         axiosError.response?.data?.message ||
         axiosError.message ||
         'AI job match analysis failed. Please try again.';
+
+      if (
+        axiosError.code === 'ECONNABORTED' ||
+        axiosError.message?.toLowerCase().includes('timeout')
+      ) {
+        msg =
+          'The server took longer than expected to process your job match (Render cold start + AI evaluation). Your analysis may already have completed in the background — click "Analyze Match with AI" again to retrieve it!';
+      }
       setErrorMessage(msg);
       setIsAnalyzing(false);
     }

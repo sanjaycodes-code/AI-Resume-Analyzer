@@ -13,11 +13,17 @@ export const enhancerApi = {
     originalText: string,
     targetRole?: string
   ): Promise<ApiResponse<EnhanceBulletResult>> => {
-    const response = await axiosClient.post<ApiResponse<EnhanceBulletResult>>('/analysis/enhance-bullet', {
-      analysisId,
-      originalText,
-      targetRole: targetRole?.trim() || undefined,
-    });
+    const response = await axiosClient.post<ApiResponse<EnhanceBulletResult>>(
+      '/analysis/enhance-bullet',
+      {
+        analysisId,
+        originalText,
+        targetRole: targetRole?.trim() || undefined,
+      },
+      {
+        timeout: 90000, // 90-second timeout for AI bullet rewriting
+      }
+    );
     return response.data;
   },
 };
