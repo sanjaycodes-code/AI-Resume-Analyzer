@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+import statsApi from '../services/api/statsApi';
 import {
   Zap,
   Sparkles,
@@ -15,6 +16,26 @@ import {
 
 export const LandingPage: React.FC = () => {
   const { isAuthenticated } = useAuth();
+  const [analyzedCount, setAnalyzedCount] = useState<number>(22);
+
+  useEffect(() => {
+    let isMounted = true;
+    statsApi
+      .getPublicStats()
+      .then((data) => {
+        if (isMounted && data) {
+          const realCount = data.totalAnalyses || data.totalResumes || 22;
+          setAnalyzedCount(realCount);
+        }
+      })
+      .catch(() => {
+        // Fallback remains at real baseline if server is offline or waking up
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const features = [
     {
@@ -252,7 +273,7 @@ export const LandingPage: React.FC = () => {
             </div>
 
             {/* ------------------------------------------------------------- */}
-            {/* Card 2: Floating Top-Left - Resumes Analyzed Stat Card */}
+            {/* Card 2: Floating Top-Left - Real Resumes Analyzed Stat Card */}
             {/* Static rotation: -6deg (No mouse tracking) */}
             {/* ------------------------------------------------------------- */}
             <div
@@ -263,12 +284,11 @@ export const LandingPage: React.FC = () => {
                   <TrendingUp className="w-4 h-4" />
                 </div>
                 <div>
-                  <div className="text-base font-extrabold text-white leading-tight">2,400+</div>
-                  <div className="text-[11px] text-slate-200 font-medium">Resumes Audited</div>
+                  <div className="text-base font-extrabold text-white leading-tight">
+                    {analyzedCount}
+                  </div>
+                  <div className="text-[11px] text-slate-200 font-medium">Resumes Analyzed</div>
                 </div>
-              </div>
-              <div className="text-[10px] font-bold text-emerald-300 bg-emerald-500/15 px-2 py-0.5 rounded-md self-start border border-emerald-400/30">
-                +38% Recruiter Response
               </div>
             </div>
 
@@ -297,7 +317,7 @@ export const LandingPage: React.FC = () => {
             </div>
 
             {/* ------------------------------------------------------------- */}
-            {/* Card 4: Floating Bottom-Left - Keyword Match Pill */}
+            {/* Card 4: Floating Bottom-Left - Keyword Match Pill (Sample) */}
             {/* Static rotation: +4deg (No mouse tracking) */}
             {/* ------------------------------------------------------------- */}
             <div
@@ -307,7 +327,12 @@ export const LandingPage: React.FC = () => {
                 <Target className="w-4 h-4" />
               </div>
               <div>
-                <div className="text-xs font-bold text-white">Target Skills: 96% Match</div>
+                <div className="flex items-center gap-2">
+                  <div className="text-xs font-bold text-white">Target Skills: 96% Match</div>
+                  <span className="text-[9px] font-extrabold uppercase tracking-wider text-teal-300 bg-teal-500/20 px-1.5 py-0.5 rounded border border-teal-400/30">
+                    Sample
+                  </span>
+                </div>
                 <div className="flex gap-1.5 mt-1">
                   <span className="text-[10px] font-bold text-emerald-200 bg-emerald-500/20 border border-emerald-400/30 px-1.5 py-0.5 rounded">
                     React
@@ -334,7 +359,7 @@ export const LandingPage: React.FC = () => {
               </div>
               <div>
                 <div className="text-xs font-bold text-white">Vector PDF Export</div>
-                <div className="text-[11px] text-slate-200 font-medium">Lightweight • Streamed in 0.2s</div>
+                <div className="text-[11px] text-slate-200 font-medium">Lightweight • Node.js Streamed</div>
               </div>
             </div>
           </div>

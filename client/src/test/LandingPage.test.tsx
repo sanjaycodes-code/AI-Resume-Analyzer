@@ -96,7 +96,11 @@ describe('LandingPage Component - Dark Hero & Floating Cards', () => {
 
     expect(screen.getByText(/ATS Audit Preview/i)).toBeInTheDocument();
     expect(screen.getByText('88')).toBeInTheDocument();
-    expect(screen.getByText(/2,400\+/i)).toBeInTheDocument();
+    expect(screen.getByText(/Resumes Analyzed/i)).toBeInTheDocument();
+    expect(screen.getByText(/Sample Result/i)).toBeInTheDocument();
+    expect(screen.getByText('Sample')).toBeInTheDocument();
+    expect(screen.queryByText(/\+38% Recruiter Response/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/0\.2s/i)).not.toBeInTheDocument();
     expect(screen.getByText(/STAR AI Rewrite/i)).toBeInTheDocument();
     expect(screen.getByText(/Target Skills: 96% Match/i)).toBeInTheDocument();
     expect(screen.getAllByText(/Vector PDF Export/i).length).toBeGreaterThan(0);
